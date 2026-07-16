@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sandalwood & Leather — LOOMOS</title>
+<meta name="description" content="Sandalwood & Leather — hluboká, mystická a dřevitá sójová svíčka s dřevěným knotem. Ručně vyráběno na Moravě." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕯️</text></svg>" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body class="bg-primary text-ink font-sans antialiased selection:bg-gold selection:text-primary">
+
+<!-- ================= NAVBAR ================= -->
+<header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b border-transparent scrolled">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
+    <a href="../index.html" class="font-serif text-2xl tracking-[0.2em] text-ink">
+      LOOM<span class="text-gold">O</span>S
+    </a>
+
+    <nav class="hidden md:flex items-center gap-10 text-sm tracking-widest uppercase text-ink/80">
+      <a href="../index.html#filozofie" class="nav-link">Filozofie</a>
+      <a href="../obchod.html" class="nav-link text-gold">Obchod</a>
+      <a href="../index.html#pro-firmy" class="nav-link">Pro firmy</a>
+      <a href="../index.html#kontakt" class="nav-link">Kontakt</a>
+    </nav>
+
+    <div class="flex items-center gap-5">
+      <button id="cartBtn" aria-label="Košík" class="relative text-ink/90 hover:text-gold transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3.6-8H5.4M7 13L5.4 5M7 13l-1.4 6h13.8M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+        </svg>
+        <span id="cartCount" class="absolute -top-2 -right-2 bg-gold text-primary text-[10px] font-semibold rounded-full w-4 h-4 flex items-center justify-center opacity-0 scale-0 transition-all duration-300">0</span>
+      </button>
+
+      <button id="menuBtn" aria-label="Menu" class="md:hidden text-ink">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-white/5 px-6 py-6 gap-6 text-center">
+    <a href="../index.html#filozofie" class="nav-link-mobile">Filozofie</a>
+    <a href="../obchod.html" class="nav-link-mobile">Obchod</a>
+    <a href="../index.html#pro-firmy" class="nav-link-mobile">Pro firmy</a>
+    <a href="../index.html#kontakt" class="nav-link-mobile">Kontakt</a>
+  </div>
+</header>
+
+<!-- ================= PRODUCT DETAIL ================= -->
+<section class="relative pt-36 pb-28 md:pt-44 md:pb-36 px-6">
+  <div class="max-w-6xl mx-auto">
+
+    <p class="breadcrumb uppercase tracking-[0.3em] text-xs text-ink/40 mb-10 reveal">
+      <a href="../index.html" class="text-ink/40">Domů</a> /
+      <a href="../obchod.html" class="text-ink/40">Obchod</a> /
+      <span class="text-ink/70">Sandalwood & Leather</span>
+    </p>
+
+    <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-start" data-id="sandalwood-leather" data-name="Sandalwood & Leather" data-price="450">
+
+      <!-- Visual -->
+      <div class="product-detail-visual reveal">
+        <div class="candle-glow candle-glow--sandal"></div>
+        <svg viewBox="0 0 120 160" class="candle-svg">
+          <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
+          <rect x="26" y="46" width="68" height="98" rx="6" fill="#1e1a16" stroke="#B8860B" stroke-width="1"/>
+          <rect x="26" y="46" width="68" height="20" rx="6" fill="#2b241d"/>
+          <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
+          <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
+          <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGradDetail)"/>
+          <defs>
+            <linearGradient id="flameGradDetail" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ffdf9e"/>
+              <stop offset="60%" stop-color="#C5A059"/>
+              <stop offset="100%" stop-color="#8a5a1e"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Info -->
+      <div class="reveal" style="transition-delay:120ms">
+        <h1 class="font-serif text-4xl md:text-5xl mb-3">Sandalwood & Leather</h1>
+        <p class="font-display italic text-xl text-gold/90 mb-6">Hluboká, mystická a dřevitá vůně, která zútulní každý prostor.</p>
+        <p class="font-serif text-2xl text-gold mb-8">450 Kč</p>
+
+        <p class="text-ink/60 leading-relaxed mb-8 max-w-md">
+          Sandalwood & Leather je nejhlubší vůní naší kolekce — santalové dřevo a jemná kůže
+          vytváří temný, smyslný základ, který otevírá bergamot a špetka černého pepře.
+          Pačuli a ambra na dně kompozice dodávají svíčce téměř meditativní, mystický nádech.
+        </p>
+
+        <div class="flex flex-wrap gap-2 mb-8">
+          <span class="notes-tag">Top: Bergamot, Černý pepř</span>
+          <span class="notes-tag">Heart: Santalové dřevo, Kůže</span>
+          <span class="notes-tag">Base: Pačuli, Ambra</span>
+        </div>
+
+        <div class="mb-8">
+          <div class="spec-row"><span class="text-ink/50">Doba hoření</span><span>~55 hodin</span></div>
+          <div class="spec-row"><span class="text-ink/50">Objem / hmotnost</span><span>250 ml / 270 g</span></div>
+          <div class="spec-row"><span class="text-ink/50">Vosk</span><span>100% sójový</span></div>
+          <div class="spec-row"><span class="text-ink/50">Knot</span><span>Dřevěný, praskající</span></div>
+          <div class="spec-row"><span class="text-ink/50">Výroba</span><span>Ručně, na Moravě</span></div>
+        </div>
+
+        <div class="flex items-center gap-4 mb-6">
+          <div class="qty-stepper" data-qty="1">
+            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
+            <span class="qty-value">1</span>
+            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+          </div>
+          <button type="button" class="btn-gold-solid flex-1 btn-add-cart">Do košíku</button>
+        </div>
+
+        <a href="../obchod.html" class="text-sm text-ink/50 hover:text-gold transition-colors duration-300">← Zpět do obchodu</a>
+      </div>
+    </div>
+
+    <!-- Cross-sell -->
+    <div class="mt-24 md:mt-32 reveal">
+      <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-6 text-center">Další vůně</p>
+      <div class="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <a href="amber-tobacco.html" class="crosssell-card">
+          <div class="product-visual">
+            <div class="candle-glow candle-glow--amber"></div>
+            <svg viewBox="0 0 120 160" class="candle-svg">
+              <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
+              <rect x="26" y="46" width="68" height="98" rx="6" fill="#3a2a1c" stroke="#B8860B" stroke-width="1"/>
+              <rect x="26" y="46" width="68" height="20" rx="6" fill="#4a3524"/>
+              <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
+              <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
+              <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="#C5A059"/>
+            </svg>
+          </div>
+          <div class="p-5 text-center">
+            <h3 class="font-serif text-lg">Amber & Tobacco</h3>
+            <p class="text-gold text-sm mt-1">390 Kč</p>
+          </div>
+        </a>
+        <a href="fig-wild-berry.html" class="crosssell-card">
+          <div class="product-visual">
+            <div class="candle-glow candle-glow--berry"></div>
+            <svg viewBox="0 0 120 160" class="candle-svg">
+              <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
+              <rect x="26" y="46" width="68" height="98" rx="6" fill="#2c2430" stroke="#B8860B" stroke-width="1"/>
+              <rect x="26" y="46" width="68" height="20" rx="6" fill="#3a2f3e"/>
+              <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
+              <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
+              <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="#C5A059"/>
+            </svg>
+          </div>
+          <div class="p-5 text-center">
+            <h3 class="font-serif text-lg">Fig & Wild Berry</h3>
+            <p class="text-gold text-sm mt-1">390 Kč</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="border-t border-white/10 py-12 px-6">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+    <div>
+      <p class="font-serif text-xl tracking-[0.2em]">LOOM<span class="text-gold">O</span>S</p>
+      <p class="text-ink/40 text-xs mt-1">Světlo, které tvoří domov.</p>
+    </div>
+    <nav class="flex flex-wrap gap-6 text-xs uppercase tracking-widest text-ink/50">
+      <a href="../index.html#filozofie" class="hover:text-gold transition-colors duration-300">Filozofie</a>
+      <a href="../obchod.html" class="hover:text-gold transition-colors duration-300">Obchod</a>
+      <a href="../index.html#pro-firmy" class="hover:text-gold transition-colors duration-300">Pro firmy</a>
+      <a href="../index.html#kontakt" class="hover:text-gold transition-colors duration-300">Kontakt</a>
+    </nav>
+    <p class="text-ink/40 text-xs">© <span id="year"></span> LOOMOS. Ručně vyráběno na Moravě.</p>
+  </div>
+</footer>
+
+<!-- ================= TOAST ================= -->
+<div id="toast" class="fixed bottom-8 right-8 z-[110] translate-y-24 opacity-0 transition-all duration-500 pointer-events-none">
+  <div class="bg-muted border border-gold/30 text-ink px-6 py-4 rounded-lg shadow-gold flex items-center gap-3">
+    <span class="text-gold text-lg">✦</span>
+    <span id="toastText" class="text-sm">Přidáno do košíku</span>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

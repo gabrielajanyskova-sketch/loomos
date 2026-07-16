@@ -279,6 +279,110 @@ body {
 .candle-glow--berry { background: rgba(150, 90, 130, 0.3); }
 .candle-glow--sandal { background: rgba(184, 134, 11, 0.3); }
 
+.product-visual-link {
+  display: block;
+}
+
+/* ===================== QUANTITY STEPPER ===================== */
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  border-radius: 2px;
+}
+.qty-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #EAEAEA;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.qty-btn:hover {
+  background: rgba(197, 160, 89, 0.15);
+  color: #C5A059;
+}
+.qty-value {
+  min-width: 2.25rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #EAEAEA;
+  user-select: none;
+}
+
+/* ===================== PRODUCT DETAIL PAGE ===================== */
+.breadcrumb a {
+  transition: color 0.3s ease;
+}
+.breadcrumb a:hover {
+  color: #C5A059;
+}
+
+.product-detail-visual {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1a1a1a 0%, #232323 100%);
+  border: 1px solid rgba(197, 160, 89, 0.1);
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.product-detail-visual .candle-svg {
+  width: 220px;
+}
+.product-detail-visual .candle-glow {
+  width: 260px;
+  height: 260px;
+}
+
+.notes-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: rgba(234, 234, 234, 0.75);
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(234, 234, 234, 0.08);
+  font-size: 0.9rem;
+}
+.spec-row:last-child {
+  border-bottom: none;
+}
+
+.crosssell-card {
+  background: #2C2C2C;
+  border: 1px solid rgba(197, 160, 89, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+}
+.crosssell-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(197, 160, 89, 0.3);
+}
+.crosssell-card .product-visual {
+  height: 160px;
+}
+.crosssell-card .candle-svg {
+  width: 70px;
+}
+
 /* ===================== B2B PANEL ===================== */
 .b2b-panel {
   background: linear-gradient(135deg, #2C2C2C 0%, #1c1c1c 100%);

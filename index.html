@@ -25,7 +25,7 @@
 
     <nav class="hidden md:flex items-center gap-10 text-sm tracking-widest uppercase text-ink/80">
       <a href="#filozofie" class="nav-link">Filozofie</a>
-      <a href="#kolekce" class="nav-link">Kolekce</a>
+      <a href="obchod.html" class="nav-link">Obchod</a>
       <a href="#pro-firmy" class="nav-link">Pro firmy</a>
       <a href="#kontakt" class="nav-link">Kontakt</a>
     </nav>
@@ -49,7 +49,7 @@
   <!-- Mobile menu -->
   <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-white/5 px-6 py-6 gap-6 text-center">
     <a href="#filozofie" class="nav-link-mobile">Filozofie</a>
-    <a href="#kolekce" class="nav-link-mobile">Kolekce</a>
+    <a href="obchod.html" class="nav-link-mobile">Obchod</a>
     <a href="#pro-firmy" class="nav-link-mobile">Pro firmy</a>
     <a href="#kontakt" class="nav-link-mobile">Kontakt</a>
   </div>
@@ -70,7 +70,7 @@
     <p class="font-display text-xl md:text-2xl text-ink/70 max-w-2xl mx-auto mb-12">
       Prémiové sójové svíčky s dřevěným knotem, ručně odlévané pro vaše večerní rituály.
     </p>
-    <a href="#kolekce" class="btn-gold-outline">
+    <a href="obchod.html" class="btn-gold-outline">
       Objevte kolekci
     </a>
   </div>
@@ -138,94 +138,125 @@
   <div class="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
     <!-- Product 1 -->
-    <article class="product-card reveal" data-name="Amber & Tobacco" data-price="390">
-      <div class="product-visual">
-        <div class="candle-glow candle-glow--amber"></div>
-        <svg viewBox="0 0 120 160" class="candle-svg">
-          <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
-          <rect x="26" y="46" width="68" height="98" rx="6" fill="#3a2a1c" stroke="#B8860B" stroke-width="1"/>
-          <rect x="26" y="46" width="68" height="20" rx="6" fill="#4a3524"/>
-          <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
-          <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
-          <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad1)"/>
-          <defs>
-            <linearGradient id="flameGrad1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffdf9e"/>
-              <stop offset="60%" stop-color="#C5A059"/>
-              <stop offset="100%" stop-color="#8a5a1e"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div class="p-7">
-        <h3 class="font-serif text-2xl mb-2">Amber & Tobacco</h3>
-        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Hřejivá, kořeněná vůně pro večery s knihou.</p>
-        <div class="flex items-center justify-between">
-          <span class="font-serif text-xl text-gold">390 Kč</span>
-          <button class="btn-add-cart" data-name="Amber & Tobacco" data-price="390">Do košíku</button>
+    <article class="product-card reveal" data-id="amber-tobacco" data-name="Amber & Tobacco" data-price="390">
+      <a href="produkty/amber-tobacco.html" class="product-visual-link">
+        <div class="product-visual">
+          <div class="candle-glow candle-glow--amber"></div>
+          <svg viewBox="0 0 120 160" class="candle-svg">
+            <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
+            <rect x="26" y="46" width="68" height="98" rx="6" fill="#3a2a1c" stroke="#B8860B" stroke-width="1"/>
+            <rect x="26" y="46" width="68" height="20" rx="6" fill="#4a3524"/>
+            <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
+            <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
+            <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad1)"/>
+            <defs>
+              <linearGradient id="flameGrad1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffdf9e"/>
+                <stop offset="60%" stop-color="#C5A059"/>
+                <stop offset="100%" stop-color="#8a5a1e"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
+      </a>
+      <div class="p-7">
+        <a href="produkty/amber-tobacco.html" class="hover:text-gold transition-colors duration-300">
+          <h3 class="font-serif text-2xl mb-2">Amber & Tobacco</h3>
+        </a>
+        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Hřejivá, kořeněná vůně pro večery s knihou.</p>
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-serif text-xl text-gold">390 Kč</span>
+          <div class="qty-stepper" data-qty="1">
+            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
+            <span class="qty-value">1</span>
+            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-cart w-full">Do košíku</button>
       </div>
     </article>
 
     <!-- Product 2 -->
-    <article class="product-card reveal" style="transition-delay:120ms" data-name="Fig & Wild Berry" data-price="390">
-      <div class="product-visual">
-        <div class="candle-glow candle-glow--berry"></div>
-        <svg viewBox="0 0 120 160" class="candle-svg">
-          <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
-          <rect x="26" y="46" width="68" height="98" rx="6" fill="#2c2430" stroke="#B8860B" stroke-width="1"/>
-          <rect x="26" y="46" width="68" height="20" rx="6" fill="#3a2f3e"/>
-          <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
-          <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
-          <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad2)"/>
-          <defs>
-            <linearGradient id="flameGrad2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffdf9e"/>
-              <stop offset="60%" stop-color="#C5A059"/>
-              <stop offset="100%" stop-color="#8a5a1e"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div class="p-7">
-        <h3 class="font-serif text-2xl mb-2">Fig & Wild Berry</h3>
-        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Sladce svěží, elegantní a ovocný tón pro dobrou náladu.</p>
-        <div class="flex items-center justify-between">
-          <span class="font-serif text-xl text-gold">390 Kč</span>
-          <button class="btn-add-cart" data-name="Fig & Wild Berry" data-price="390">Do košíku</button>
+    <article class="product-card reveal" style="transition-delay:120ms" data-id="fig-wild-berry" data-name="Fig & Wild Berry" data-price="390">
+      <a href="produkty/fig-wild-berry.html" class="product-visual-link">
+        <div class="product-visual">
+          <div class="candle-glow candle-glow--berry"></div>
+          <svg viewBox="0 0 120 160" class="candle-svg">
+            <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
+            <rect x="26" y="46" width="68" height="98" rx="6" fill="#2c2430" stroke="#B8860B" stroke-width="1"/>
+            <rect x="26" y="46" width="68" height="20" rx="6" fill="#3a2f3e"/>
+            <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
+            <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
+            <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad2)"/>
+            <defs>
+              <linearGradient id="flameGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffdf9e"/>
+                <stop offset="60%" stop-color="#C5A059"/>
+                <stop offset="100%" stop-color="#8a5a1e"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
+      </a>
+      <div class="p-7">
+        <a href="produkty/fig-wild-berry.html" class="hover:text-gold transition-colors duration-300">
+          <h3 class="font-serif text-2xl mb-2">Fig & Wild Berry</h3>
+        </a>
+        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Sladce svěží, elegantní a ovocný tón pro dobrou náladu.</p>
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-serif text-xl text-gold">390 Kč</span>
+          <div class="qty-stepper" data-qty="1">
+            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
+            <span class="qty-value">1</span>
+            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-cart w-full">Do košíku</button>
       </div>
     </article>
 
     <!-- Product 3 -->
-    <article class="product-card reveal" style="transition-delay:240ms" data-name="Sandalwood & Leather" data-price="450">
-      <div class="product-visual">
-        <div class="candle-glow candle-glow--sandal"></div>
-        <svg viewBox="0 0 120 160" class="candle-svg">
-          <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
-          <rect x="26" y="46" width="68" height="98" rx="6" fill="#1e1a16" stroke="#B8860B" stroke-width="1"/>
-          <rect x="26" y="46" width="68" height="20" rx="6" fill="#2b241d"/>
-          <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
-          <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
-          <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad3)"/>
-          <defs>
-            <linearGradient id="flameGrad3" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffdf9e"/>
-              <stop offset="60%" stop-color="#C5A059"/>
-              <stop offset="100%" stop-color="#8a5a1e"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div class="p-7">
-        <h3 class="font-serif text-2xl mb-2">Sandalwood & Leather</h3>
-        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Hluboká, mystická a dřevitá vůně, která zútulní každý prostor.</p>
-        <div class="flex items-center justify-between">
-          <span class="font-serif text-xl text-gold">450 Kč</span>
-          <button class="btn-add-cart" data-name="Sandalwood & Leather" data-price="450">Do košíku</button>
+    <article class="product-card reveal" style="transition-delay:240ms" data-id="sandalwood-leather" data-name="Sandalwood & Leather" data-price="450">
+      <a href="produkty/sandalwood-leather.html" class="product-visual-link">
+        <div class="product-visual">
+          <div class="candle-glow candle-glow--sandal"></div>
+          <svg viewBox="0 0 120 160" class="candle-svg">
+            <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
+            <rect x="26" y="46" width="68" height="98" rx="6" fill="#1e1a16" stroke="#B8860B" stroke-width="1"/>
+            <rect x="26" y="46" width="68" height="20" rx="6" fill="#2b241d"/>
+            <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
+            <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
+            <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad3)"/>
+            <defs>
+              <linearGradient id="flameGrad3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffdf9e"/>
+                <stop offset="60%" stop-color="#C5A059"/>
+                <stop offset="100%" stop-color="#8a5a1e"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
+      </a>
+      <div class="p-7">
+        <a href="produkty/sandalwood-leather.html" class="hover:text-gold transition-colors duration-300">
+          <h3 class="font-serif text-2xl mb-2">Sandalwood & Leather</h3>
+        </a>
+        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Hluboká, mystická a dřevitá vůně, která zútulní každý prostor.</p>
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-serif text-xl text-gold">450 Kč</span>
+          <div class="qty-stepper" data-qty="1">
+            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
+            <span class="qty-value">1</span>
+            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-cart w-full">Do košíku</button>
       </div>
     </article>
+  </div>
+
+  <div class="text-center mt-16 reveal">
+    <a href="obchod.html" class="btn-gold-outline">Zobrazit celý obchod</a>
   </div>
 </section>
 
@@ -316,7 +347,7 @@
     </div>
     <nav class="flex flex-wrap gap-6 text-xs uppercase tracking-widest text-ink/50">
       <a href="#filozofie" class="hover:text-gold transition-colors duration-300">Filozofie</a>
-      <a href="#kolekce" class="hover:text-gold transition-colors duration-300">Kolekce</a>
+      <a href="obchod.html" class="hover:text-gold transition-colors duration-300">Obchod</a>
       <a href="#pro-firmy" class="hover:text-gold transition-colors duration-300">Pro firmy</a>
       <a href="#kontakt" class="hover:text-gold transition-colors duration-300">Kontakt</a>
     </nav>
