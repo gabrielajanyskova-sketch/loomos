@@ -199,14 +199,25 @@
   </div>
 </footer>
 
-<!-- ================= TOAST ================= -->
-<div id="toast" class="fixed bottom-8 right-8 z-[110] translate-y-24 opacity-0 transition-all duration-500 pointer-events-none">
-  <div class="bg-muted border border-gold/30 text-ink px-6 py-4 rounded-lg shadow-gold flex items-center gap-3">
-    <span class="text-gold text-lg">✦</span>
-    <span id="toastText" class="text-sm">Přidáno do košíku</span>
+<!-- ================= CART DRAWER ================= -->
+<div id="cartOverlay" class="cart-overlay"></div>
+<aside class="cart-panel" aria-label="Košík">
+  <div class="cart-panel-header">
+    <h2 class="font-serif text-xl">Košík</h2>
+    <button type="button" id="cartPanelCloseBtn" class="cart-panel-close" aria-label="Zavřít košík">&times;</button>
   </div>
-</div>
+  <p id="cartPanelEmpty" class="cart-panel-empty">Košík je zatím prázdný.</p>
+  <ul id="cartPanelItems" class="cart-panel-items"></ul>
+  <div id="cartPanelFooter" class="cart-panel-footer" hidden>
+    <div class="cart-panel-total">
+      <span>Celkem</span>
+      <span id="cartPanelTotal">0 Kč</span>
+    </div>
+    <a href="../kosik.html" class="btn-gold-solid w-full text-center">Pokračovat do košíku</a>
+  </div>
+</aside>
 
+<script src="../assets/js/cart.js"></script>
 <script src="../assets/js/main.js"></script>
 </body>
 </html>

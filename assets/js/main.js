@@ -39,94 +39,6 @@
   );
   revealEls.forEach((el) => io.observe(el));
 
-  /* ---------- Cart (persisted in localStorage) ---------- */
-  const CART_KEY = 'loomos_cart_v1';
-
-  const readCart = () => {
-    try {
-      return JSON.parse(localStorage.getItem(CART_KEY)) || {};
-    } catch {
-      return {};
-    }
-  };
-
-  const writeCart = (cart) => {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  };
-
-  const cartTotalQty = (cart) =>
-    Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
-
-  const addToCart = (id, name, price, qty) => {
-    const cart = readCart();
-    if (cart[id]) {
-      cart[id].qty += qty;
-    } else {
-      cart[id] = { name, price, qty };
-    }
-    writeCart(cart);
-    renderCartBadge();
-  };
-
-  const cartCountEl = document.getElementById('cartCount');
-  const renderCartBadge = () => {
-    const total = cartTotalQty(readCart());
-    cartCountEl.textContent = String(total);
-    const visible = total > 0;
-    cartCountEl.classList.toggle('opacity-0', !visible);
-    cartCountEl.classList.toggle('scale-0', !visible);
-    cartCountEl.classList.toggle('opacity-100', visible);
-    cartCountEl.classList.toggle('scale-100', visible);
-  };
-  renderCartBadge();
-
-  /* ---------- Toast ---------- */
-  const toast = document.getElementById('toast');
-  const toastText = document.getElementById('toastText');
-  let toastTimer = null;
-
-  const showToast = (text) => {
-    toastText.textContent = text;
-    toast.classList.remove('translate-y-24', 'opacity-0');
-    toast.classList.add('translate-y-0', 'opacity-100');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toast.classList.add('translate-y-24', 'opacity-0');
-      toast.classList.remove('translate-y-0', 'opacity-100');
-    }, 2600);
-  };
-
-  /* ---------- Quantity steppers ---------- */
-  const MAX_QTY = 20;
-
-  document.querySelectorAll('.qty-stepper').forEach((stepper) => {
-    const valueEl = stepper.querySelector('.qty-value');
-    stepper.querySelectorAll('.qty-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        let qty = parseInt(valueEl.textContent, 10) || 1;
-        qty = btn.dataset.action === 'increase' ? qty + 1 : qty - 1;
-        qty = Math.min(MAX_QTY, Math.max(1, qty));
-        valueEl.textContent = String(qty);
-      });
-    });
-  });
-
-  /* ---------- Add to cart buttons ---------- */
-  document.querySelectorAll('.btn-add-cart').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const product = btn.closest('[data-id]');
-      if (!product) return;
-      const { id, name, price } = product.dataset;
-      const qtyEl = product.querySelector('.qty-value');
-      const qty = qtyEl ? parseInt(qtyEl.textContent, 10) || 1 : 1;
-
-      addToCart(id, name, Number(price), qty);
-      showToast(`${qty}× „${name}“ přidáno do košíku`);
-
-      if (qtyEl) qtyEl.textContent = '1';
-    });
-  });
-
   /* ---------- B2B modal ---------- */
   const b2bModal = document.getElementById('b2bModal');
   const b2bOpenBtn = document.getElementById('b2bOpenBtn');
@@ -165,18 +77,20 @@
     });
   }
 
-  /* ---------- Contact form (front-end only) ---------- */
+  /* ---------- Contact form ---------- */
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
-    const formSuccess = document.getElementById('formSuccess');
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      formSuccess.classList.remove('hidden');
-      contactForm.reset();
-      setTimeout(() => formSuccess.classList.add('hidden'), 5000);
+      const name = contactForm.name.value.trim();
+      const email = contactForm.email.value.trim();
+      const message = contactForm.message.value.trim();
+      const body = [`Jméno: ${name}`, `E-mail: ${email}`, '', message].join('\n');
+      window.location.href = `mailto:info@loomos.cz?subject=${encodeURIComponent('Dotaz z webu LOOMOS')}&body=${encodeURIComponent(body)}`;
     });
   }
 
   /* ---------- Footer year ---------- */
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 })();

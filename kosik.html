@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Košík — LOOMOS</title>
+<meta name="description" content="Váš košík — dokončete objednávku svíček LOOMOS, vyberte dopravu a platbu." />
+<meta name="robots" content="noindex, follow" />
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="bg-primary text-ink font-sans antialiased selection:bg-gold selection:text-primary">
+
+<!-- ================= NAVBAR ================= -->
+<header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b border-transparent scrolled">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
+    <a href="index.html" class="flex items-center gap-3 text-ink">
+      <svg viewBox="10 6 110 96" class="h-8 w-8 text-gold shrink-0" fill="none" stroke="currentColor">
+        <path d="M65,14 C74,26 79,35 79,43 A14,14 0 1 1 51,43 C51,35 56,26 65,14 Z" stroke-width="6" stroke-linejoin="round"/>
+        <ellipse cx="42" cy="80" rx="26" ry="17" stroke-width="6"/>
+        <ellipse cx="88" cy="80" rx="26" ry="17" stroke-width="6"/>
+      </svg>
+      <span class="font-serif text-2xl tracking-[0.2em]">LOOMOS</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-10 text-sm tracking-widest uppercase text-ink/80">
+      <a href="index.html#filozofie" class="nav-link">Filozofie</a>
+      <a href="obchod.html" class="nav-link">Obchod</a>
+      <a href="index.html#pro-firmy" class="nav-link">Pro firmy</a>
+      <a href="index.html#kontakt" class="nav-link">Kontakt</a>
+    </nav>
+
+    <div class="flex items-center gap-5">
+      <button id="cartBtn" aria-label="Košík" class="relative text-gold transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3.6-8H5.4M7 13L5.4 5M7 13l-1.4 6h13.8M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+        </svg>
+        <span id="cartCount" class="absolute -top-2 -right-2 bg-gold text-primary text-[10px] font-semibold rounded-full w-4 h-4 flex items-center justify-center opacity-0 scale-0 transition-all duration-300">0</span>
+      </button>
+
+      <button id="menuBtn" aria-label="Menu" class="md:hidden text-ink">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-white/5 px-6 py-6 gap-6 text-center">
+    <a href="index.html#filozofie" class="nav-link-mobile">Filozofie</a>
+    <a href="obchod.html" class="nav-link-mobile">Obchod</a>
+    <a href="index.html#pro-firmy" class="nav-link-mobile">Pro firmy</a>
+    <a href="index.html#kontakt" class="nav-link-mobile">Kontakt</a>
+  </div>
+</header>
+
+<!-- ================= PAGE HEADER ================= -->
+<section class="relative pt-40 pb-12 md:pt-48 md:pb-16 px-6">
+  <div class="max-w-6xl mx-auto text-center reveal">
+    <p class="breadcrumb uppercase tracking-[0.3em] text-xs text-ink/40 mb-6">
+      <a href="index.html" class="text-ink/40">Domů</a> / <span class="text-ink/70">Košík</span>
+    </p>
+    <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Košík</p>
+    <h1 class="font-serif text-4xl md:text-5xl">Vaše objednávka</h1>
+  </div>
+</section>
+
+<!-- ================= CART PAGE ================= -->
+<section class="relative pb-28 md:pb-36 px-6">
+  <div class="max-w-6xl mx-auto" id="cartPage">
+
+    <div id="cartPageEmpty" class="cart-page-empty">
+      <p>Košík je zatím prázdný.</p>
+      <a href="obchod.html" class="btn-gold-outline">Prohlédnout produkty</a>
+    </div>
+
+    <div id="cartPageContent" hidden>
+      <div class="checkout-layout">
+
+        <!-- Main: shipping, payment, billing -->
+        <div class="checkout-main">
+          <form id="checkoutForm" novalidate>
+            <h3 class="font-serif text-xl mb-4">Doprava</h3>
+            <div class="option-group">
+              <label class="option-card">
+                <input type="radio" name="shipping" value="pickup" checked />
+                <span class="option-body">
+                  <span class="option-title">Osobní odběr</span>
+                  <span class="option-desc">Starojická Lhota, po domluvě</span>
+                </span>
+                <span class="option-price">Zdarma</span>
+              </label>
+              <label class="option-card">
+                <input type="radio" name="shipping" value="zasilkovna" />
+                <span class="option-body">
+                  <span class="option-title">Zásilkovna</span>
+                  <span class="option-desc">Doručení na výdejní místo</span>
+                </span>
+                <span class="option-price">79 Kč</span>
+              </label>
+            </div>
+
+            <h3 class="font-serif text-xl mb-4 mt-8">Platba</h3>
+            <div class="option-group">
+              <label class="option-card">
+                <input type="radio" name="payment" value="transfer" checked />
+                <span class="option-body">
+                  <span class="option-title">Bankovním převodem</span>
+                  <span class="option-desc">Číslo účtu a variabilní symbol pošleme v potvrzení objednávky</span>
+                </span>
+              </label>
+              <label class="option-card" id="paymentCashOption">
+                <input type="radio" name="payment" value="cash" />
+                <span class="option-body">
+                  <span class="option-title">Hotově při odběru</span>
+                  <span class="option-desc">Platba na místě při osobním odběru</span>
+                </span>
+              </label>
+            </div>
+
+            <h3 class="font-serif text-xl mb-4 mt-8">Fakturační údaje</h3>
+            <div class="grid sm:grid-cols-2 gap-x-6">
+              <div class="form-field">
+                <input type="text" id="cFirstName" required placeholder=" " />
+                <label for="cFirstName">Jméno</label>
+              </div>
+              <div class="form-field">
+                <input type="text" id="cLastName" required placeholder=" " />
+                <label for="cLastName">Příjmení</label>
+              </div>
+            </div>
+            <div class="form-field mt-6">
+              <input type="text" id="cStreet" required placeholder=" " />
+              <label for="cStreet">Ulice a číslo popisné</label>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-x-6 mt-6">
+              <div class="form-field">
+                <input type="text" id="cZip" required placeholder=" " />
+                <label for="cZip">PSČ</label>
+              </div>
+              <div class="form-field">
+                <input type="text" id="cCity" required placeholder=" " />
+                <label for="cCity">Město</label>
+              </div>
+            </div>
+            <div class="form-field mt-6">
+              <input type="email" id="cEmail" required placeholder=" " />
+              <label for="cEmail">E-mail</label>
+            </div>
+            <div class="form-field mt-6">
+              <input type="tel" id="cPhone" required placeholder=" " />
+              <label for="cPhone">Telefon</label>
+            </div>
+            <div id="addressFields" class="form-field mt-6" hidden>
+              <input type="text" id="cAddress" placeholder=" " />
+              <label for="cAddress">Výdejní místo Zásilkovny</label>
+            </div>
+            <div class="form-field mt-6">
+              <textarea id="cNote" rows="3" placeholder=" "></textarea>
+              <label for="cNote">Poznámka k objednávce</label>
+            </div>
+          </form>
+        </div>
+
+        <!-- Summary sidebar -->
+        <aside class="checkout-summary">
+          <h3 class="font-serif text-xl mb-4">Souhrn objednávky</h3>
+          <ul id="cartPageItems" class="cart-panel-items" style="padding:0; max-height:none; overflow:visible;"></ul>
+
+          <form id="discountForm" class="mt-2">
+            <label for="discountCode" class="block text-xs uppercase tracking-widest text-ink/50 mb-2">Slevový kód</label>
+            <div class="discount-row">
+              <input type="text" id="discountCode" placeholder="Např. LOOMOS10" />
+              <button type="submit">Použít</button>
+            </div>
+            <p id="discountMessage" class="discount-message" hidden></p>
+          </form>
+
+          <div class="order-summary">
+            <div class="order-summary-row"><span>Mezisoučet</span><span id="summarySubtotal">0 Kč</span></div>
+            <div class="order-summary-row" id="summaryDiscountRow" hidden><span>Sleva</span><span id="summaryDiscount">0 Kč</span></div>
+            <div class="order-summary-row"><span>Doprava</span><span id="summaryShipping">Zdarma</span></div>
+            <div class="order-summary-row order-summary-total"><span>Celkem</span><span id="summaryTotal">0 Kč</span></div>
+          </div>
+
+          <label class="terms-check">
+            <input type="checkbox" id="cTerms" form="checkoutForm" required />
+            <span>Souhlasím se zpracováním osobních údajů za účelem vyřízení objednávky.</span>
+          </label>
+
+          <button type="button" id="submitOrderBtn" class="btn-gold-solid w-full">Odeslat objednávku</button>
+          <p class="text-ink/40 text-xs mt-3 leading-relaxed">Po odeslání se otevře váš e-mailový klient s kompletní objednávkou — platba a potvrzení zatím probíhá ručně, dokud nebude spuštěná platební brána.</p>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="border-t border-white/10 py-12 px-6">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+    <div>
+      <div class="flex items-center justify-center md:justify-start gap-2">
+        <svg viewBox="10 6 110 96" class="h-6 w-6 text-gold shrink-0" fill="none" stroke="currentColor">
+          <path d="M65,14 C74,26 79,35 79,43 A14,14 0 1 1 51,43 C51,35 56,26 65,14 Z" stroke-width="7" stroke-linejoin="round"/>
+          <ellipse cx="42" cy="80" rx="26" ry="17" stroke-width="7"/>
+          <ellipse cx="88" cy="80" rx="26" ry="17" stroke-width="7"/>
+        </svg>
+        <p class="font-serif text-xl tracking-[0.2em]">LOOMOS</p>
+      </div>
+      <p class="text-ink/40 text-xs mt-1">Světlo, které tvoří domov.</p>
+    </div>
+    <nav class="flex flex-wrap gap-6 text-xs uppercase tracking-widest text-ink/50">
+      <a href="index.html#filozofie" class="hover:text-gold transition-colors duration-300">Filozofie</a>
+      <a href="obchod.html" class="hover:text-gold transition-colors duration-300">Obchod</a>
+      <a href="index.html#pro-firmy" class="hover:text-gold transition-colors duration-300">Pro firmy</a>
+      <a href="index.html#kontakt" class="hover:text-gold transition-colors duration-300">Kontakt</a>
+    </nav>
+    <p class="text-ink/40 text-xs">© <span id="year"></span> LOOMOS. Ručně vyráběno na Moravě.</p>
+  </div>
+</footer>
+
+<!-- ================= CART DRAWER ================= -->
+<div id="cartOverlay" class="cart-overlay"></div>
+<aside class="cart-panel" aria-label="Košík">
+  <div class="cart-panel-header">
+    <h2 class="font-serif text-xl">Košík</h2>
+    <button type="button" id="cartPanelCloseBtn" class="cart-panel-close" aria-label="Zavřít košík">&times;</button>
+  </div>
+  <p id="cartPanelEmpty" class="cart-panel-empty">Košík je zatím prázdný.</p>
+  <ul id="cartPanelItems" class="cart-panel-items"></ul>
+  <div id="cartPanelFooter" class="cart-panel-footer" hidden>
+    <div class="cart-panel-total">
+      <span>Celkem</span>
+      <span id="cartPanelTotal">0 Kč</span>
+    </div>
+    <a href="kosik.html" class="btn-gold-solid w-full text-center">Pokračovat do košíku</a>
+  </div>
+</aside>
+
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
