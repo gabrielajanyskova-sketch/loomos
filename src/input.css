@@ -324,46 +324,6 @@ body {
   fill: rgb(var(--c-jar-lid));
   transition: fill 0.3s ease;
 }
-
-/* An explicit per-product colorway choice (jar-picker) overrides the
-   theme-linked default above, so a customer can pick either variant
-   regardless of which site theme they're currently browsing in. */
-.product-detail-visual[data-jar-color="dark"] .jar-body { fill: #201c19; }
-.product-detail-visual[data-jar-color="dark"] .jar-lid { fill: #2c2621; }
-.product-detail-visual[data-jar-color="light"] .jar-body { fill: #faf7f2; }
-.product-detail-visual[data-jar-color="light"] .jar-lid { fill: #eee8dd; }
-
-.jar-swatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 1.1rem;
-  border: 1px solid rgb(var(--c-ink) / 0.15);
-  border-radius: 999px;
-  font-size: 0.8rem;
-  color: rgb(var(--c-ink) / 0.7);
-  background: transparent;
-  transition: border-color 0.3s ease, color 0.3s ease;
-  cursor: pointer;
-}
-.jar-swatch:hover {
-  border-color: rgb(var(--c-gold) / 0.6);
-}
-.jar-swatch.active {
-  border-color: rgb(var(--c-gold));
-  color: rgb(var(--c-ink));
-}
-.jar-swatch-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid rgb(var(--c-gold) / 0.6);
-  display: inline-block;
-  flex-shrink: 0;
-}
-.jar-swatch--dark .jar-swatch-dot { background: #201c19; }
-.jar-swatch--light .jar-swatch-dot { background: #faf7f2; }
-
 .product-card:hover .candle-svg {
   transform: translateY(-6px) scale(1.03);
 }
