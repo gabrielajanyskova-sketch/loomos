@@ -62,7 +62,7 @@
 
 <!-- ================= HERO ================= -->
 <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
-  <div class="hero-glow absolute inset-0"></div>
+  <canvas id="flameCanvas" class="absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#121212_75%)]"></div>
   <div class="absolute inset-0 hero-vignette"></div>
 
@@ -415,6 +415,7 @@
   </div>
 </aside>
 
+<script src="assets/js/flame-canvas.js"></script>
 <script src="assets/js/cart.js"></script>
 <script src="assets/js/main.js"></script>
 </body>

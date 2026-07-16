@@ -78,9 +78,8 @@ body {
 }
 
 /* ===================== HERO ===================== */
-.hero-glow {
-  background: radial-gradient(ellipse 60% 50% at 50% 55%, rgba(197, 160, 89, 0.22), transparent 70%);
-  animation: flicker 6s ease-in-out infinite;
+#flameCanvas {
+  z-index: 0;
 }
 
 .hero-vignette {
@@ -791,7 +790,7 @@ body.cart-open .cart-panel {
     transform: none;
     transition: none;
   }
-  .hero-glow, .scroll-line, .candle-svg .flame, .candle-glow {
+  .scroll-line, .candle-svg .flame, .candle-glow {
     animation: none !important;
   }
 }
