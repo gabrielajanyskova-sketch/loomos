@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>
+(function(){
+  var t = localStorage.getItem('loomos_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 <title>Amber & Tobacco — LOOMOS</title>
 <meta name="description" content="Amber & Tobacco — hřejivá, kořeněná sójová svíčka s dřevěným knotem pro večery s knihou. Ručně vyráběno na Moravě." />
 <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
@@ -36,6 +42,16 @@
     </nav>
 
     <div class="flex items-center gap-5">
+      <button type="button" class="theme-toggle" aria-label="Přepnout světlý/tmavý režim">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      </button>
+
       <button id="cartBtn" aria-label="Košík" class="relative text-ink/90 hover:text-gold transition-colors duration-300">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3.6-8H5.4M7 13L5.4 5M7 13l-1.4 6h13.8M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
@@ -52,7 +68,7 @@
   </div>
 
   <!-- Mobile menu -->
-  <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-white/5 px-6 py-6 gap-6 text-center">
+  <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-ink/5 px-6 py-6 gap-6 text-center">
     <a href="../index.html#filozofie" class="nav-link-mobile">Filozofie</a>
     <a href="../obchod.html" class="nav-link-mobile">Obchod</a>
     <a href="../index.html#pro-firmy" class="nav-link-mobile">Pro firmy</a>
@@ -176,7 +192,7 @@
 </section>
 
 <!-- ================= FOOTER ================= -->
-<footer class="border-t border-white/10 py-12 px-6">
+<footer class="border-t border-ink/10 py-12 px-6">
   <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
     <div>
       <div class="flex items-center justify-center md:justify-start gap-2">
@@ -217,6 +233,7 @@
   </div>
 </aside>
 
+<script src="../assets/js/theme.js"></script>
 <script src="../assets/js/cart.js"></script>
 <script src="../assets/js/main.js"></script>
 </body>

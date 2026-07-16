@@ -6,6 +6,15 @@
   const ctx = canvas.getContext('2d');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  let isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  document.addEventListener('loomos:themechange', (e) => {
+    isLight = e.detail.theme === 'light';
+    if (prefersReducedMotion) {
+      ctx.clearRect(0, 0, width, height);
+      drawGlow();
+    }
+  });
+
   let width = 0;
   let height = 0;
   let dpr = 1;
@@ -47,13 +56,15 @@
     const cx = width * 0.5;
     const baseY = height * 0.66;
 
+    const glowMult = isLight ? 0.5 : 1;
+    const glowRgb = isLight ? '150, 108, 32' : '197, 160, 89';
     for (let i = 0; i < 3; i++) {
       const flicker = Math.sin(t * 0.02 + i * 2.1) * 0.5 + Math.sin(t * 0.031 + i) * 0.5;
       const r = (Math.min(width, height) * (0.28 + i * 0.14)) * (1 + flicker * 0.06);
       const offsetX = Math.sin(t * 0.014 + i * 1.7) * 18;
       const grad = ctx.createRadialGradient(cx + offsetX, baseY, 0, cx + offsetX, baseY, r);
-      grad.addColorStop(0, `rgba(197, 160, 89, ${0.16 - i * 0.035})`);
-      grad.addColorStop(1, 'rgba(197, 160, 89, 0)');
+      grad.addColorStop(0, `rgba(${glowRgb}, ${(0.16 - i * 0.035) * glowMult})`);
+      grad.addColorStop(1, `rgba(${glowRgb}, 0)`);
       ctx.fillStyle = grad;
       ctx.beginPath();
       ctx.arc(cx + offsetX, baseY, r, 0, Math.PI * 2);
@@ -70,10 +81,12 @@
       const opacity = Math.sin(Math.PI * lifeRatio);
       const drawX = p.x + Math.sin(p.sway) * p.swayAmp * lifeRatio;
 
+      const lightness = isLight ? 42 : 62;
+      const emberMult = isLight ? 0.55 : 0.85;
       ctx.beginPath();
-      ctx.shadowColor = `hsla(${p.hue}, 85%, 62%, 0.9)`;
+      ctx.shadowColor = `hsla(${p.hue}, 85%, ${lightness}%, 0.9)`;
       ctx.shadowBlur = 6;
-      ctx.fillStyle = `hsla(${p.hue}, 75%, 62%, ${Math.max(opacity, 0) * 0.85})`;
+      ctx.fillStyle = `hsla(${p.hue}, 75%, ${lightness}%, ${Math.max(opacity, 0) * emberMult})`;
       ctx.arc(drawX, p.y, p.radius, 0, Math.PI * 2);
       ctx.fill();
 

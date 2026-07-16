@@ -4,11 +4,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#121212',
-        gold: '#C5A059',
-        bronze: '#B8860B',
-        ink: '#EAEAEA',
-        muted: '#2C2C2C',
+        primary: 'rgb(var(--c-bg) / <alpha-value>)',
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        'surface-2': 'rgb(var(--c-surface-2) / <alpha-value>)',
+        ink: 'rgb(var(--c-ink) / <alpha-value>)',
+        gold: 'rgb(var(--c-gold) / <alpha-value>)',
+        'gold-hover': 'rgb(var(--c-gold-hover) / <alpha-value>)',
+        'on-gold': 'rgb(var(--c-on-gold) / <alpha-value>)',
+        // Legacy alias kept so existing bg-muted usages keep working.
+        muted: 'rgb(var(--c-surface) / <alpha-value>)',
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'serif'],
@@ -16,7 +20,7 @@ module.exports = {
         sans: ['Inter', 'sans-serif'],
       },
       boxShadow: {
-        gold: '0 0 30px -5px rgba(197,160,89,0.35)',
+        gold: '0 0 30px -5px rgb(var(--c-gold) / 0.35)',
       },
     },
   },
