@@ -258,11 +258,12 @@ body {
 
 /* ===================== PHILOSOPHY CARDS ===================== */
 .philo-card {
-  background: rgb(var(--c-surface));
+  background: linear-gradient(160deg, rgb(var(--c-surface)) 0%, rgb(var(--c-surface-2)) 100%);
   border: 1px solid rgb(var(--c-gold) / 0.08);
-  border-radius: 6px;
+  border-radius: 14px;
   padding: 2.5rem 2rem;
   text-align: center;
+  box-shadow: 0 25px 50px -35px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.03);
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease, border-color 0.45s ease, background-color 0.3s ease;
 }
 .philo-card:hover {
@@ -280,6 +281,7 @@ body {
   align-items: center;
   justify-content: center;
   border: 1px solid rgb(var(--c-gold) / 0.35);
+  background: radial-gradient(circle, rgb(var(--c-gold) / 0.1) 0%, transparent 72%);
   transition: box-shadow 0.4s ease;
 }
 .philo-card:hover .icon-ring {
@@ -288,10 +290,11 @@ body {
 
 /* ===================== PRODUCT CARDS ===================== */
 .product-card {
-  background: rgb(var(--c-surface));
+  background: linear-gradient(160deg, rgb(var(--c-surface)) 0%, rgb(var(--c-surface-2)) 100%);
   border: 1px solid rgb(var(--c-gold) / 0.08);
-  border-radius: 8px;
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 25px 50px -35px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.03);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease, border-color 0.5s ease, background-color 0.3s ease;
 }
 .product-card:hover {
@@ -320,20 +323,22 @@ body {
 }
 
 /* Jar colorway is a fixed collection assignment (Pro něj = black-gold,
-   Pro ni = white-gold) — not tied to the site's reading theme. */
+   Pro ni = white-gold) — not tied to the site's reading theme. Fills
+   reference gradients from the shared #jarDefs block (see partials),
+   present once per page, so every jar SVG instance shares one definition. */
 .jar-body--dark {
-  fill: rgb(var(--c-jar-dark));
+  fill: url(#jarGlassGradDark);
   stroke: rgb(var(--c-gold));
 }
 .jar-lid--dark {
-  fill: rgb(var(--c-jar-dark-lid));
+  fill: url(#jarLidGradDark);
 }
 .jar-body--light {
-  fill: rgb(var(--c-jar-light));
+  fill: url(#jarGlassGradLight);
   stroke: rgb(var(--c-gold));
 }
 .jar-lid--light {
-  fill: rgb(var(--c-jar-light-lid));
+  fill: url(#jarLidGradLight);
 }
 
 .collection-badge {

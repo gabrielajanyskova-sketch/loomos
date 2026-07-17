@@ -22,6 +22,32 @@
 
 <body class="bg-primary text-ink font-sans antialiased selection:bg-gold selection:text-primary">
 
+<!-- Shared jar-glass gradients, referenced by .jar-body--dark/--light and
+     .jar-lid--dark/--light everywhere on this page. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="jarGlassGradDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a332c"/>
+      <stop offset="55%" stop-color="#241f1b"/>
+      <stop offset="100%" stop-color="#17130f"/>
+    </linearGradient>
+    <linearGradient id="jarLidGradDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a3f34"/>
+      <stop offset="100%" stop-color="#241f1b"/>
+    </linearGradient>
+    <linearGradient id="jarGlassGradLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#f7f2ea"/>
+      <stop offset="100%" stop-color="#e9e1d2"/>
+    </linearGradient>
+    <linearGradient id="jarLidGradLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e4dcc9"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+
 <!-- ================= NAVBAR ================= -->
 <header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b border-transparent scrolled">
   <div class="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
@@ -94,6 +120,8 @@
         <svg viewBox="0 0 120 160" class="candle-svg">
           <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
           <rect x="26" y="46" width="68" height="98" rx="6" class="jar-body--dark" stroke-width="1"/>
+              <rect x="34" y="54" width="9" height="82" rx="4.5" fill="#C5A059" opacity="0.1"/>
+              <rect x="26" y="111" width="68" height="1.4" fill="rgb(var(--c-gold))" opacity="0.4"/>
           <rect x="26" y="46" width="68" height="20" rx="6" class="jar-lid--dark"/>
           <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
           <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
@@ -159,6 +187,8 @@
             <svg viewBox="0 0 120 160" class="candle-svg">
               <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
               <rect x="26" y="46" width="68" height="98" rx="6" class="jar-body--light" stroke-width="1"/>
+              <rect x="34" y="54" width="9" height="82" rx="4.5" fill="#C5A059" opacity="0.1"/>
+              <rect x="26" y="111" width="68" height="1.4" fill="rgb(var(--c-gold))" opacity="0.4"/>
               <rect x="26" y="46" width="68" height="20" rx="6" class="jar-lid--light"/>
               <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
               <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
@@ -176,6 +206,8 @@
             <svg viewBox="0 0 120 160" class="candle-svg">
               <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
               <rect x="26" y="46" width="68" height="98" rx="6" class="jar-body--dark" stroke-width="1"/>
+              <rect x="34" y="54" width="9" height="82" rx="4.5" fill="#C5A059" opacity="0.1"/>
+              <rect x="26" y="111" width="68" height="1.4" fill="rgb(var(--c-gold))" opacity="0.4"/>
               <rect x="26" y="46" width="68" height="20" rx="6" class="jar-lid--dark"/>
               <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
               <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
