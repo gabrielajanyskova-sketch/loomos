@@ -19,8 +19,16 @@
   --c-gold: 197 160 89;          /* #C5A059 accent */
   --c-gold-hover: 217 184 119;   /* #d9b877 accent hover (lighten) */
   --c-on-gold: 18 18 18;         /* text color used on solid-gold surfaces */
-  --c-jar: 32 28 25;             /* candle jar glass — black colorway */
-  --c-jar-lid: 44 38 33;         /* candle jar lid — black colorway */
+}
+
+/* Jar colorway is fixed per product (Pro něj = black-gold, Pro ni =
+   white-gold) — a collection assignment, not tied to the site's
+   light/dark reading theme above. */
+:root {
+  --c-jar-dark: 32 28 25;
+  --c-jar-dark-lid: 44 38 33;
+  --c-jar-light: 250 247 242;
+  --c-jar-light-lid: 238 232 221;
 }
 
 :root[data-theme="light"] {
@@ -33,8 +41,6 @@
   --c-gold: 150 108 32;          /* #966C20 deeper accent for contrast on light bg */
   --c-gold-hover: 122 87 24;     /* #7A5718 accent hover (darken) */
   --c-on-gold: 18 18 18;
-  --c-jar: 250 247 242;          /* candle jar glass — white colorway */
-  --c-jar-lid: 238 232 221;      /* candle jar lid — white colorway */
 }
 
 html {
@@ -313,17 +319,73 @@ body {
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Jar colorway follows the site theme: black-gold in dark mode,
-   white-gold in light mode — the two real packaging variants. */
-.jar-body {
-  fill: rgb(var(--c-jar));
+/* Jar colorway is a fixed collection assignment (Pro něj = black-gold,
+   Pro ni = white-gold) — not tied to the site's reading theme. */
+.jar-body--dark {
+  fill: rgb(var(--c-jar-dark));
   stroke: rgb(var(--c-gold));
-  transition: fill 0.3s ease, stroke 0.3s ease;
 }
-.jar-lid {
-  fill: rgb(var(--c-jar-lid));
-  transition: fill 0.3s ease;
+.jar-lid--dark {
+  fill: rgb(var(--c-jar-dark-lid));
 }
+.jar-body--light {
+  fill: rgb(var(--c-jar-light));
+  stroke: rgb(var(--c-gold));
+}
+.jar-lid--light {
+  fill: rgb(var(--c-jar-light-lid));
+}
+
+.collection-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid rgb(var(--c-gold) / 0.35);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--c-gold));
+}
+
+.collection-tile {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  border: 1px solid rgb(var(--c-gold) / 0.15);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+}
+.collection-tile:hover {
+  transform: translateY(-4px);
+  border-color: rgb(var(--c-gold) / 0.4);
+}
+.collection-tile--dark {
+  background: linear-gradient(160deg, #201c19 0%, #100e0c 100%);
+}
+.collection-tile--light {
+  background: linear-gradient(160deg, #fdfbf7 0%, #f1ebe0 100%);
+}
+.collection-tile--dark .collection-tile-title,
+.collection-tile--dark .collection-tile-desc {
+  color: #f0ece4;
+}
+.collection-tile--light .collection-tile-title,
+.collection-tile--light .collection-tile-desc {
+  color: #2a231b;
+}
+.collection-tile-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.collection-tile-desc {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
 .product-card:hover .candle-svg {
   transform: translateY(-6px) scale(1.03);
 }
