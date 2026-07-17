@@ -52,6 +52,44 @@ body {
   transition: background-color 0.3s ease;
 }
 
+/* Subtle film-grain overlay so flat sections read as material, not a
+   solid colour slab. Fixed + blended, so it never affects layout or
+   interaction. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===================== ORNAMENT DIVIDER ===================== */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  width: 150px;
+  margin: 0 auto;
+}
+.ornament-divider::before,
+.ornament-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgb(var(--c-gold) / 0.35);
+}
+.ornament-divider-dot {
+  width: 5px;
+  height: 5px;
+  margin: 0 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgb(var(--c-gold));
+  box-shadow: 0 0 8px rgb(var(--c-gold) / 0.6);
+}
+
 ::selection {
   background: rgb(var(--c-gold));
   color: rgb(var(--c-on-gold));
