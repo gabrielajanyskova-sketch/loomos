@@ -52,42 +52,18 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* Subtle film-grain overlay so flat sections read as material, not a
+/* Fine film-grain overlay so flat sections read as material, not a
    solid colour slab. Fixed + blended, so it never affects layout or
-   interaction. */
+   interaction. Large, low-contrast tile to avoid a visible repeat/grid. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 999;
   pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* ===================== ORNAMENT DIVIDER ===================== */
-.ornament-divider {
-  display: flex;
-  align-items: center;
-  width: 150px;
-  margin: 0 auto;
-}
-.ornament-divider::before,
-.ornament-divider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: rgb(var(--c-gold) / 0.35);
-}
-.ornament-divider-dot {
-  width: 5px;
-  height: 5px;
-  margin: 0 14px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: rgb(var(--c-gold));
-  box-shadow: 0 0 8px rgb(var(--c-gold) / 0.6);
+  opacity: 0.05;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.72  0 0 0 0 0.6  0 0 0 0 0.4  0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
@@ -394,22 +370,40 @@ body::before {
 
 .collection-tile {
   position: relative;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  padding: 2.5rem 2rem;
+  padding: 3rem 2rem 2.25rem;
   text-align: center;
-  border: 1px solid rgb(var(--c-gold) / 0.15);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+  border: 1px solid rgb(var(--c-gold) / 0.18);
+  box-shadow: 0 30px 60px -35px rgb(0 0 0 / 0.6);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 .collection-tile:hover {
   transform: translateY(-4px);
-  border-color: rgb(var(--c-gold) / 0.4);
+  border-color: rgb(var(--c-gold) / 0.45);
+  box-shadow: 0 35px 70px -30px rgb(var(--c-gold) / 0.25);
+}
+.collection-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(ellipse 60% 50% at 85% -10%, rgb(var(--c-gold) / 0.22), transparent 65%);
+  pointer-events: none;
+}
+.collection-tile-mark {
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  width: 130px;
+  height: 130px;
+  opacity: 0.08;
+  pointer-events: none;
 }
 .collection-tile--dark {
-  background: linear-gradient(160deg, #201c19 0%, #100e0c 100%);
+  background: linear-gradient(160deg, #211d1a 0%, #0e0c0b 100%);
 }
 .collection-tile--light {
-  background: linear-gradient(160deg, #fdfbf7 0%, #f1ebe0 100%);
+  background: linear-gradient(160deg, #fbf8f2 0%, #ece3d1 100%);
 }
 .collection-tile--dark .collection-tile-title,
 .collection-tile--dark .collection-tile-desc {
@@ -419,14 +413,51 @@ body::before {
 .collection-tile--light .collection-tile-desc {
   color: #2a231b;
 }
+.collection-tile--dark .collection-tile-mark {
+  color: #f0ece4;
+}
+.collection-tile--light .collection-tile-mark {
+  color: #7a5718;
+}
+.collection-tile-eyebrow {
+  position: relative;
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgb(var(--c-gold));
+  opacity: 0.85;
+  margin-bottom: 0.9rem;
+}
 .collection-tile-title {
+  position: relative;
   font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  margin-bottom: 0.6rem;
 }
 .collection-tile-desc {
+  position: relative;
   font-size: 0.85rem;
   opacity: 0.7;
+  margin-bottom: 1.75rem;
+}
+.collection-tile-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgb(var(--c-gold));
+}
+.collection-tile-cta svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.collection-tile:hover .collection-tile-cta svg {
+  transform: translateX(4px);
 }
 
 .product-card:hover .candle-svg {
