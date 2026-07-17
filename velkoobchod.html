@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>
+(function(){
+  var t = localStorage.getItem('loomos_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<title>Velkoobchod — LOOMOS</title>
+<meta name="description" content="Velkoobchodní spolupráce s LOOMOS — prémiové ručně vyráběné sójové svíčky pro váš obchod nebo butik." />
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="bg-primary text-ink font-sans antialiased selection:bg-gold selection:text-primary">
+
+<!-- ================= NAVBAR ================= -->
+<header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b border-transparent scrolled">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
+    <a href="index.html" class="flex items-center gap-3 text-ink">
+      <svg viewBox="10 6 110 96" class="h-8 w-8 text-gold shrink-0" fill="none" stroke="currentColor">
+        <path d="M65,14 C74,26 79,35 79,43 A14,14 0 1 1 51,43 C51,35 56,26 65,14 Z" stroke-width="6" stroke-linejoin="round"/>
+        <ellipse cx="42" cy="80" rx="26" ry="17" stroke-width="6"/>
+        <ellipse cx="88" cy="80" rx="26" ry="17" stroke-width="6"/>
+      </svg>
+      <span class="font-serif text-2xl tracking-[0.2em]">LOOMOS</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-10 text-sm tracking-widest uppercase text-ink/80">
+      <a href="index.html#filozofie" class="nav-link">Filozofie</a>
+      <a href="obchod.html" class="nav-link">Obchod</a>
+      <a href="index.html#pro-firmy" class="nav-link">Pro firmy</a>
+      <a href="velkoobchod.html" class="nav-link text-gold">Velkoobchod</a>
+      <a href="index.html#kontakt" class="nav-link">Kontakt</a>
+    </nav>
+
+    <div class="flex items-center gap-5">
+      <button type="button" class="theme-toggle" aria-label="Přepnout světlý/tmavý režim">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      </button>
+
+      <button id="cartBtn" aria-label="Košík" class="relative text-ink/90 hover:text-gold transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3.6-8H5.4M7 13L5.4 5M7 13l-1.4 6h13.8M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+        </svg>
+        <span id="cartCount" class="absolute -top-2 -right-2 bg-gold text-primary text-[10px] font-semibold rounded-full w-4 h-4 flex items-center justify-center opacity-0 scale-0 transition-all duration-300">0</span>
+      </button>
+
+      <button id="menuBtn" aria-label="Menu" class="md:hidden text-ink">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-ink/5 px-6 py-6 gap-6 text-center">
+    <a href="index.html#filozofie" class="nav-link-mobile">Filozofie</a>
+    <a href="obchod.html" class="nav-link-mobile">Obchod</a>
+    <a href="index.html#pro-firmy" class="nav-link-mobile">Pro firmy</a>
+    <a href="velkoobchod.html" class="nav-link-mobile">Velkoobchod</a>
+    <a href="index.html#kontakt" class="nav-link-mobile">Kontakt</a>
+  </div>
+</header>
+
+<!-- ================= PAGE HEADER ================= -->
+<section class="relative pt-40 pb-16 md:pt-48 md:pb-20 px-6">
+  <div class="max-w-6xl mx-auto text-center reveal">
+    <p class="breadcrumb uppercase tracking-[0.3em] text-xs text-ink/40 mb-6">
+      <a href="index.html" class="text-ink/40">Domů</a> / <span class="text-ink/70">Velkoobchod</span>
+    </p>
+    <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Pro obchody & butiky</p>
+    <h1 class="font-serif text-4xl md:text-5xl mb-6">Velkoobchod LOOMOS</h1>
+    <p class="font-display text-lg md:text-xl text-ink/60 max-w-2xl mx-auto">
+      Ručně vyráběné sójové svíčky z Moravy pro váš obchod, butik nebo concept store —
+      bez velkých minimálních odběrů a s podporou, jakou byste čekali od malé dílny.
+    </p>
+  </div>
+</section>
+
+<!-- ================= PROČ LOOMOS ================= -->
+<section class="relative pb-16 md:pb-20 px-6">
+  <div class="max-w-6xl mx-auto grid sm:grid-cols-3 gap-8">
+    <div class="reveal">
+      <p class="font-serif text-3xl text-gold mb-3">01</p>
+      <h3 class="font-serif text-xl mb-3">Ruční výroba</h3>
+      <p class="text-ink/60 text-sm leading-relaxed">Každá svíčka je odlévaná a balená ve Starojické Lhotě — příběh, který se dobře prodává i vypráví.</p>
+    </div>
+    <div class="reveal" style="transition-delay:100ms">
+      <p class="font-serif text-3xl text-gold mb-3">02</p>
+      <h3 class="font-serif text-xl mb-3">Prémiový vzhled</h3>
+      <p class="text-ink/60 text-sm leading-relaxed">Sójový vosk, dřevěný knot a dvě jasně odlišené kolekce — černo-zlatá „Pro něj" a bílo-zlatá „Pro ni".</p>
+    </div>
+    <div class="reveal" style="transition-delay:200ms">
+      <p class="font-serif text-3xl text-gold mb-3">03</p>
+      <h3 class="font-serif text-xl mb-3">Malé odběry</h3>
+      <p class="text-ink/60 text-sm leading-relaxed">Nejsme továrna — proto můžeme nabídnout nízký minimální odběr a osobní přístup ke každé zakázce.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PODMÍNKY ================= -->
+<!-- TODO (Gabriela): reálné velkoobchodní podmínky — cena, MOQ, platba, doprava. Aktuálně orientační placeholder hodnoty. -->
+<section class="relative pb-16 md:pb-20 px-6">
+  <div class="max-w-5xl mx-auto b2b-panel reveal">
+    <div class="p-10 md:p-16">
+      <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Podmínky spolupráce</p>
+      <h2 class="font-serif text-3xl md:text-4xl mb-10">Jak vypadá spolupráce</h2>
+
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-8">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-ink/40 mb-2">Velkoobchodní cena</p>
+          <p class="font-serif text-2xl text-gold mb-1">−40 % z doporučené ceny</p>
+          <p class="text-ink/60 text-sm leading-relaxed">Sleva platí na celý sortiment obou kolekcí, bez ohledu na velikost objednávky.</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-ink/40 mb-2">Minimální první objednávka</p>
+          <p class="font-serif text-2xl text-gold mb-1">20 ks</p>
+          <p class="text-ink/60 text-sm leading-relaxed">Libovolný mix vůní a kolekcí, další objednávky bez minima.</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-ink/40 mb-2">Balení a dodání</p>
+          <p class="font-serif text-2xl text-gold mb-1">5–10 pracovních dní</p>
+          <p class="text-ink/60 text-sm leading-relaxed">Svíčky expedujeme v ochranných kartonech po 6 ks, k dispozici jsou i cenovky a ochutnávkové vzorky.</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-ink/40 mb-2">Platba</p>
+          <p class="font-serif text-2xl text-gold mb-1">Zálohová faktura</p>
+          <p class="text-ink/60 text-sm leading-relaxed">Splatnost 14 dní od vystavení, u prvního odběru možná i platba předem.</p>
+        </div>
+      </div>
+
+      <p class="text-ink/40 text-xs mt-10 pt-8 border-t border-ink/10">
+        Uvedené podmínky jsou orientační — přesné ceníky a smluvní podmínky probereme individuálně po nezávazné poptávce.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= JAK TO FUNGUJE ================= -->
+<section class="relative pb-20 md:pb-28 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Postup</p>
+      <h2 class="font-serif text-3xl md:text-4xl">Jak to funguje</h2>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-8 text-center">
+      <div class="reveal">
+        <p class="font-serif text-3xl text-gold mb-3">1</p>
+        <h3 class="font-serif text-lg mb-2">Poptávka</h3>
+        <p class="text-ink/60 text-sm leading-relaxed">Napíšete nám pár vět o svém obchodě a co by vás zajímalo.</p>
+      </div>
+      <div class="reveal" style="transition-delay:100ms">
+        <p class="font-serif text-3xl text-gold mb-3">2</p>
+        <h3 class="font-serif text-lg mb-2">Vzorky &amp; ceník</h3>
+        <p class="text-ink/60 text-sm leading-relaxed">Pošleme velkoobchodní ceník a domluvíme se na ukázkových vzorcích.</p>
+      </div>
+      <div class="reveal" style="transition-delay:200ms">
+        <p class="font-serif text-3xl text-gold mb-3">3</p>
+        <h3 class="font-serif text-lg mb-2">První objednávka</h3>
+        <p class="text-ink/60 text-sm leading-relaxed">Vyberete si mix vůní a kolekcí, my zabalíme a odešleme.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= POPTÁVKOVÝ FORMULÁŘ ================= -->
+<section class="relative pb-28 md:pb-36 px-6">
+  <div class="max-w-2xl mx-auto reveal">
+    <div class="text-center mb-12">
+      <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Nezávazná poptávka</p>
+      <h2 class="font-serif text-3xl md:text-4xl mb-4">Máte zájem o spolupráci?</h2>
+      <p class="text-ink/60 max-w-md mx-auto">Napište nám o svém obchodě a co by vás zajímalo — ozveme se s ceníkem do 24 hodin.</p>
+    </div>
+
+    <form id="wholesaleForm" class="space-y-6" novalidate>
+      <div class="form-field">
+        <input type="text" id="wsShop" required placeholder=" " />
+        <label for="wsShop">Název obchodu</label>
+      </div>
+      <div class="form-field">
+        <input type="email" id="wsEmail" required placeholder=" " />
+        <label for="wsEmail">E-mail</label>
+      </div>
+      <div class="form-field">
+        <textarea id="wsMessage" rows="4" required placeholder=" "></textarea>
+        <label for="wsMessage">O vašem obchodě (kamenná prodejna / e-shop, o jaký sortiment máte zájem...)</label>
+      </div>
+      <button type="submit" class="btn-gold-outline">Odeslat poptávku</button>
+      <p id="wsSuccess" class="hidden text-gold text-sm pt-2">Děkujeme, ozveme se vám co nejdříve s velkoobchodním ceníkem. ✦</p>
+    </form>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="border-t border-ink/10 py-12 px-6">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+    <div>
+      <div class="flex items-center justify-center md:justify-start gap-2">
+        <svg viewBox="10 6 110 96" class="h-6 w-6 text-gold shrink-0" fill="none" stroke="currentColor">
+          <path d="M65,14 C74,26 79,35 79,43 A14,14 0 1 1 51,43 C51,35 56,26 65,14 Z" stroke-width="7" stroke-linejoin="round"/>
+          <ellipse cx="42" cy="80" rx="26" ry="17" stroke-width="7"/>
+          <ellipse cx="88" cy="80" rx="26" ry="17" stroke-width="7"/>
+        </svg>
+        <p class="font-serif text-xl tracking-[0.2em]">LOOMOS</p>
+      </div>
+      <p class="text-ink/40 text-xs mt-1">Světlo, které tvoří domov.</p>
+    </div>
+    <nav class="flex flex-wrap gap-6 text-xs uppercase tracking-widest text-ink/50">
+      <a href="index.html#filozofie" class="hover:text-gold transition-colors duration-300">Filozofie</a>
+      <a href="obchod.html" class="hover:text-gold transition-colors duration-300">Obchod</a>
+      <a href="index.html#pro-firmy" class="hover:text-gold transition-colors duration-300">Pro firmy</a>
+      <a href="velkoobchod.html" class="hover:text-gold transition-colors duration-300">Velkoobchod</a>
+      <a href="index.html#kontakt" class="hover:text-gold transition-colors duration-300">Kontakt</a>
+    </nav>
+    <p class="text-ink/40 text-xs">© <span id="year"></span> LOOMOS. Ručně vyráběno na Moravě.</p>
+  </div>
+</footer>
+
+<!-- ================= CART DRAWER ================= -->
+<div id="cartOverlay" class="cart-overlay"></div>
+<aside class="cart-panel" aria-label="Košík">
+  <div class="cart-panel-header">
+    <h2 class="font-serif text-xl">Košík</h2>
+    <button type="button" id="cartPanelCloseBtn" class="cart-panel-close" aria-label="Zavřít košík">&times;</button>
+  </div>
+  <p id="cartPanelEmpty" class="cart-panel-empty">Košík je zatím prázdný.</p>
+  <ul id="cartPanelItems" class="cart-panel-items"></ul>
+  <div id="cartPanelFooter" class="cart-panel-footer" hidden>
+    <div class="cart-panel-total">
+      <span>Celkem</span>
+      <span id="cartPanelTotal">0 Kč</span>
+    </div>
+    <a href="kosik.html" class="btn-gold-solid w-full text-center">Pokračovat do košíku</a>
+  </div>
+</aside>
+
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

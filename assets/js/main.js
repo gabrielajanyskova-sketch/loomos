@@ -90,6 +90,22 @@
     });
   }
 
+  /* ---------- Wholesale inquiry form ---------- */
+  const wholesaleForm = document.getElementById('wholesaleForm');
+  if (wholesaleForm) {
+    const wsSuccess = document.getElementById('wsSuccess');
+    wholesaleForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const shop = wholesaleForm.wsShop.value.trim();
+      const email = wholesaleForm.wsEmail.value.trim();
+      const message = wholesaleForm.wsMessage.value.trim();
+      const body = [`Obchod: ${shop}`, `E-mail: ${email}`, '', message].join('\n');
+      window.location.href = `mailto:info@loomos.cz?subject=${encodeURIComponent('Velkoobchodní poptávka z webu LOOMOS')}&body=${encodeURIComponent(body)}`;
+      wsSuccess.classList.remove('hidden');
+      wholesaleForm.reset();
+    });
+  }
+
   /* ---------- Footer year ---------- */
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
