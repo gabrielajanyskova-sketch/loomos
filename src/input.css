@@ -19,9 +19,6 @@
   --c-gold: 197 160 89;          /* #C5A059 accent */
   --c-gold-hover: 217 184 119;   /* #d9b877 accent hover (lighten) */
   --c-on-gold: 18 18 18;         /* text color used on solid-gold surfaces */
-
-  /* Dark mode reads as poured concrete: neutral grey mottling, low contrast. */
-  --bg-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='7' stitchTiles='stitch' result='base'/%3E%3CfeColorMatrix in='base' type='matrix' values='0 0 0 0 0.55  0 0 0 0 0.53  0 0 0 0 0.5  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
 }
 
 /* Jar colorway is fixed per product (Pro něj = black-gold, Pro ni =
@@ -35,7 +32,7 @@
 }
 
 :root[data-theme="light"] {
-  --c-bg: 231 209 189;           /* #E7D1BD pale terracotta wash */
+  --c-bg: 250 247 240;           /* #FAF7F0 warm ivory */
   --c-surface: 255 255 255;      /* #FFFFFF cards */
   --c-surface-2: 244 240 231;    /* #F4F0E7 modal/drawer */
   --c-visual-1: 245 240 230;     /* product visual gradient start */
@@ -44,24 +41,15 @@
   --c-gold: 150 108 32;          /* #966C20 deeper accent for contrast on light bg */
   --c-gold-hover: 122 87 24;     /* #7A5718 accent hover (darken) */
   --c-on-gold: 18 18 18;
-
-  /* Light mode reads as warm terracotta clay: reddish-brown mottling. */
-  --bg-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='4' seed='3' stitchTiles='stitch' result='base'/%3E%3CfeColorMatrix in='base' type='matrix' values='0 0 0 0 0.55  0 0 0 0 0.3  0 0 0 0 0.18  0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-/* Background reads as a material (poured concrete in dark mode,
-   terracotta clay in light mode) instead of a flat colour slab — the
-   texture itself swaps with --bg-texture per theme, same pattern as
-   every other themed token above. */
 body {
   background-color: rgb(var(--c-bg));
-  background-image: var(--bg-texture);
-  background-attachment: fixed;
-  transition: background-color 0.3s ease, background-image 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 ::selection {
