@@ -90,6 +90,25 @@
     });
   }
 
+  /* ---------- Duo bundle scent selector ---------- */
+  const duoScentGroup = document.getElementById('duoScentGroup');
+  if (duoScentGroup) {
+    const duoCard = duoScentGroup.closest('[data-id]');
+    const DUO_VARIANTS = {
+      amber: { id: 'duo-amber-fig', name: 'Duo sada — Amber & Tobacco + Fig & Wild Berry' },
+      sandal: { id: 'duo-sandal-fig', name: 'Duo sada — Sandalwood & Leather + Fig & Wild Berry' },
+    };
+    duoScentGroup.querySelectorAll('input[name="duoScent"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const variant = DUO_VARIANTS[input.value];
+        if (variant && duoCard) {
+          duoCard.dataset.id = variant.id;
+          duoCard.dataset.name = variant.name;
+        }
+      });
+    });
+  }
+
   /* ---------- Wholesale inquiry form ---------- */
   const wholesaleForm = document.getElementById('wholesaleForm');
   if (wholesaleForm) {
