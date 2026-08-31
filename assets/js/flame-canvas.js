@@ -7,7 +7,7 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  document.addEventListener('lumos:themechange', (e) => {
+  document.addEventListener('loomos:themechange', (e) => {
     isLight = e.detail.theme === 'light';
     if (prefersReducedMotion) {
       ctx.clearRect(0, 0, width, height);

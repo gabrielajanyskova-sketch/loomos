@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ==========================================================
-   LUMOS — design tokens (dark theme is the default; the
+   LOOMOS — design tokens (dark theme is the default; the
    [data-theme="light"] block overrides for the light palette,
    set on <html> by assets/js/theme.js before first paint).
    Values are space-separated RGB so Tailwind's <alpha-value>

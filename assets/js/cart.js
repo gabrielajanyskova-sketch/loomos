@@ -1,9 +1,9 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'lumos_cart_v2';
-  const DISCOUNT_KEY = 'lumos_discount';
-  const ORDER_EMAIL = 'info@lumos.cz';
+  const STORAGE_KEY = 'loomos_cart_v2';
+  const DISCOUNT_KEY = 'loomos_discount';
+  const ORDER_EMAIL = 'info@loomos.cz';
 
   const SHIPPING = {
     pickup: { label: 'Osobní odběr (Starojická Lhota)', price: 0 },
@@ -12,7 +12,7 @@
 
   // Klientský fallback slevových kódů — bez backendu, uprav/doplň dle potřeby.
   const DISCOUNT_CODES = {
-    LUMOS10: { type: 'percent', value: 10 },
+    LOOMOS10: { type: 'percent', value: 10 },
   };
 
   const readCart = () => {
@@ -306,7 +306,7 @@
     if (shippingKey === 'zasilkovna' && address) lines.push(`Výdejní místo Zásilkovny: ${address}`);
     if (note) lines.push(`Poznámka: ${note}`);
 
-    return `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent('Objednávka z webu LUMOS')}&body=${encodeURIComponent(lines.join('\n'))}`;
+    return `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent('Objednávka z webu LOOMOS')}&body=${encodeURIComponent(lines.join('\n'))}`;
   };
 
   const showOrderSuccess = () => {
