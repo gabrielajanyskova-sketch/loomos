@@ -86,7 +86,7 @@
       const email = contactForm.email.value.trim();
       const message = contactForm.message.value.trim();
       const body = [`Jméno: ${name}`, `E-mail: ${email}`, '', message].join('\n');
-      window.location.href = `mailto:info@loomos.cz?subject=${encodeURIComponent('Dotaz z webu LOOMOS')}&body=${encodeURIComponent(body)}`;
+      window.location.href = `mailto:info@lumos.cz?subject=${encodeURIComponent('Dotaz z webu LUMOS')}&body=${encodeURIComponent(body)}`;
     });
   }
 
@@ -119,7 +119,7 @@
       const email = wholesaleForm.wsEmail.value.trim();
       const message = wholesaleForm.wsMessage.value.trim();
       const body = [`Obchod: ${shop}`, `E-mail: ${email}`, '', message].join('\n');
-      window.location.href = `mailto:info@loomos.cz?subject=${encodeURIComponent('Velkoobchodní poptávka z webu LOOMOS')}&body=${encodeURIComponent(body)}`;
+      window.location.href = `mailto:info@lumos.cz?subject=${encodeURIComponent('Velkoobchodní poptávka z webu LUMOS')}&body=${encodeURIComponent(body)}`;
       wsSuccess.classList.remove('hidden');
       wholesaleForm.reset();
     });

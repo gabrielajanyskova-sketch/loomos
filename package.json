@@ -1,7 +1,7 @@
 {
-  "name": "loomos",
+  "name": "lumos",
   "version": "1.0.0",
-  "description": "LOOMOS — prémiové ručně vyráběné sójové svíčky s dřevěným knotem.",
+  "description": "LUMOS — prémiové ručně vyráběné sójové svíčky s dřevěným knotem.",
   "private": true,
   "scripts": {
     "build": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --minify",
