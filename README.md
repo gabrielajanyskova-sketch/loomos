@@ -44,7 +44,7 @@ Ověřená fakta a FAQ pro SEO/AEO/GEO jsou v `assets/js/site.mjs`, katalog v `d
 ## Výkon a bezpečnost
 
 - Hero: WebP 114 382 B místo PNG 1 941 373 B; responzivní zdroje, přednačtení a priorita. Produktový náhled má 20 504 B. Fotografie zůstávají ilustrační.
-- Místní WOFF2 písma včetně licencí OFL, úsporné varianty portrétu a loga. Veřejný výstup neobsahuje velké původní PNG/TTF.
+- Schválené písmo Lora pro menší texty a ovládání, Cormorant Garamond pro velké nadpisy, DM Sans pro administraci. Místní WOFF2 písma včetně licencí OFL, úsporné varianty portrétu a loga. Veřejný výstup neobsahuje velké původní PNG/TTF.
 - Sdílený renderer pro build i prohlížeč (`ui.mjs`), validovaný katalog a košík (`catalog.mjs`), escapování dynamických textů, omezená velikost požadavků, serverový výpočet cen a ochrana proti duplicitám.
 - Same-origin kontroly zápisů, HttpOnly/SameSite cookies, omezené pokusy o přihlášení, omezené relace, SQL parametry a seznam veřejně dostupných souborů. Administrace i objednávky nejsou veřejným API ke čtení.
 - Striktní CSP bez inline skriptů a stylů, další bezpečnostní hlavičky a cache pro statické soubory. JS/CSS mají v sestavení hash v názvu. `dist` je explicitně sestaven jen z veřejných souborů; neobsahuje zdroj serveru, testy, databázi, secrets ani node_modules.

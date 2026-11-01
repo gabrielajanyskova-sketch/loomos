@@ -28,7 +28,7 @@ for size in [32, 48, 180, 192, 512]:
 logo.resize((48, 48), Image.Resampling.LANCZOS).save(
     imgdir / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)]
 )
-for name in ["cormorant-garamond", "cormorant-garamond-italic", "dm-sans"]:
+for name in ["cormorant-garamond", "cormorant-garamond-italic", "dm-sans", "lora"]:
     font = TTFont(root / f"assets/fonts/{name}.ttf")
     font.flavor = "woff2"
     font.save(root / f"assets/fonts/{name}.woff2")

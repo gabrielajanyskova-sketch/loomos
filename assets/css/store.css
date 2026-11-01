@@ -1795,3 +1795,91 @@ em {
 .spaced-top {
   margin-top: 25px;
 }
+
+/* Approved direction C: readable Lora UI, with existing Cormorant headings. */
+@font-face {
+  font-family: "Lora";
+  src: url("/assets/fonts/lora.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+body:not(.admin-body) {
+  font-family: "Lora", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.8;
+}
+body:not(.admin-body) .main-nav {
+  font-family: "Lora", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+body:not(.admin-body)
+  :is(.hero p, .story-grid p, .shop-heading p, .detail-copy p) {
+  font-size: 16px;
+  line-height: 1.85;
+}
+body:not(.admin-body) :is(.button, .add-button) {
+  font-size: 15px;
+  font-weight: 500;
+  min-height: 48px;
+}
+body:not(.admin-body) .add-button {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: #1a1511;
+  padding: 13px 17px;
+}
+body:not(.admin-body) .add-button span {
+  color: currentColor;
+}
+body:not(.admin-body) .add-button:hover {
+  background: var(--copper-light);
+}
+body:not(.admin-body) .add-button:disabled {
+  background: transparent;
+  color: var(--muted);
+}
+body:not(.admin-body)
+  :is(.card-size-label, .size-label, .product-notes, .summary-row, .text-link) {
+  font-size: 14px;
+}
+body:not(.admin-body) :is(.card-size-label select, .size-label select) {
+  font-size: 16px;
+}
+body:not(.admin-body) .product-title-row .price {
+  font-size: 18px;
+  color: var(--copper-light);
+}
+body:not(.admin-body) .provisional-price {
+  font-size: 12px;
+  line-height: 1.6;
+}
+body:not(.admin-body) .footer-grid :is(p, a:not(.brand)) {
+  font-size: 13px;
+}
+body:not(.admin-body)
+  :is(.heading-note, .category-card p, .contact-band p, .faq-grid p) {
+  font-size: 14px;
+}
+body:not(.admin-body) .cart-item p {
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  body:not(.admin-body) .hero p {
+    font-size: 15px;
+  }
+  body:not(.admin-body) .hero-actions {
+    gap: 17px;
+    flex-wrap: wrap;
+  }
+  body:not(.admin-body) .hero-actions .text-link {
+    font-size: 13px;
+  }
+  body:not(.admin-body) .section-heading {
+    flex-wrap: wrap;
+  }
+  body:not(.admin-body) .section-heading .text-link {
+    margin-top: 0;
+  }
+}
