@@ -1883,3 +1883,157 @@ body:not(.admin-body) .cart-item p {
     margin-top: 0;
   }
 }
+
+/* Readability pass: supporting copy must stay readable on a phone. */
+body:not(.admin-body) {
+  font-size: 18px;
+}
+body:not(.admin-body)
+  :is(.hero p, .story-grid p, .shop-heading p, .detail-copy p, .faq-grid p) {
+  font-size: 18px;
+  color: #d9d0c3;
+  line-height: 1.8;
+}
+body:not(.admin-body) :is(.button, .add-button) {
+  font-size: 17px;
+}
+body:not(.admin-body)
+  :is(
+    .text-link,
+    .card-size-label,
+    .size-label,
+    .product-notes,
+    .summary-row,
+    .category-card p,
+    .contact-band p,
+    .heading-note
+  ) {
+  font-size: 16px;
+}
+body:not(.admin-body) :is(.card-size-label select, .size-label select) {
+  font-size: 17px;
+}
+body:not(.admin-body) .benefits p {
+  font-size: 18px;
+  line-height: 1.5;
+}
+body:not(.admin-body) .benefits small {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #c2b8aa;
+  max-width: none;
+}
+body:not(.admin-body) .hero-note {
+  font-size: 15px;
+  color: #e4d9c9;
+  background: #171614b8;
+  padding: 8px 12px;
+  width: fit-content;
+  max-width: 100%;
+  line-height: 1.65;
+}
+body:not(.admin-body) .hero-note .tiny-star {
+  flex-shrink: 0;
+}
+body:not(.admin-body)
+  :is(
+    .photo-note,
+    .eyebrow,
+    .product-meta small,
+    .product-tag,
+    .pill,
+    .category-card small,
+    .maker-photo figcaption
+  ) {
+  font-size: 12px;
+}
+body:not(.admin-body) .photo-note {
+  color: #ddd2c2;
+  background: #171614b8;
+  padding: 3px 6px;
+}
+body:not(.admin-body)
+  :is(.provisional-price, .breadcrumb, .footer-bottom, .summary .muted) {
+  font-size: 13px;
+  color: #baae9c;
+}
+body:not(.admin-body) .footer-grid :is(p, a:not(.brand)) {
+  font-size: 15px;
+}
+body:not(.admin-body) .announcement {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+@media (max-width: 700px) {
+  body:not(.admin-body) .hero p {
+    font-size: 18px;
+    color: #ece2d4;
+    text-shadow: 0 1px 8px #171614;
+  }
+  body:not(.admin-body) .hero-actions .text-link {
+    font-size: 16px;
+  }
+  body:not(.admin-body) .hero-index {
+    display: none;
+  }
+  body:not(.admin-body) .hero-note {
+    font-size: 15px;
+  }
+  body:not(.admin-body) .photo-note {
+    right: 12px;
+    bottom: 12px;
+    font-size: 12px;
+  }
+  body:not(.admin-body) .product-image .photo-note {
+    bottom: 9px;
+  }
+  body:not(.admin-body) .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+  body:not(.admin-body) .cart-item p {
+    font-size: 14px;
+  }
+  body:not(.admin-body) .benefits {
+    gap: 26px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+}
+@media (max-width: 480px) {
+  body:not(.admin-body) .benefits {
+    grid-template-columns: 1fr;
+  }
+  body:not(.admin-body) .benefits > div {
+    gap: 18px;
+    align-items: flex-start;
+  }
+  body:not(.admin-body) .benefits > div > span {
+    width: 32px;
+    flex-shrink: 0;
+    font-size: 30px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  body:not(.admin-body) .benefits small {
+    font-size: 16px;
+  }
+}
+body:not(.admin-body)
+  :is(
+    .form-grid label,
+    .sort-label,
+    .filter-tabs,
+    .radio,
+    .check,
+    .notice,
+    .detail-facts,
+    .detail-notice,
+    .shop-bottom p,
+    .empty-state p
+  ) {
+  font-size: 15px;
+}
+body:not(.admin-body) :is(input, textarea, select) {
+  font-size: 17px;
+}
