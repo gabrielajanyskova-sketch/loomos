@@ -2037,3 +2037,24 @@ body:not(.admin-body)
 body:not(.admin-body) :is(input, textarea, select) {
   font-size: 17px;
 }
+
+/* One small SVG sprite keeps the benefit icons consistent and sharp. */
+body:not(.admin-body) .benefits > div > .benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  color: var(--copper-light);
+}
+.benefit-icon svg {
+  display: block;
+  width: 36px;
+  height: 36px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

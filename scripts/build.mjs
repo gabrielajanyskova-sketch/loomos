@@ -89,7 +89,8 @@ for (const dir of ["img", "fonts"])
       !(
         /\.(webp|woff2|ico)$/.test(name) ||
         (name.startsWith("favicon-") && name.endsWith(".png")) ||
-        name.endsWith("-LICENSE.txt")
+        name.endsWith("-LICENSE.txt") ||
+        name === "benefit-icons.svg"
       )
     )
       continue;
