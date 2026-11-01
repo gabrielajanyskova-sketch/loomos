@@ -1,0 +1,5 @@
+# Optional asset regeneration and Python formatting. The app itself uses only stdlib.
+Pillow==12.3.0
+fonttools==4.61.1
+brotli==1.2.1
+black==25.1.0

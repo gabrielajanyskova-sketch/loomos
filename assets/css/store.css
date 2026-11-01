@@ -1,6 +1,24 @@
-@font-face { font-family: 'Cormorant Garamond'; src: url('/assets/fonts/cormorant-garamond.ttf') format('truetype'); font-weight: 300 700; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Cormorant Garamond'; src: url('/assets/fonts/cormorant-garamond-italic.ttf') format('truetype'); font-weight: 300 700; font-style: italic; font-display: swap; }
-@font-face { font-family: 'DM Sans'; src: url('/assets/fonts/dm-sans.ttf') format('truetype'); font-weight: 100 1000; font-style: normal; font-display: swap; }
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/assets/fonts/cormorant-garamond.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/assets/fonts/cormorant-garamond-italic.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/assets/fonts/dm-sans.woff2") format("woff2");
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   color-scheme: dark;
   --bg: #171614;
@@ -1570,27 +1588,210 @@ th {
 }
 
 /* Interim reproduction of the supplied logo; replace with the original before launch. */
-.brand-logo { display: inline-flex; align-items: center; flex-shrink: 0; }
-.brand-logo::before { content: none; }
-.brand-logo img { width: 90px; height: 80px; object-fit: contain; mix-blend-mode: lighten; }
-.story-art:has(.story-logo)::after { content: none; }
-.story-logo { width: 240px; height: 240px; object-fit: contain; mix-blend-mode: lighten; }
-@media (max-width: 700px) { .brand-logo img { width: 74px; height: 68px; } .story-logo { width: 160px; height: 160px; } }
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.brand-logo::before {
+  content: none;
+}
+.brand-logo img {
+  width: 90px;
+  height: 80px;
+  object-fit: contain;
+  mix-blend-mode: lighten;
+}
+.story-art:has(.story-logo)::after {
+  content: none;
+}
+.story-logo {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  mix-blend-mode: lighten;
+}
+@media (max-width: 700px) {
+  .brand-logo img {
+    width: 74px;
+    height: 68px;
+  }
+  .story-logo {
+    width: 160px;
+    height: 160px;
+  }
+}
 
 /* Editorial serif headings paired with a locally hosted readable sans. */
-h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; letter-spacing: -.025em; }
-em { font-family: 'Cormorant Garamond', Georgia, serif; }
-.hero h1 { font-weight: 500; line-height: 1; font-size: clamp(58px, 6.5vw, 96px); }
-.product-title-row { align-items: start; flex-direction: column; gap: 9px; }
-.product-title-row h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 29px; line-height: 1.12; font-weight: 500; letter-spacing: -.01em; }
-.product-title-row .price { font-size: 12px; color: #b7ab9b; }
-.product-grid { row-gap: 48px; }
-.detail-copy h1 { line-height: 1.05; }
-.add-button:disabled { color: #b7ab9b; cursor: default; opacity: .65; }
-@media(max-width: 700px) { .hero h1 { font-size: 61px; } .section-heading h2 { font-size: 36px; } .product-title-row { align-items: start; } .product-title-row h3 { font-size: 31px; } .detail-copy h1 { font-size: 46px; } }
+h1,
+h2,
+h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+em {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+.hero h1 {
+  font-weight: 500;
+  line-height: 1;
+  font-size: clamp(58px, 6.5vw, 96px);
+}
+.product-title-row {
+  align-items: start;
+  flex-direction: column;
+  gap: 9px;
+}
+.product-title-row h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 29px;
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.product-title-row .price {
+  font-size: 12px;
+  color: #b7ab9b;
+}
+.product-grid {
+  row-gap: 48px;
+}
+.detail-copy h1 {
+  line-height: 1.05;
+}
+.add-button:disabled {
+  color: #b7ab9b;
+  cursor: default;
+  opacity: 0.65;
+}
+@media (max-width: 700px) {
+  .hero h1 {
+    font-size: 61px;
+  }
+  .section-heading h2 {
+    font-size: 36px;
+  }
+  .product-title-row {
+    align-items: start;
+  }
+  .product-title-row h3 {
+    font-size: 31px;
+  }
+  .detail-copy h1 {
+    font-size: 46px;
+  }
+}
 
-.size-label { display:flex; flex-direction:column; gap:8px; margin-top:25px; max-width:300px; color:var(--muted); font-size:12px; }
+.size-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 25px;
+  max-width: 300px;
+  color: var(--muted);
+  font-size: 12px;
+}
 
-.maker-photo { margin: 0; min-width: 0; }
-.maker-photo img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border: 1px solid #b6865222; border-radius: 2px; }
-.maker-photo figcaption { margin-top: 13px; font-size: 8px; letter-spacing: .18em; color: #b59d82; }
+.maker-photo {
+  margin: 0;
+  min-width: 0;
+}
+.maker-photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  border: 1px solid #b6865222;
+  border-radius: 2px;
+}
+.maker-photo figcaption {
+  margin-top: 13px;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: #b59d82;
+}
+
+/* Readable navigation and size selection at the point of purchase. */
+.main-nav {
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  gap: 28px;
+}
+.main-nav a {
+  color: #ddd5ca;
+  padding: 12px 0;
+}
+.cart-link {
+  font-size: 15px;
+}
+.card-size-label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 12px;
+  color: #c4b7a6;
+  margin: 15px 0 9px;
+}
+.card-size-label select {
+  width: 100%;
+  min-height: 46px;
+  font-size: 14px;
+  background: #211e1a;
+}
+.provisional-price {
+  color: #a79b8c;
+  font-size: 10px;
+  margin: 0 0 12px;
+}
+.faq-section {
+  border-top: 1px solid var(--line);
+}
+.faq-grid {
+  max-width: 900px;
+  margin: 30px auto 0;
+}
+.faq-grid details {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+}
+.faq-grid summary {
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text);
+}
+.faq-grid p {
+  margin: 14px 0 0;
+  max-width: 740px;
+  font-size: 14px;
+}
+@media (min-width: 701px) and (max-width: 1050px) {
+  .main-nav {
+    font-size: 15px;
+    gap: 17px;
+  }
+  .header-inner {
+    gap: 20px;
+  }
+}
+@media (max-width: 700px) {
+  .main-nav {
+    font-size: 19px;
+    gap: 10px;
+  }
+  .main-nav a {
+    padding: 12px 0;
+  }
+  .cart-link {
+    font-size: 15px;
+  }
+  .faq-grid summary {
+    font-size: 17px;
+  }
+}
+
+.spaced-top {
+  margin-top: 25px;
+}

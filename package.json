@@ -4,13 +4,25 @@
   "description": "LOOMOS — prémiové ručně vyráběné sójové svíčky s dřevěným knotem.",
   "private": true,
   "scripts": {
-    "build": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --minify",
+    "build": "node scripts/build.mjs",
     "watch": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --watch",
     "serve": "python3 server.py",
-    "test": "python3 -m unittest discover -s tests -v"
+    "test": "npm run test:unit && python3 -m unittest discover -s tests -v",
+    "build:tailwind": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --minify",
+    "test:unit": "node --test tests/*.test.mjs",
+    "format": "prettier --write \"*.html\" \"produkty/*.html\" \"admin/*.html\" \"assets/css/store.css\" \"assets/js/{store,admin}.js\" \"assets/js/*.mjs\" \"scripts/*.mjs\" \"tests/*.mjs\" \"data/*.json\" package.json README.md wrangler.jsonc \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"*.html\" \"produkty/*.html\" \"admin/*.html\" \"assets/css/store.css\" \"assets/js/{store,admin}.js\" \"assets/js/*.mjs\" \"scripts/*.mjs\" \"tests/*.mjs\" \"data/*.json\" package.json README.md wrangler.jsonc \".github/workflows/*.yml\"",
+    "preview": "python3 scripts/preview.py",
+    "test:e2e": "npm run build && node tests/e2e.mjs"
   },
   "license": "ISC",
   "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "esbuild": "0.25.12",
+    "prettier": "3.6.2",
     "tailwindcss": "^3.4.19"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

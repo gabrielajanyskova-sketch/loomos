@@ -13,12 +13,14 @@
           "'": "&#39;",
         })[c],
     );
-  const money = (n) => n == null ? "Cena chybí" :
-    new Intl.NumberFormat("cs-CZ", {
-      style: "currency",
-      currency: "CZK",
-      maximumFractionDigits: 0,
-    }).format(n);
+  const money = (n) =>
+    n == null
+      ? "Cena chybí"
+      : new Intl.NumberFormat("cs-CZ", {
+          style: "currency",
+          currency: "CZK",
+          maximumFractionDigits: 0,
+        }).format(n);
   const labels = {
     nova: "Nová",
     "vyrizuje-se": "Vyřizuje se",
@@ -91,7 +93,7 @@
       active: false,
     };
     $("#product-editor").innerHTML =
-      `<section class="panel"><h2>${id ? "Upravit produkt" : "Nová svíčka"}</h2><form id="product-form"><label>ID pro adresu produktu<input name="id" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="70" value="${esc(p.id)}" ${id ? "readonly" : ""} required placeholder="napriklad-vanilka"></label><label>Název<input name="name" value="${esc(p.name)}" maxlength="120" required></label><label>Krátký podtitul<input name="subtitle" value="${esc(p.subtitle)}" maxlength="200"></label>${p.variants?.length ? `<label>Cena malé v Kč<input name="small_price" type="number" min="1" max="100000" value="${p.variants[0].price}" required></label><label>Cena velké v Kč<input name="large_price" type="number" min="1" max="100000" value="${p.variants[1].price}" required></label><label class="check"><input type="checkbox" name="price_provisional" ${p.price_provisional?'checked':''}>Pracovní ceny</label>` : ''}<label ${p.variants?.length?'hidden':''}>Cena v Kč<input name="price" type="number" min="1" max="100000" step="1" value="${p.price ?? ""}" placeholder="Zatím nestanovena"></label><label>Vonné tóny<input name="notes" value="${esc(p.notes)}" maxlength="200"></label><label>Popis<textarea name="description" rows="4" maxlength="3000">${esc(p.description)}</textarea></label><label class="check"><input name="active" type="checkbox" ${p.active ? "checked" : ""}>Zobrazit produkt v e-shopu</label><p class="muted">Fotografie jsou zatím společné ilustrační. Vlastní fotografie zapojíme v další fázi.</p><button class="button">Uložit produkt →</button><p id="editor-status" role="status"></p></form></section>`;
+      `<section class="panel"><h2>${id ? "Upravit produkt" : "Nová svíčka"}</h2><form id="product-form"><label>ID pro adresu produktu<input name="id" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="70" value="${esc(p.id)}" ${id ? "readonly" : ""} required placeholder="napriklad-vanilka"></label><label>Název<input name="name" value="${esc(p.name)}" maxlength="120" required></label><label>Krátký podtitul<input name="subtitle" value="${esc(p.subtitle)}" maxlength="200"></label>${p.variants?.length ? `<label>Cena malé v Kč<input name="small_price" type="number" min="1" max="100000" value="${p.variants[0].price}" required></label><label>Cena velké v Kč<input name="large_price" type="number" min="1" max="100000" value="${p.variants[1].price}" required></label><label class="check"><input type="checkbox" name="price_provisional" ${p.price_provisional ? "checked" : ""}>Pracovní ceny</label>` : ""}<label ${p.variants?.length ? "hidden" : ""}>Cena v Kč<input name="price" type="number" min="1" max="100000" step="1" value="${p.price ?? ""}" placeholder="Zatím nestanovena"></label><label>Vonné tóny<input name="notes" value="${esc(p.notes)}" maxlength="200"></label><label>Popis<textarea name="description" rows="4" maxlength="3000">${esc(p.description)}</textarea></label><label class="check"><input name="active" type="checkbox" ${p.active ? "checked" : ""}>Zobrazit produkt v e-shopu</label><p class="muted">Fotografie jsou zatím společné ilustrační. Vlastní fotografie zapojíme v další fázi.</p><button class="button">Uložit produkt →</button><p id="editor-status" role="status"></p></form></section>`;
     $("#product-editor").scrollIntoView({ behavior: "smooth", block: "start" });
     $("#product-form").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -104,7 +106,15 @@
           ...fields,
           price: fields.price.trim() === "" ? null : Number(fields.price),
           active: f.elements.active.checked,
-          ...(f.elements.small_price ? {variants: [{id:'mala',price:Number(f.elements.small_price.value)},{id:'velka',price:Number(f.elements.large_price.value)}],price_provisional:f.elements.price_provisional.checked} : {}),
+          ...(f.elements.small_price
+            ? {
+                variants: [
+                  { id: "mala", price: Number(f.elements.small_price.value) },
+                  { id: "velka", price: Number(f.elements.large_price.value) },
+                ],
+                price_provisional: f.elements.price_provisional.checked,
+              }
+            : {}),
         });
         await load();
         status("Produkt je uložený a nabídka aktualizovaná.");
@@ -118,7 +128,7 @@
     const o = orders.find((o) => o.number === number);
     if (!o) return;
     $("#admin-content").innerHTML =
-      `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>${esc(o.number)}</h2><p class="notice">Zkušební objednávka. Žádná platba neproběhla.</p><p>${esc(o.customer.name)}<br>${esc(o.customer.email)}<br>${esc(o.customer.phone)}</p><p>Doprava: ${o.shipping === "pickup" ? "Osobní odběr" : "Zásilkovna"}<br>${esc(o.pickup_point)}</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Kusy</th><th>Cena za kus</th></tr></thead><tbody>${o.items.map((i) => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td></tr>`).join("")}</tbody></table></div><p style="margin-top:20px">Doprava: ${money(o.shipping_price)} · Celkem: <strong>${money(o.total)}</strong></p><p>Poznámka: ${esc(o.note || "—")}</p><form id="status-form"><label>Stav objednávky<select name="status">${Object.entries(
+      `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>${esc(o.number)}</h2><p class="notice">Zkušební objednávka. Žádná platba neproběhla.</p><p>${esc(o.customer.name)}<br>${esc(o.customer.email)}<br>${esc(o.customer.phone)}</p><p>Doprava: ${o.shipping === "pickup" ? "Osobní odběr" : "Zásilkovna"}<br>${esc(o.pickup_point)}</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Kusy</th><th>Cena za kus</th></tr></thead><tbody>${o.items.map((i) => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td></tr>`).join("")}</tbody></table></div><p class="spaced-top">Doprava: ${money(o.shipping_price)} · Celkem: <strong>${money(o.total)}</strong></p><p>Poznámka: ${esc(o.note || "—")}</p><form id="status-form"><label>Stav objednávky<select name="status">${Object.entries(
         labels,
       )
         .map(
@@ -191,6 +201,15 @@
       status(err.message, true);
     }
   });
+  if (
+    document.querySelector('meta[name="loomos-runtime"]')?.content === "static"
+  ) {
+    $("#login-panel").hidden = true;
+    status(
+      "Administrace zatím není na tomto hostingu připojená. Zde vidíte pouze veřejnou ukázku e-shopu.",
+    );
+    return;
+  }
   api("session")
     .then((s) => {
       if (s.authenticated) return load();
