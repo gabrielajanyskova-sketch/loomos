@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --minify",
     "watch": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --watch",
-    "serve": "python3 -m http.server 8080"
+    "serve": "python3 server.py",
+    "test": "python3 -m unittest discover -s tests -v"
   },
   "license": "ISC",
   "devDependencies": {

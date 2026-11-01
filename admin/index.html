@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Administrace — LOOMOS</title>
+    <link rel="stylesheet" href="/assets/css/store.css" />
+    <script src="/assets/js/admin.js" defer></script>
+  </head>
+  <body class="admin-body">
+    <aside class="admin-sidebar">
+      <a class="brand brand-logo" href="/" aria-label="Loomos — zpět do obchodu"><img src="/assets/img/loomos-logo-preview.png" alt="Loomos" width="90" height="80" /></a>
+      <nav>
+        <button data-tab="overview" class="active">◈ Přehled</button
+        ><button data-tab="products">▧ Produkty</button
+        ><button data-tab="orders">▤ Objednávky</button
+        ><a href="/" target="_blank" rel="noopener">→ Zobrazit e-shop</a>
+      </nav>
+      <button id="logout" hidden>Odhlásit se</button>
+      <p>Váš prostor pro tvorbu.</p>
+    </aside>
+    <main class="admin-main">
+      <div class="eyebrow">LOOMOS / SPRÁVA E-SHOPU</div>
+      <h1>Vítejte <em>u sebe.</em></h1>
+      <p class="muted">
+        Produkty, ceny a objednávky přehledně na jednom místě.
+      </p>
+      <div id="admin-status" role="status"></div>
+      <section id="login-panel" class="panel">
+        <h2>Přihlášení</h2>
+        <p>Administrace je chráněná heslem nastaveným na serveru.</p>
+        <form id="login-form">
+          <label
+            >Heslo<input
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required /></label
+          ><button class="button">Přihlásit se →</button>
+        </form>
+      </section>
+      <div id="admin-content" hidden></div>
+    </main>
+  </body>
+</html>

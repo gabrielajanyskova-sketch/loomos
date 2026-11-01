@@ -1,475 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script>
-(function(){
-  var t = localStorage.getItem('loomos_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
-<title>LOOMOS — Světlo, které tvoří domov</title>
-<meta name="description" content="LOOMOS: prémiové ručně vyráběné sójové svíčky s dřevěným knotem. Ekologické, udržitelné, odlévané s láskou k detailu v České republice." />
-<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
-<link rel="stylesheet" href="assets/css/style.css" />
-</head>
-
-<body class="bg-primary text-ink font-sans antialiased selection:bg-gold selection:text-primary">
-
-<!-- Shared jar-glass gradients, referenced by .jar-body--dark/--light and
-     .jar-lid--dark/--light everywhere on this page. -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="jarGlassGradDark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a332c"/>
-      <stop offset="55%" stop-color="#241f1b"/>
-      <stop offset="100%" stop-color="#17130f"/>
-    </linearGradient>
-    <linearGradient id="jarLidGradDark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#4a3f34"/>
-      <stop offset="100%" stop-color="#241f1b"/>
-    </linearGradient>
-    <linearGradient id="jarGlassGradLight" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="55%" stop-color="#f7f2ea"/>
-      <stop offset="100%" stop-color="#e9e1d2"/>
-    </linearGradient>
-    <linearGradient id="jarLidGradLight" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#e4dcc9"/>
-    </linearGradient>
-  </defs>
-</svg>
-
-
-<!-- ================= NAVBAR ================= -->
-<header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b border-transparent">
-  <div class="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
-    <a href="#hero" class="flex items-center gap-3 text-ink">
-      <svg viewBox="10 6 110 96" class="h-8 w-8 text-gold shrink-0" fill="none" stroke="currentColor">
-        <path d="M65,14 C74,26 79,35 79,43 A14,14 0 1 1 51,43 C51,35 56,26 65,14 Z" stroke-width="6" stroke-linejoin="round"/>
-        <ellipse cx="42" cy="80" rx="26" ry="17" stroke-width="6"/>
-        <ellipse cx="88" cy="80" rx="26" ry="17" stroke-width="6"/>
-      </svg>
-      <span class="font-serif text-2xl tracking-[0.2em]">LOOMOS</span>
-    </a>
-
-    <nav class="hidden md:flex items-center gap-10 text-sm tracking-widest uppercase text-ink/80">
-      <a href="#filozofie" class="nav-link">Filozofie</a>
-      <a href="obchod.html" class="nav-link">Obchod</a>
-      <a href="#pro-firmy" class="nav-link">Pro firmy</a>
-      <a href="#kontakt" class="nav-link">Kontakt</a>
-    </nav>
-
-    <div class="flex items-center gap-5">
-      <button type="button" class="theme-toggle" aria-label="Přepnout světlý/tmavý režim">
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-        </svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-        </svg>
-      </button>
-
-      <button id="cartBtn" aria-label="Košík" class="relative text-ink/90 hover:text-gold transition-colors duration-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3.6-8H5.4M7 13L5.4 5M7 13l-1.4 6h13.8M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
-        </svg>
-        <span id="cartCount" class="absolute -top-2 -right-2 bg-gold text-primary text-[10px] font-semibold rounded-full w-4 h-4 flex items-center justify-center opacity-0 scale-0 transition-all duration-300">0</span>
-      </button>
-
-      <button id="menuBtn" aria-label="Menu" class="md:hidden text-ink">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Mobile menu -->
-  <div id="mobileMenu" class="md:hidden hidden flex-col bg-primary/98 border-t border-ink/5 px-6 py-6 gap-6 text-center">
-    <a href="#filozofie" class="nav-link-mobile">Filozofie</a>
-    <a href="obchod.html" class="nav-link-mobile">Obchod</a>
-    <a href="#pro-firmy" class="nav-link-mobile">Pro firmy</a>
-    <a href="#kontakt" class="nav-link-mobile">Kontakt</a>
-  </div>
-</header>
-
-<!-- ================= HERO ================= -->
-<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
-  <canvas id="flameCanvas" class="absolute inset-0 w-full h-full" aria-hidden="true"></canvas>
-  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgb(var(--c-bg))_75%)]"></div>
-  <div class="absolute inset-0 hero-vignette"></div>
-
-  <div class="relative z-10 text-center px-6 max-w-4xl mx-auto reveal">
-    <p class="uppercase tracking-[0.4em] text-gold/90 text-xs md:text-sm mb-6">Ruční výroba &middot; Sójový vosk &middot; Dřevěný knot</p>
-    <h1 class="font-serif text-5xl sm:text-6xl md:text-7xl leading-[1.1] text-ink mb-6">
-      LOOMOS.<br class="hidden sm:block" />
-      <span class="italic text-gold">Světlo, které tvoří domov.</span>
-    </h1>
-    <p class="font-display text-xl md:text-2xl text-ink/70 max-w-2xl mx-auto mb-12">
-      Prémiové sójové svíčky s dřevěným knotem, ručně odlévané pro vaše večerní rituály.
-    </p>
-    <a href="obchod.html" class="btn-gold-outline">
-      Objevte kolekci
-    </a>
-  </div>
-
-  <a href="#filozofie" aria-label="Scroll down" class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-ink/50 hover:text-gold transition-colors duration-300">
-    <span class="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
-    <span class="scroll-line"></span>
-  </a>
-</section>
-
-<!-- ================= FILOZOFIE ================= -->
-<section id="filozofie" class="relative py-28 md:py-36 px-6">
-  <div class="max-w-6xl mx-auto text-center mb-20 reveal">
-    <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Naše filozofie</p>
-    <h2 class="font-serif text-4xl md:text-5xl mb-6">Proč sójový vosk?</h2>
-    <p class="font-display text-lg md:text-xl text-ink/60 max-w-2xl mx-auto">
-      Věříme, že skutečný luxus spočívá v tichých detailech. V materiálech, které respektují přírodu i váš domov.
-    </p>
-  </div>
-
-  <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 md:gap-8">
-    <div class="philo-card reveal">
-      <div class="icon-ring">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c3 3.5 5 6.5 5 9.5a5 5 0 11-10 0C7 9.5 9 6.5 12 3z" />
-        </svg>
-      </div>
-      <h3 class="font-serif text-2xl mb-3">100% sójový vosk</h3>
-      <p class="text-ink/60 leading-relaxed">Čisté hoření bez toxinů a paraffinu — šetrné k vašim plicím i k přírodě, ze které vzešlo.</p>
-    </div>
-
-    <div class="philo-card reveal" style="transition-delay:120ms">
-      <div class="icon-ring">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20M8 6l4-4 4 4M6 12h12M4 18h16" />
-        </svg>
-      </div>
-      <h3 class="font-serif text-2xl mb-3">Dřevěný knot</h3>
-      <p class="text-ink/60 leading-relaxed">Autentický zvuk jemně praskajícího dřeva, který do vašeho večera přinese atmosféru malého krbu.</p>
-    </div>
-
-    <div class="philo-card reveal" style="transition-delay:240ms">
-      <div class="icon-ring">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7 12a5 5 0 0110 0c0 3-2 4-2 7H9c0-3-2-4-2-7z" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 21h6" />
-        </svg>
-      </div>
-      <h3 class="font-serif text-2xl mb-3">Ruční práce</h3>
-      <p class="text-ink/60 leading-relaxed">Každý kus pečlivě odlijeme a zabalíme na Moravě, s láskou k detailu a klidem v každém pohybu.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= BESTSELLERY ================= -->
-<section id="kolekce" class="relative py-28 md:py-36 px-6 bg-gradient-to-b from-transparent via-muted/20 to-transparent">
-  <div class="max-w-6xl mx-auto text-center mb-16 reveal">
-    <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Kolekce</p>
-    <h2 class="font-serif text-4xl md:text-5xl mb-6">Naše bestsellery</h2>
-    <p class="font-display text-lg md:text-xl text-ink/60 max-w-2xl mx-auto">
-      Tři vůně, tři nálady. Vybrané pro chvíle, kdy chcete zpomalit.
-    </p>
-  </div>
-
-  <div class="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-    <!-- Product 1 -->
-    <article class="product-card reveal" data-id="amber-tobacco" data-name="Amber & Tobacco" data-price="390">
-      <a href="produkty/amber-tobacco.html" class="product-visual-link">
-        <div class="product-visual">
-          <div class="candle-glow candle-glow--amber"></div>
-          <svg viewBox="0 0 120 160" class="candle-svg">
-            <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
-            <rect x="26" y="46" width="68" height="98" rx="6" class="jar-body--dark" stroke-width="1"/>
-              <rect x="34" y="54" width="9" height="82" rx="4.5" fill="#C5A059" opacity="0.1"/>
-              <rect x="26" y="111" width="68" height="1.4" fill="rgb(var(--c-gold))" opacity="0.4"/>
-            <rect x="26" y="46" width="68" height="20" rx="6" class="jar-lid--dark"/>
-            <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
-            <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
-            <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad1)"/>
-            <defs>
-              <linearGradient id="flameGrad1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffdf9e"/>
-                <stop offset="60%" stop-color="#C5A059"/>
-                <stop offset="100%" stop-color="#8a5a1e"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-      </a>
-      <div class="p-7">
-        <a href="produkty/amber-tobacco.html" class="hover:text-gold transition-colors duration-300">
-          <h3 class="font-serif text-2xl mb-2">Amber & Tobacco</h3>
-        </a>
-        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Hřejivá, kořeněná vůně pro večery s knihou.</p>
-        <div class="flex items-center justify-between mb-4">
-          <span class="font-serif text-xl text-gold">390 Kč</span>
-          <div class="qty-stepper" data-qty="1">
-            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
-            <span class="qty-value">1</span>
-            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#171614" />
+    <meta
+      name="description"
+      content="LOOMOS — ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů."
+    />
+    <link rel="icon" href="/assets/img/favicon.svg" />
+    <link rel="stylesheet" href="/assets/css/store.css" />
+    <script src="/assets/js/store.js" defer></script>
+    <title>Vůně, která tvoří domov — LOOMOS</title>
+  </head>
+  <body data-page="home">
+    <a class="skip" href="#main">Přejít na obsah</a>
+    <div id="site-header"></div>
+    <main id="main">
+      <section class="hero">
+        <img
+          class="hero-photo"
+          src="/assets/img/candle-editorial.png"
+          alt="Ilustrační sójová svíčka v čirém skle s dřevěným knotem"
+          fetchpriority="high"
+        />
+        <div class="hero-shade"></div>
+        <div class="container hero-inner">
+          <div class="eyebrow">
+            <span></span> RUČNĚ VYROBENÉ. S VLASTNÍM PŘÍBĚHEM.
+          </div>
+          <h1>Malé světlo.<br />Velká <em>atmosféra.</em></h1>
+          <p>
+            Sójové svíčky, které promění prostor v místo,<br class="desktop" />
+            kde je vám prostě dobře. Ručně, s péčí, pro vás.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="/obchod.html"
+              >Najít svou vůni <span>→</span></a
+            ><a class="text-link" href="#pribeh"
+              >Poznat LOOMOS <span>→</span></a
+            >
+          </div>
+          <div class="hero-note">
+            <span class="tiny-star">✧</span> Čiré sklo. Sójový vosk. Dřevěný
+            knot.
           </div>
         </div>
-        <button type="button" class="btn-add-cart w-full">Do košíku</button>
-      </div>
-    </article>
-
-    <!-- Product 2 -->
-    <article class="product-card reveal" style="transition-delay:120ms" data-id="fig-wild-berry" data-name="Fig & Wild Berry" data-price="390">
-      <a href="produkty/fig-wild-berry.html" class="product-visual-link">
-        <div class="product-visual">
-          <div class="candle-glow candle-glow--berry"></div>
-          <svg viewBox="0 0 120 160" class="candle-svg">
-            <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
-            <rect x="26" y="46" width="68" height="98" rx="6" class="jar-body--light" stroke-width="1"/>
-              <rect x="34" y="54" width="9" height="82" rx="4.5" fill="#C5A059" opacity="0.1"/>
-              <rect x="26" y="111" width="68" height="1.4" fill="rgb(var(--c-gold))" opacity="0.4"/>
-            <rect x="26" y="46" width="68" height="20" rx="6" class="jar-lid--light"/>
-            <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
-            <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
-            <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad2)"/>
-            <defs>
-              <linearGradient id="flameGrad2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffdf9e"/>
-                <stop offset="60%" stop-color="#C5A059"/>
-                <stop offset="100%" stop-color="#8a5a1e"/>
-              </linearGradient>
-            </defs>
-          </svg>
+        <span class="photo-note">Ilustrační fotografie</span
+        ><span class="hero-index">01 / MALÉ KAŽDODENNÍ RITUÁLY</span>
+      </section>
+      <section class="benefits container" aria-label="O našich svíčkách">
+        <div>
+          <span>✧</span>
+          <p>Ruční výroba<small>Každý kus projde našima rukama</small></p>
         </div>
-      </a>
-      <div class="p-7">
-        <a href="produkty/fig-wild-berry.html" class="hover:text-gold transition-colors duration-300">
-          <h3 class="font-serif text-2xl mb-2">Fig & Wild Berry</h3>
-        </a>
-        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Sladce svěží, elegantní a ovocný tón pro dobrou náladu.</p>
-        <div class="flex items-center justify-between mb-4">
-          <span class="font-serif text-xl text-gold">390 Kč</span>
-          <div class="qty-stepper" data-qty="1">
-            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
-            <span class="qty-value">1</span>
-            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+        <div>
+          <span>◒</span>
+          <p>Sójový vosk<small>Základ vašich voňavých rituálů</small></p>
+        </div>
+        <div>
+          <span>♧</span>
+          <p>Dřevěný knot<small>Drobný detail, jiný zážitek</small></p>
+        </div>
+        <div>
+          <span>⌁</span>
+          <p>Vůně z Anglie<small>Vonné oleje bez ftalátů</small></p>
+        </div>
+      </section>
+      <section class="section container" id="svicky">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">ŠEST VŮNÍ. DVĚ VELIKOSTI.</div>
+            <h2>Vaše chvíle. <em>Vaše vůně.</em></h2>
+          </div>
+          <a href="/obchod.html" class="text-link"
+            >Všechny svíčky <span>→</span></a
+          >
+        </div>
+        <div id="home-products" class="product-grid" aria-live="polite"></div>
+      </section>
+      <section class="story-band" id="pribeh">
+        <div class="container story-grid">
+          <figure class="maker-photo">
+            <img src="/assets/img/loomos-maker.png"
+              alt="Zakladatelka LOOMOS při přípravě svíčky s dřevěným knotem — upravená fotografie"
+              width="1536" height="1024" loading="lazy" />
+            <figcaption>VYROBENÉ RUKAMA. VYBRANÉ SRDCEM.</figcaption>
+          </figure>
+          <div>
+            <div class="eyebrow">TOHLE JE LOOMOS</div>
+            <h2>Za každým plamenem<br />je kus <em>mé práce.</em></h2>
+            <p>
+              Svíčky vyrábím už dlouho. Osobně vybírám vůně, odlévám vosk a
+              hlídám každý detail. Používám sójový vosk a kvalitní vonné oleje,
+              které dovážím z Anglie a které neobsahují ftaláty.
+            </p>
+            <p>
+              Chci tvořit věci, které vám budou dělat radost. Svíčkami to začíná
+              — další nápady už rostou.
+            </p>
+            <a class="text-link" href="mailto:info@loomos.cz"
+              >Napište mi <span>→</span></a
+            >
           </div>
         </div>
-        <button type="button" class="btn-add-cart w-full">Do košíku</button>
-      </div>
-    </article>
-
-    <!-- Product 3 -->
-    <article class="product-card reveal" style="transition-delay:240ms" data-id="sandalwood-leather" data-name="Sandalwood & Leather" data-price="450">
-      <a href="produkty/sandalwood-leather.html" class="product-visual-link">
-        <div class="product-visual">
-          <div class="candle-glow candle-glow--sandal"></div>
-          <svg viewBox="0 0 120 160" class="candle-svg">
-            <ellipse cx="60" cy="148" rx="34" ry="8" fill="#000" opacity="0.25"/>
-            <rect x="26" y="46" width="68" height="98" rx="6" class="jar-body--dark" stroke-width="1"/>
-              <rect x="34" y="54" width="9" height="82" rx="4.5" fill="#C5A059" opacity="0.1"/>
-              <rect x="26" y="111" width="68" height="1.4" fill="rgb(var(--c-gold))" opacity="0.4"/>
-            <rect x="26" y="46" width="68" height="20" rx="6" class="jar-lid--dark"/>
-            <rect x="52" y="30" width="16" height="20" fill="#e7ded1"/>
-            <line x1="60" y1="14" x2="60" y2="32" stroke="#8a6a3a" stroke-width="2"/>
-            <path class="flame" d="M60 0c5 6 8 11 8 16a8 8 0 11-16 0c0-5 3-10 8-16z" fill="url(#flameGrad3)"/>
-            <defs>
-              <linearGradient id="flameGrad3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffdf9e"/>
-                <stop offset="60%" stop-color="#C5A059"/>
-                <stop offset="100%" stop-color="#8a5a1e"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-      </a>
-      <div class="p-7">
-        <a href="produkty/sandalwood-leather.html" class="hover:text-gold transition-colors duration-300">
-          <h3 class="font-serif text-2xl mb-2">Sandalwood & Leather</h3>
-        </a>
-        <p class="text-ink/60 text-sm mb-6 leading-relaxed">Hluboká, mystická a dřevitá vůně, která zútulní každý prostor.</p>
-        <div class="flex items-center justify-between mb-4">
-          <span class="font-serif text-xl text-gold">450 Kč</span>
-          <div class="qty-stepper" data-qty="1">
-            <button type="button" class="qty-btn" data-action="decrease" aria-label="Snížit množství">−</button>
-            <span class="qty-value">1</span>
-            <button type="button" class="qty-btn" data-action="increase" aria-label="Zvýšit množství">+</button>
+      </section>
+      <section class="section container" id="dalsi-tvorba">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">JEDNA ZNAČKA. SPOUSTA NÁPADŮ.</div>
+            <h2>Radost má <em>víc podob.</em></h2>
           </div>
+          <p class="heading-note">
+            Svíčky jsou teprve začátek.<br />Na další tvorbě právě pracujeme.
+          </p>
         </div>
-        <button type="button" class="btn-add-cart w-full">Do košíku</button>
-      </div>
-    </article>
-  </div>
-
-  <div class="text-center mt-16 reveal">
-    <a href="obchod.html" class="btn-gold-outline">Zobrazit celý obchod</a>
-  </div>
-</section>
-
-<!-- ================= B2B ================= -->
-<section id="pro-firmy" class="relative py-28 md:py-32 px-6">
-  <div class="max-w-5xl mx-auto b2b-panel reveal">
-    <div class="grid md:grid-cols-5 items-center gap-10 p-10 md:p-16">
-      <div class="md:col-span-3">
-        <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Pro firmy &amp; B2B</p>
-        <h2 class="font-serif text-3xl md:text-4xl mb-5 leading-tight">Zakázková výroba pro váš brand</h2>
-        <p class="text-ink/65 leading-relaxed">
-          Hledáte originální dárky pro své klienty nebo zaměstnance? Vytvoříme pro vás zakázkové svíčky
-          s vaším vlastním logem a vůní na míru.
-        </p>
-      </div>
-      <div class="md:col-span-2 flex md:flex-col md:items-end gap-4">
-        <button id="b2bOpenBtn" class="btn-gold-solid w-full md:w-auto">Nezávazná poptávka</button>
-        <a href="velkoobchod.html" class="text-sm text-ink/60 hover:text-gold transition-colors duration-300 text-center md:text-right">
-          Jste obchod nebo butik? Zjistěte podmínky velkoobchodu →
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= KONTAKT ================= -->
-<section id="kontakt" class="relative py-28 md:py-36 px-6">
-  <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16">
-
-    <div class="reveal">
-      <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-4">Kontakt</p>
-      <h2 class="font-serif text-4xl md:text-5xl mb-6">Napište nám</h2>
-      <p class="text-ink/60 mb-10 max-w-md leading-relaxed">
-        Máte dotaz k objednávce, spolupráci nebo chcete jen vzkázat, jak voní váš večer? Ozvěte se.
-      </p>
-
-      <form id="contactForm" class="space-y-6" novalidate>
-        <div class="form-field">
-          <input type="text" id="name" name="name" required placeholder=" " />
-          <label for="name">Jméno</label>
+        <div class="category-grid">
+          <article class="category-card car">
+            <span class="pill">PŘIPRAVUJEME</span>
+            <div class="category-graphic" aria-hidden="true">⌁</div>
+            <div>
+              <small>NA CESTY I KAŽDÝ DEN</small>
+              <h3>Vůně do auta</h3>
+              <p>Vaše oblíbená atmosféra i na cestách.</p>
+            </div>
+          </article>
+          <article class="category-card print">
+            <span class="pill">PŘIPRAVUJEME</span>
+            <div class="category-graphic" aria-hidden="true">◈</div>
+            <div>
+              <small>NÁPADY, KTERÉ DOSTÁVAJÍ TVAR</small>
+              <h3>3D tvorba</h3>
+              <p>Malé objekty s velkým charakterem.</p>
+            </div>
+          </article>
+          <article class="category-card custom">
+            <span class="pill">PŘIPRAVUJEME</span>
+            <div class="category-graphic" aria-hidden="true">Aa</div>
+            <div>
+              <small>PŘESNĚ PODLE VÁS</small>
+              <h3>Potisky & samolepky</h3>
+              <p>Na oblečení, na auto. Po vašem.</p>
+            </div>
+          </article>
         </div>
-        <div class="form-field">
-          <input type="email" id="email" name="email" required placeholder=" " />
-          <label for="email">E-mail</label>
-        </div>
-        <div class="form-field">
-          <textarea id="message" name="message" rows="4" required placeholder=" "></textarea>
-          <label for="message">Zpráva</label>
-        </div>
-        <button type="submit" class="btn-gold-outline">Odeslat zprávu</button>
-        <p id="formSuccess" class="hidden text-gold text-sm pt-2">Děkujeme, ozveme se vám co nejdříve. ✦</p>
-      </form>
-    </div>
-
-    <div class="reveal flex flex-col justify-between" style="transition-delay:150ms">
-      <div>
-        <h3 class="font-serif text-2xl mb-4">Ruční výroba na Moravě</h3>
-        <p class="text-ink/60 leading-relaxed max-w-md">
-          Každá svíčka LOOMOS vzniká v malé dílně ve Starojické Lhotě — odlévaná, balená a
-          expedovaná s pečlivostí, jakou byste čekali od rodinného ateliéru, ne velké továrny.
-        </p>
-      </div>
-
-      <div class="mt-12 pt-12 border-t border-ink/10">
-        <p class="uppercase tracking-[0.3em] text-xs text-ink/50 mb-4">Sledujte nás</p>
-        <div class="flex gap-4">
-          <a href="#" aria-label="Instagram" class="social-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-              <rect x="3" y="3" width="18" height="18" rx="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.2" cy="6.8" r="1"/>
-            </svg>
-          </a>
-          <a href="#" aria-label="Facebook" class="social-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-              <path d="M15 8h2V4h-2c-2.2 0-4 1.8-4 4v2H9v4h2v8h4v-8h2.5l.5-4H15V8c0-.6.4-1 1-1z"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= FOOTER ================= -->
-<footer class="border-t border-ink/10 py-12 px-6">
-  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-    <div>
-      <div class="flex items-center justify-center md:justify-start gap-2">
-        <svg viewBox="10 6 110 96" class="h-6 w-6 text-gold shrink-0" fill="none" stroke="currentColor">
-          <path d="M65,14 C74,26 79,35 79,43 A14,14 0 1 1 51,43 C51,35 56,26 65,14 Z" stroke-width="7" stroke-linejoin="round"/>
-          <ellipse cx="42" cy="80" rx="26" ry="17" stroke-width="7"/>
-          <ellipse cx="88" cy="80" rx="26" ry="17" stroke-width="7"/>
-        </svg>
-        <p class="font-serif text-xl tracking-[0.2em]">LOOMOS</p>
-      </div>
-      <p class="text-ink/40 text-xs mt-1">Světlo, které tvoří domov.</p>
-    </div>
-    <nav class="flex flex-wrap gap-6 text-xs uppercase tracking-widest text-ink/50">
-      <a href="#filozofie" class="hover:text-gold transition-colors duration-300">Filozofie</a>
-      <a href="obchod.html" class="hover:text-gold transition-colors duration-300">Obchod</a>
-      <a href="#pro-firmy" class="hover:text-gold transition-colors duration-300">Pro firmy</a>
-      <a href="velkoobchod.html" class="hover:text-gold transition-colors duration-300">Velkoobchod</a>
-      <a href="#kontakt" class="hover:text-gold transition-colors duration-300">Kontakt</a>
-    </nav>
-    <p class="text-ink/40 text-xs">© <span id="year"></span> LOOMOS. Ručně vyráběno na Moravě.</p>
-  </div>
-</footer>
-
-<!-- ================= B2B MODAL ================= -->
-<div id="b2bModal" class="fixed inset-0 z-[100] hidden items-center justify-center px-6">
-  <div id="b2bBackdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-  <div class="modal-panel relative w-full max-w-lg p-8 md:p-10">
-    <button id="b2bCloseBtn" aria-label="Zavřít" class="absolute top-5 right-5 text-ink/50 hover:text-gold transition-colors duration-300">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-        <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
-      </svg>
-    </button>
-    <p class="uppercase tracking-[0.4em] text-gold/80 text-xs mb-3">Nezávazná poptávka</p>
-    <h3 class="font-serif text-3xl mb-6">Poptávka na míru</h3>
-    <form id="b2bForm" class="space-y-5" novalidate>
-      <div class="form-field">
-        <input type="text" id="b2bCompany" required placeholder=" " />
-        <label for="b2bCompany">Firma / jméno</label>
-      </div>
-      <div class="form-field">
-        <input type="email" id="b2bEmail" required placeholder=" " />
-        <label for="b2bEmail">E-mail</label>
-      </div>
-      <div class="form-field">
-        <textarea id="b2bMessage" rows="3" required placeholder=" "></textarea>
-        <label for="b2bMessage">Popište vaši představu (počet kusů, logo, vůně...)</label>
-      </div>
-      <button type="submit" class="btn-gold-solid w-full">Odeslat poptávku</button>
-      <p id="b2bSuccess" class="hidden text-gold text-sm text-center">Poptávku jsme přijali, ozveme se do 24 hodin. ✦</p>
-    </form>
-  </div>
-</div>
-
-<!-- ================= CART DRAWER ================= -->
-<div id="cartOverlay" class="cart-overlay"></div>
-<aside class="cart-panel" aria-label="Košík">
-  <div class="cart-panel-header">
-    <h2 class="font-serif text-xl">Košík</h2>
-    <button type="button" id="cartPanelCloseBtn" class="cart-panel-close" aria-label="Zavřít košík">&times;</button>
-  </div>
-  <p id="cartPanelEmpty" class="cart-panel-empty">Košík je zatím prázdný.</p>
-  <ul id="cartPanelItems" class="cart-panel-items"></ul>
-  <div id="cartPanelFooter" class="cart-panel-footer" hidden>
-    <div class="cart-panel-total">
-      <span>Celkem</span>
-      <span id="cartPanelTotal">0 Kč</span>
-    </div>
-    <a href="kosik.html" class="btn-gold-solid w-full text-center">Pokračovat do košíku</a>
-  </div>
-</aside>
-
-<script src="assets/js/flame-canvas.js"></script>
-<script src="assets/js/theme.js"></script>
-<script src="assets/js/cart.js"></script>
-<script src="assets/js/main.js"></script>
-</body>
+      </section>
+      <section class="contact-band container">
+        <span class="tiny-star">✧</span>
+        <h2>Máte svůj vlastní nápad?</h2>
+        <p>Ráda s vámi proberu, co můžeme vytvořit.</p>
+        <a class="button button-outline" href="mailto:info@loomos.cz"
+          >Pojďme si napsat →</a
+        >
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
 </html>

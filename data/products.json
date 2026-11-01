@@ -1,0 +1,140 @@
+[
+  {
+    "id": "okurka-zazvor-mata",
+    "name": "Okurka, zázvor a máta",
+    "subtitle": "Svěží chvíle pro sebe.",
+    "notes": "Okurka · zázvor · máta",
+    "price": 249,
+    "category": "svicky",
+    "description": "Okurka, zázvor a máta. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "active": true,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349
+      }
+    ]
+  },
+  {
+    "id": "pomeranc-vanilka",
+    "name": "Pomeranč a vanilka",
+    "subtitle": "Hřejivá vůně domova.",
+    "notes": "Pomeranč · vanilka",
+    "price": 249,
+    "category": "svicky",
+    "description": "Pomeranč a vanilka. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "active": true,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349
+      }
+    ]
+  },
+  {
+    "id": "morska-sul-paculi",
+    "name": "Mořská sůl a pačuli",
+    "subtitle": "Chvíle, která patří jen vám.",
+    "notes": "Mořská sůl · pačuli",
+    "price": 249,
+    "category": "svicky",
+    "description": "Mořská sůl a pačuli. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "active": true,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349
+      }
+    ]
+  },
+  {
+    "id": "svatecni-duch",
+    "name": "Sváteční duch",
+    "subtitle": "Atmosféra výjimečných chvil.",
+    "notes": "Sváteční duch",
+    "price": 249,
+    "category": "svicky",
+    "description": "Sváteční duch. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "active": true,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349
+      }
+    ]
+  },
+  {
+    "id": "zazvor-zeleny-caj",
+    "name": "Zázvor a zelený čaj",
+    "subtitle": "Zpomalte. Nadechněte se.",
+    "notes": "Zázvor · zelený čaj",
+    "price": 249,
+    "category": "svicky",
+    "description": "Zázvor a zelený čaj. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "active": true,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349
+      }
+    ]
+  },
+  {
+    "id": "goji-cerveny-pomeranc",
+    "name": "Goji a červený pomeranč",
+    "subtitle": "Malá radost do každého dne.",
+    "notes": "Goji · červený pomeranč",
+    "price": 249,
+    "category": "svicky",
+    "description": "Goji a červený pomeranč. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "active": true,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349
+      }
+    ]
+  }
+]
