@@ -232,7 +232,7 @@
       }
       if (page === "home")
         $("#home-products").innerHTML = products
-          
+
           .map(productCard)
           .join("");
       if (page === "shop") {
