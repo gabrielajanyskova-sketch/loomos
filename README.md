@@ -26,6 +26,18 @@ PACKETA_SENDER=…         # volitelné: označení odesílatele (eshop)
 
 Bez hesla je tlačítko vypnuté. Zásilka se zakládá bez dobírky; štítek se tiskne v klientské sekci Zásilkovny. Pozor: založená zásilka je skutečná, i když je objednávka zatím zkušební.
 
+## E-maily (Resend)
+
+Po uložení nové objednávky server pošle přes Resend potvrzení zákazníkovi (odpověď jde na `info@loomos.cz`) a upozornění obchodu (odpověď jde zákazníkovi). Opakované odeslání stejné objednávky e-maily nezdvojí. Výpadek Resendu objednávku nezablokuje.
+
+```text
+RESEND_API_KEY=re_…                          # jen v prostředí serveru, nikdy do Gitu
+MAIL_FROM=LOOMOS <objednavky@loomos.cz>      # výchozí; doména musí být v Resendu ověřená
+SHOP_EMAIL=info@loomos.cz                    # výchozí příjemce upozornění
+```
+
+Bez klíče se e-maily neposílají. Doporučený je klíč s oprávněním „Sending access“ omezený na doménu `loomos.cz`.
+
 ## Cloudflare Pages a veřejná ukázka
 
 ```bash

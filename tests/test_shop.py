@@ -6,6 +6,7 @@ from pathlib import Path
 import secrets
 import tempfile
 import threading
+import time
 import unittest
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -218,6 +219,59 @@ class ShopTests(unittest.TestCase):
             os.environ.pop("PACKETA_API_PASSWORD", None)
             if old is not None:
                 os.environ["PACKETA_API_PASSWORD"] = old
+
+    def test_order_emails_via_resend(self):
+        received = []
+
+        class Fake(BaseHTTPRequestHandler):
+            def do_POST(self):
+                received.append(
+                    (
+                        dict(self.headers),
+                        json.loads(
+                            self.rfile.read(int(self.headers["Content-Length"]))
+                        ),
+                    )
+                )
+                self.send_response(200)
+                self.send_header("Content-Length", "2")
+                self.end_headers()
+                self.wfile.write(b"{}")
+
+            def log_message(self, *args):
+                pass
+
+        fake = ThreadingHTTPServer(("127.0.0.1", 0), Fake)
+        threading.Thread(target=fake.serve_forever, daemon=True).start()
+        old_url = shop.RESEND_API_URL
+        shop.RESEND_API_URL = f"http://127.0.0.1:{fake.server_port}/"
+        os.environ["RESEND_API_KEY"] = "re_test"
+        try:
+            order = self.order(name="Jana <b>Nová</b>", note="<script>")
+            status, result, _ = self.request("POST", "/api/orders", order)
+            self.assertEqual(status, 201)
+            self.request("POST", "/api/orders", order)  # replay must not resend
+            deadline = time.time() + 5
+            while len(received) < 2 and time.time() < deadline:
+                time.sleep(0.05)
+            time.sleep(0.2)
+            self.assertEqual(len(received), 2)
+            headers, customer = next(
+                r for r in received if r[1]["to"] == ["test@example.com"]
+            )
+            self.assertEqual(headers["Authorization"], "Bearer re_test")
+            self.assertIn(result["number"], customer["subject"])
+            self.assertIn("&lt;b&gt;", customer["html"])
+            self.assertNotIn("<b>", customer["html"])
+            self.assertIn("zkušební", customer["text"])
+            shop_mail = next(r[1] for r in received if r[1]["to"] == ["info@loomos.cz"])
+            self.assertEqual(shop_mail["reply_to"], "test@example.com")
+            self.assertNotIn("<script>", shop_mail["html"])
+        finally:
+            fake.shutdown()
+            fake.server_close()
+            shop.RESEND_API_URL = old_url
+            os.environ.pop("RESEND_API_KEY", None)
 
     def test_two_sizes_use_server_prices(self):
         data = self.order(

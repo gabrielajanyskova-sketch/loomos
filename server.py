@@ -10,7 +10,9 @@ import secrets
 import sqlite3
 import threading
 import time
+import urllib.error
 import urllib.request
+from html import escape as html_escape
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape as xml_escape
 from http.cookies import SimpleCookie
@@ -32,6 +34,10 @@ CSP = (
 )
 # Packeta (Zásilkovna). The API password is a secret: only ever read it from the environment.
 PACKETA_ORIGIN = "https://widget.packeta.com"
+# Resend e-mail. RESEND_API_KEY is a secret: only ever read it from the environment.
+RESEND_API_URL = os.environ.get("RESEND_API_URL", "https://api.resend.com/emails")
+MAIL_FROM = os.environ.get("MAIL_FROM", "LOOMOS <objednavky@loomos.cz>")
+SHOP_EMAIL = os.environ.get("SHOP_EMAIL", "info@loomos.cz")
 PACKETA_API_URL = os.environ.get(
     "PACKETA_API_URL", "https://www.zasilkovna.cz/api/rest"
 )
@@ -118,6 +124,103 @@ def text(value, name, maxlen, required=True):
     ):
         raise ValueError(f"Zkontrolujte pole {name}.")
     return value.strip()
+
+
+def czk(amount):
+    return f"{amount:,}".replace(",", "\u00a0") + "\u00a0Kč"
+
+
+def send_email(to, subject, lines, idempotency_key, reply_to=None):
+    """Send a plain e-mail through Resend. Returns True on success; never raises."""
+    key = os.environ.get("RESEND_API_KEY")
+    if not key:
+        return False
+    body = {
+        "from": MAIL_FROM,
+        "to": [to],
+        "subject": subject,
+        "text": "\n".join(lines),
+        "html": '<div style="font-family:Georgia,serif;font-size:16px;line-height:1.5">'
+        + "<br>".join(html_escape(line) for line in lines)
+        + "</div>",
+    }
+    if reply_to:
+        body["reply_to"] = reply_to
+    request = urllib.request.Request(
+        RESEND_API_URL,
+        data=json.dumps(body, ensure_ascii=False).encode(),
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "Idempotency-Key": idempotency_key,
+            "User-Agent": "loomos-shop",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15):
+            return True
+    except (OSError, urllib.error.HTTPError) as error:
+        # Log only the status, never the key, recipient or message content.
+        print(f"E-mail {idempotency_key} failed: {getattr(error, 'code', 'network')}")
+        return False
+
+
+def send_order_emails(number, order):
+    items = [
+        f"{i['qty']}× {i['name']} — {czk(i['price'] * i['qty'])}"
+        for i in order["items"]
+    ]
+    shipping = (
+        "Zásilkovna — " + order["pickup_point"]
+        if order["shipping"] == "zasilkovna"
+        else "Osobní odběr"
+    )
+    summary = [
+        f"Objednávka: {number}",
+        "",
+        *items,
+        f"Doprava: {shipping} ({czk(order['shipping_price'])})",
+        f"Celkem: {czk(order['total'])}",
+    ]
+    customer = order["customer"]
+    test_note = (
+        ["", "Jde o zkušební objednávku. Neproběhla platba ani expedice."]
+        if order.get("test_mode")
+        else []
+    )
+    send_email(
+        customer["email"],
+        f"Děkujeme za objednávku {number} | LOOMOS",
+        [
+            f"Dobrý den, {customer['name']},",
+            "",
+            "děkujeme za objednávku ručně vyráběných svíček LOOMOS.",
+            *test_note,
+            "",
+            *summary,
+            "",
+            "S dotazy stačí odpovědět na tento e-mail.",
+            "LOOMOS",
+        ],
+        f"order-{number}-customer",
+        reply_to=SHOP_EMAIL,
+    )
+    send_email(
+        SHOP_EMAIL,
+        f"Nová objednávka {number}",
+        [
+            *summary,
+            "",
+            f"Zákazník: {customer['name']}",
+            f"E-mail: {customer['email']}",
+            f"Telefon: {customer['phone']}",
+            f"Poznámka: {order.get('note') or '—'}",
+            *test_note,
+        ],
+        f"order-{number}-shop",
+        reply_to=customer["email"],
+    )
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -658,6 +761,9 @@ class Handler(SimpleHTTPRequestHandler):
                     json.dumps(payload, ensure_ascii=False),
                 ),
             )
+        threading.Thread(
+            target=send_order_emails, args=(number, payload), daemon=True
+        ).start()
         return self.respond(201, {"number": number, "test_mode": True})
 
 
