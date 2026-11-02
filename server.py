@@ -20,6 +20,12 @@ SESSIONS = {}
 ATTEMPTS = {}
 LOCK = threading.Lock()
 SESSION_SECONDS = 8 * 60 * 60
+PRODUCT_TEMPLATE = ROOT / "produkty/_sablona.html"
+CSP = (
+    "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; "
+    "img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; "
+    "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+)
 STATUSES = ("nova", "vyrizuje-se", "dokoncena", "zrusena")
 
 
@@ -115,10 +121,9 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header(
             "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
         )
-        self.send_header(
-            "Content-Security-Policy",
-            "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
-        )
+        self.send_header("Content-Security-Policy", CSP)
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
         if self.path.startswith("/api/") or self.path.startswith("/admin"):
             self.send_header("Cache-Control", "no-store")
         super().end_headers()
@@ -239,13 +244,8 @@ class Handler(SimpleHTTPRequestHandler):
                 with connect() as db:
                     exists = any(p["id"] == product_id for p in catalog(db))
                 if exists:
-                    content = (
-                        (ROOT / "produkty/amber-tobacco.html")
-                        .read_text()
-                        .replace(
-                            'data-product="amber-tobacco"',
-                            f'data-product="{product_id}"',
-                        )
+                    content = PRODUCT_TEMPLATE.read_text().replace(
+                        "__PRODUCT_ID__", product_id
                     )
                     raw = content.encode()
                     self.send_response(200)
@@ -323,7 +323,7 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/orders":
                 return self.place_order(data)
             return self.respond(404, {"error": "Nenalezeno."})
-        except (ValueError, TypeError, KeyError):
+        except (ValueError, TypeError, KeyError, AttributeError, RecursionError):
             return self.respond(
                 400,
                 {

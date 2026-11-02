@@ -1,7 +1,7 @@
 """Optional one-time media conversion; dependencies are in requirements-tools.txt."""
 
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageOps
 from fontTools.ttLib import TTFont
 
 root = Path(__file__).resolve().parents[1]
@@ -20,6 +20,10 @@ for source, prefix, widths, quality in [
         resized.save(
             imgdir / f"{prefix}-{width}.webp", "WEBP", quality=quality, method=6
         )
+hero = Image.open(imgdir / "candle-editorial.png").convert("RGB")
+ImageOps.fit(hero, (1200, 630), Image.Resampling.LANCZOS).save(
+    imgdir / "og-image.jpg", "JPEG", quality=82, optimize=True, progressive=True
+)
 logo = Image.open(imgdir / "loomos-logo-preview.png").convert("RGB")
 for size in [32, 48, 180, 192, 512]:
     logo.resize((size, size), Image.Resampling.LANCZOS).save(

@@ -90,6 +90,7 @@ for (const dir of ["img", "fonts"])
         /\.(webp|woff2|ico)$/.test(name) ||
         (name.startsWith("favicon-") && name.endsWith(".png")) ||
         name.endsWith("-LICENSE.txt") ||
+        name === "og-image.jpg" ||
         name === "benefit-icons.svg"
       )
     )
@@ -170,7 +171,7 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Anglie bez ftalátů.\n- Malá a velká velikost; objem a doba hoření zatím nejsou potvrzené.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n${products.map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id})`).join("\n")}\n\n## Kontakt\n${brand.email}\n`,
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Anglie bez ftalátů.\n- Malá a velká velikost; objem a doba hoření zatím nejsou potvrzené.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products.map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`).join("\n")}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
 );
 await write(
   "site.webmanifest",
@@ -190,10 +191,15 @@ await write(
   }),
 );
 const csp =
-  "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'";
+  "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'";
+const expires = new Date(Date.now() + 365 * 864e5).toISOString();
+await write(
+  ".well-known/security.txt",
+  `Contact: mailto:${brand.email}\nExpires: ${expires}\nPreferred-Languages: cs, en\nCanonical: ${siteUrl}/.well-known/security.txt\n`,
+);
 await write(
   "_headers",
-  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n`,
+  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n`,
 );
 await write(
   "_redirects",

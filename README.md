@@ -37,7 +37,7 @@ SITE_URL=https://loomos.cz
 SITE_INDEXABLE=1
 ```
 
-Preview deploymenty musí ponechat `SITE_INDEXABLE=0`. Sitemap obsahuje pouze hlavní obsah, nikoli košík, pokladnu a administraci. Robots tyto soukromé procesní cesty vyřazuje. Jedinečné titulky a popisy se generují pro každou vůni. JSON-LD propojuje Organization, WebSite, WebPage/CollectionPage, BreadcrumbList, Product a viditelné FAQPage. Pracovní ceny se nevydávají za ostré nabídky; nevymýšlíme recenze, certifikace, adresu ani zeměpisné souřadnice.
+Preview deploymenty musí ponechat `SITE_INDEXABLE=0`. Build také generuje `/.well-known/security.txt` s kontaktem. Sitemap obsahuje pouze hlavní obsah, nikoli košík, pokladnu a administraci. Robots tyto soukromé procesní cesty vyřazuje. Jedinečné titulky a popisy se generují pro každou vůni. JSON-LD propojuje Organization, WebSite, WebPage/CollectionPage, BreadcrumbList, Product a viditelné FAQPage. Pracovní ceny se nevydávají za ostré nabídky; nevymýšlíme recenze, certifikace, adresu ani zeměpisné souřadnice.
 
 Ověřená fakta a FAQ pro SEO/AEO/GEO jsou v `assets/js/site.mjs`, katalog v `data/products.json`, generování v `scripts/seo.mjs`. `llms.txt` shrnuje stejné informace a stav ukázky. Tyto podklady pomáhají strojové čitelnosti, ale nejsou příslibem pozic nebo citací ve vyhledávačích.
 
@@ -62,6 +62,17 @@ npm run test:e2e
 
 `npm test` ověřuje renderování, escapování, metadata, nasazovaný adresář, katalog/košík a API. `test:e2e` skutečně spustí veřejný build i izolované API; testuje mobil, obě velikosti, ceny v košíku, HTML bez JS, striktní CSP, nepřítomnost velkých obrázků, administraci a objednávku. Používá dočasná data a náhodné neveřejné testovací heslo. Snímky vznikají v `.local/artifacts`; cestu lze změnit `ARTIFACTS_DIR`, prohlížeč `PLAYWRIGHT_CHROMIUM_EXECUTABLE`.
 
-CI je v `.github/workflows/checks.yml`. Formátování JS/HTML/CSS/JSON zajišťuje Prettier. Pro výměnu nebo opětovné zmenšení médií je volitelný `scripts/optimize_assets.py` a `requirements-tools.txt`; změny obrázků nejsou součástí každého buildu. Původní Tailwind build je zachovaný jako `npm run build:tailwind`, nový vzhled ho nepoužívá.
+## Vlastní fotografie
+
+Současné fotografie jsou ilustrační. Pro výměnu nahraďte `assets/img/candle-editorial.png` (hlavní foto, ideálně alespoň 1536 × 1024 px) a případně `assets/img/loomos-maker.png`, pak spusťte:
+
+```bash
+pip install -r requirements-tools.txt
+python3 scripts/optimize_assets.py
+```
+
+Skript vytvoří WebP varianty i `og-image.jpg` (1200 × 630 pro sdílení na sociálních sítích). Popisky „Ilustrační fotografie“ v `assets/js/ui.mjs` a alt texty pak upravte podle skutečných fotek.
+
+CI je v `.github/workflows/checks.yml`. Formátování JS/HTML/CSS/JSON zajišťuje Prettier. Pro výměnu nebo opětovné zmenšení médií je volitelný `scripts/optimize_assets.py` a `requirements-tools.txt`; změny obrázků nejsou součástí každého buildu.
 
 Pracujte ve stávajícím izolovaném checkoutu. Push do `main` provádějte jen v rámci uživatelem schválených změn.
