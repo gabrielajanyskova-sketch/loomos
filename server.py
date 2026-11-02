@@ -10,6 +10,11 @@ import secrets
 import sqlite3
 import threading
 import time
+import urllib.error
+import urllib.request
+from html import escape as html_escape
+import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape as xml_escape
 from http.cookies import SimpleCookie
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import unquote, urlsplit
@@ -18,8 +23,27 @@ ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("LOOMOS_DATA_DIR", ROOT / ".local"))
 SESSIONS = {}
 ATTEMPTS = {}
+PACKETA_PENDING = set()
 LOCK = threading.Lock()
 SESSION_SECONDS = 8 * 60 * 60
+PRODUCT_TEMPLATE = ROOT / "produkty/_sablona.html"
+CSP = (
+    "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; "
+    "img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; "
+    "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+)
+# Packeta (Zásilkovna). The API password is a secret: only ever read it from the environment.
+PACKETA_ORIGIN = "https://widget.packeta.com"
+# Resend e-mail. RESEND_API_KEY is a secret: only ever read it from the environment.
+RESEND_API_URL = os.environ.get("RESEND_API_URL", "https://api.resend.com/emails")
+MAIL_FROM = os.environ.get("MAIL_FROM", "LOOMOS <objednavky@loomos.cz>")
+SHOP_EMAIL = os.environ.get("SHOP_EMAIL", "info@loomos.cz")
+PACKETA_API_URL = os.environ.get(
+    "PACKETA_API_URL", "https://www.zasilkovna.cz/api/rest"
+)
+CHECKOUT_CSP = CSP.replace(
+    "script-src 'self'", f"script-src 'self' {PACKETA_ORIGIN}"
+).replace("frame-src 'none'", f"frame-src {PACKETA_ORIGIN}")
 STATUSES = ("nova", "vyrizuje-se", "dokoncena", "zrusena")
 
 
@@ -102,6 +126,103 @@ def text(value, name, maxlen, required=True):
     return value.strip()
 
 
+def czk(amount):
+    return f"{amount:,}".replace(",", "\u00a0") + "\u00a0Kč"
+
+
+def send_email(to, subject, lines, idempotency_key, reply_to=None):
+    """Send a plain e-mail through Resend. Returns True on success; never raises."""
+    key = os.environ.get("RESEND_API_KEY")
+    if not key:
+        return False
+    body = {
+        "from": MAIL_FROM,
+        "to": [to],
+        "subject": subject,
+        "text": "\n".join(lines),
+        "html": '<div style="font-family:Georgia,serif;font-size:16px;line-height:1.5">'
+        + "<br>".join(html_escape(line) for line in lines)
+        + "</div>",
+    }
+    if reply_to:
+        body["reply_to"] = reply_to
+    request = urllib.request.Request(
+        RESEND_API_URL,
+        data=json.dumps(body, ensure_ascii=False).encode(),
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "Idempotency-Key": idempotency_key,
+            "User-Agent": "loomos-shop",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15):
+            return True
+    except (OSError, urllib.error.HTTPError) as error:
+        # Log only the status, never the key, recipient or message content.
+        print(f"E-mail {idempotency_key} failed: {getattr(error, 'code', 'network')}")
+        return False
+
+
+def send_order_emails(number, order):
+    items = [
+        f"{i['qty']}× {i['name']} — {czk(i['price'] * i['qty'])}"
+        for i in order["items"]
+    ]
+    shipping = (
+        "Zásilkovna — " + order["pickup_point"]
+        if order["shipping"] == "zasilkovna"
+        else "Osobní odběr"
+    )
+    summary = [
+        f"Objednávka: {number}",
+        "",
+        *items,
+        f"Doprava: {shipping} ({czk(order['shipping_price'])})",
+        f"Celkem: {czk(order['total'])}",
+    ]
+    customer = order["customer"]
+    test_note = (
+        ["", "Jde o zkušební objednávku. Neproběhla platba ani expedice."]
+        if order.get("test_mode")
+        else []
+    )
+    send_email(
+        customer["email"],
+        f"Děkujeme za objednávku {number} | LOOMOS",
+        [
+            f"Dobrý den, {customer['name']},",
+            "",
+            "děkujeme za objednávku ručně vyráběných svíček LOOMOS.",
+            *test_note,
+            "",
+            *summary,
+            "",
+            "S dotazy stačí odpovědět na tento e-mail.",
+            "LOOMOS",
+        ],
+        f"order-{number}-customer",
+        reply_to=SHOP_EMAIL,
+    )
+    send_email(
+        SHOP_EMAIL,
+        f"Nová objednávka {number}",
+        [
+            *summary,
+            "",
+            f"Zákazník: {customer['name']}",
+            f"E-mail: {customer['email']}",
+            f"Telefon: {customer['phone']}",
+            f"Poznámka: {order.get('note') or '—'}",
+            *test_note,
+        ],
+        f"order-{number}-shop",
+        reply_to=customer["email"],
+    )
+
+
 class Handler(SimpleHTTPRequestHandler):
     server_version = "LOOMOS"
 
@@ -115,10 +236,10 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header(
             "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
         )
-        self.send_header(
-            "Content-Security-Policy",
-            "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
-        )
+        checkout = urlsplit(self.path).path in ("/pokladna", "/pokladna.html")
+        self.send_header("Content-Security-Policy", CHECKOUT_CSP if checkout else CSP)
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
         if self.path.startswith("/api/") or self.path.startswith("/admin"):
             self.send_header("Cache-Control", "no-store")
         super().end_headers()
@@ -195,6 +316,7 @@ class Handler(SimpleHTTPRequestHandler):
                 {
                     "authenticated": self.authenticated(),
                     "configured": bool(os.environ.get("LOOMOS_ADMIN_PASSWORD")),
+                    "packeta": bool(os.environ.get("PACKETA_API_PASSWORD")),
                     "test_mode": True,
                 },
             )
@@ -239,13 +361,8 @@ class Handler(SimpleHTTPRequestHandler):
                 with connect() as db:
                     exists = any(p["id"] == product_id for p in catalog(db))
                 if exists:
-                    content = (
-                        (ROOT / "produkty/amber-tobacco.html")
-                        .read_text()
-                        .replace(
-                            'data-product="amber-tobacco"',
-                            f'data-product="{product_id}"',
-                        )
+                    content = PRODUCT_TEMPLATE.read_text().replace(
+                        "__PRODUCT_ID__", product_id
                     )
                     raw = content.encode()
                     self.send_response(200)
@@ -306,6 +423,8 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.respond(401, {"error": "Přihlaste se do administrace."})
                 if path == "/api/admin/products":
                     return self.save_product(data)
+                if path == "/api/admin/packeta-packet":
+                    return self.packeta_packet(data)
                 if path == "/api/admin/order-status":
                     number = text(data.get("number"), "objednávka", 50)
                     status = data.get("status")
@@ -323,7 +442,7 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/orders":
                 return self.place_order(data)
             return self.respond(404, {"error": "Nenalezeno."})
-        except (ValueError, TypeError, KeyError):
+        except (ValueError, TypeError, KeyError, AttributeError, RecursionError):
             return self.respond(
                 400,
                 {
@@ -441,6 +560,106 @@ class Handler(SimpleHTTPRequestHandler):
             )
         return self.respond(200, p)
 
+    def packeta_packet(self, data):
+        number = text(data.get("number"), "objednávka", 50)
+        with LOCK:
+            if number in PACKETA_PENDING:
+                return self.respond(409, {"error": "Zásilka se právě vytváří."})
+            PACKETA_PENDING.add(number)
+        try:
+            return self.create_packet(number, data)
+        finally:
+            with LOCK:
+                PACKETA_PENDING.discard(number)
+
+    def create_packet(self, number, data):
+        password = os.environ.get("PACKETA_API_PASSWORD")
+        if not password:
+            return self.respond(
+                503, {"error": "Na serveru není nastavené PACKETA_API_PASSWORD."}
+            )
+        weight = data.get("weight")
+        if type(weight) not in (int, float) or not 0 < weight <= 15:
+            raise ValueError("Neplatná hmotnost.")
+        with connect() as db:
+            row = db.execute(
+                "SELECT payload FROM orders WHERE id=?", (number,)
+            ).fetchone()
+        if not row:
+            return self.respond(404, {"error": "Objednávka neexistuje."})
+        order = json.loads(row["payload"])
+        if order.get("packeta"):
+            return self.respond(409, {"error": "Zásilka už byla vytvořena."})
+        if order.get("shipping") != "zasilkovna" or not order.get("packeta_point_id"):
+            return self.respond(
+                400, {"error": "Objednávka nemá výdejní místo vybrané na mapě."}
+            )
+        customer = order["customer"]
+        first, _, last = customer["name"].strip().rpartition(" ")
+        attributes = {
+            "number": number,
+            "name": first or last,
+            "surname": last,
+            "email": customer["email"],
+            "phone": customer["phone"],
+            "addressId": order["packeta_point_id"],
+            "value": order["total"],
+            "cod": 0,
+            "weight": round(weight, 3),
+            "eshop": os.environ.get("PACKETA_SENDER", ""),
+        }
+        fields = "".join(
+            f"<{k}>{xml_escape(str(v))}</{k}>" for k, v in attributes.items() if v != ""
+        )
+        request = urllib.request.Request(
+            PACKETA_API_URL,
+            data=(
+                "<createPacket>"
+                f"<apiPassword>{xml_escape(password)}</apiPassword>"
+                f"<packetAttributes>{fields}</packetAttributes>"
+                "</createPacket>"
+            ).encode(),
+            headers={"Content-Type": "text/xml; charset=utf-8"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=15) as response:
+                reply = ET.fromstring(response.read(65536))
+        except (OSError, ET.ParseError):
+            return self.respond(
+                502, {"error": "Zásilkovna teď neodpovídá. Zkuste to znovu."}
+            )
+        if reply.findtext("status") != "ok":
+            detail = (
+                " ".join(
+                    t.strip() for t in reply.find("detail").itertext() if t.strip()
+                )
+                if reply.find("detail") is not None
+                else ""
+            )
+            message = reply.findtext("string") or "Zásilku se nepodařilo vytvořit."
+            return self.respond(
+                400, {"error": f"Zásilkovna: {message} {detail}".strip()[:500]}
+            )
+        packet = dict(
+            id=reply.findtext("result/id") or "",
+            barcode=reply.findtext("result/barcodeText")
+            or reply.findtext("result/barcode")
+            or "",
+        )
+        with connect() as db:
+            current = json.loads(
+                db.execute(
+                    "SELECT payload FROM orders WHERE id=?", (number,)
+                ).fetchone()["payload"]
+            )
+            current["packeta"] = packet
+            db.execute(
+                "UPDATE orders SET payload=? WHERE id=?",
+                (json.dumps(current, ensure_ascii=False), number),
+            )
+        return self.respond(201, packet)
+
     def place_order(self, data):
         request_id = text(data.get("request_id"), "identifikátor", 80)
         if not re.fullmatch("[a-f0-9-]{36}", request_id):
@@ -457,6 +676,13 @@ class Handler(SimpleHTTPRequestHandler):
         point = text(
             data.get("pickup_point", ""), "výdejní místo", 200, shipping == "zasilkovna"
         )
+        point_id = ""
+        if shipping == "zasilkovna":
+            point_id = text(
+                data.get("packeta_point_id", ""), "výdejní místo", 10, False
+            )
+            if point_id and not re.fullmatch(r"[0-9]{1,10}", point_id):
+                raise ValueError("Neplatné výdejní místo.")
         note = text(data.get("note", ""), "poznámka", 1000, False)
         items = data.get("items")
         if not isinstance(items, list) or not 1 <= len(items) <= 50:
@@ -516,6 +742,7 @@ class Handler(SimpleHTTPRequestHandler):
                 items=snapshot,
                 shipping=shipping,
                 pickup_point=point,
+                packeta_point_id=point_id,
                 shipping_price=shipping_price,
                 note=note,
                 total=sum(i["price"] * i["qty"] for i in snapshot) + shipping_price,
@@ -534,6 +761,9 @@ class Handler(SimpleHTTPRequestHandler):
                     json.dumps(payload, ensure_ascii=False),
                 ),
             )
+        threading.Thread(
+            target=send_order_emails, args=(number, payload), daemon=True
+        ).start()
         return self.respond(201, {"number": number, "test_mode": True})
 
 

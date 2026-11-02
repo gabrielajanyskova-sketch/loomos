@@ -29,6 +29,7 @@
   };
   let products = [],
     orders = [],
+    packetaReady = false,
     tab = "overview";
   async function api(path, data) {
     const r = await fetch(
@@ -124,11 +125,21 @@
       }
     });
   }
+  function packetaPanel(o) {
+    if (o.shipping !== "zasilkovna") return "";
+    if (o.packeta)
+      return `<p class="notice">Zásilka v Zásilkovně: <strong>${esc(o.packeta.barcode || o.packeta.id)}</strong>. Štítek vytisknete v klientské sekci Zásilkovny.</p>`;
+    if (!o.packeta_point_id)
+      return '<p class="notice">Zákazník nevybral výdejní místo na mapě, zásilku je nutné založit ručně v klientské sekci Zásilkovny.</p>';
+    if (!packetaReady)
+      return '<p class="notice">Pro zakládání zásilek nastavte na serveru PACKETA_API_PASSWORD.</p>';
+    return '<form id="packet-form" class="spaced-top"><label>Hmotnost zásilky (kg)<input name="weight" type="number" min="0.01" max="15" step="0.01" required></label><button class="button">Vytvořit zásilku v Zásilkovně →</button></form>';
+  }
   function showOrder(number) {
     const o = orders.find((o) => o.number === number);
     if (!o) return;
     $("#admin-content").innerHTML =
-      `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>${esc(o.number)}</h2><p class="notice">Zkušební objednávka. Žádná platba neproběhla.</p><p>${esc(o.customer.name)}<br>${esc(o.customer.email)}<br>${esc(o.customer.phone)}</p><p>Doprava: ${o.shipping === "pickup" ? "Osobní odběr" : "Zásilkovna"}<br>${esc(o.pickup_point)}</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Kusy</th><th>Cena za kus</th></tr></thead><tbody>${o.items.map((i) => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td></tr>`).join("")}</tbody></table></div><p class="spaced-top">Doprava: ${money(o.shipping_price)} · Celkem: <strong>${money(o.total)}</strong></p><p>Poznámka: ${esc(o.note || "—")}</p><form id="status-form"><label>Stav objednávky<select name="status">${Object.entries(
+      `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>${esc(o.number)}</h2><p class="notice">Zkušební objednávka. Žádná platba neproběhla.</p><p>${esc(o.customer.name)}<br>${esc(o.customer.email)}<br>${esc(o.customer.phone)}</p><p>Doprava: ${o.shipping === "pickup" ? "Osobní odběr" : "Zásilkovna"}<br>${esc(o.pickup_point)}${o.packeta_point_id ? ` <small>(ID ${esc(o.packeta_point_id)})</small>` : ""}</p>${packetaPanel(o)}<div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Kusy</th><th>Cena za kus</th></tr></thead><tbody>${o.items.map((i) => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td></tr>`).join("")}</tbody></table></div><p class="spaced-top">Doprava: ${money(o.shipping_price)} · Celkem: <strong>${money(o.total)}</strong></p><p>Poznámka: ${esc(o.note || "—")}</p><form id="status-form"><label>Stav objednávky<select name="status">${Object.entries(
         labels,
       )
         .map(
@@ -142,6 +153,29 @@
       tab = "orders";
       render();
     };
+    $("#packet-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.currentTarget;
+      if (
+        !confirm(
+          "Vytvořit skutečnou zásilku v Zásilkovně? Objednávka je zatím zkušební.",
+        )
+      )
+        return;
+      f.querySelector("button").disabled = true;
+      try {
+        const packet = await api("packeta-packet", {
+          number,
+          weight: Number(f.elements.weight.value),
+        });
+        await load();
+        showOrder(number);
+        status("Zásilka vytvořena: " + (packet.barcode || packet.id));
+      } catch (err) {
+        status(err.message, true);
+        f.querySelector("button").disabled = false;
+      }
+    });
     $("#status-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
@@ -212,6 +246,7 @@
   }
   api("session")
     .then((s) => {
+      packetaReady = s.packeta;
       if (s.authenticated) return load();
       if (!s.configured)
         status(

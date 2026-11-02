@@ -1,6 +1,12 @@
 import { brand, faqs } from "../assets/js/site.mjs";
 import { esc } from "../assets/js/ui.mjs";
 
+export const ogImage = {
+  path: "/assets/img/og-image.jpg",
+  width: 1200,
+  height: 630,
+  alt: "Ilustrační sójová svíčka LOOMOS v čirém skle s dřevěným knotem",
+};
 const privatePages = new Set(["cart", "checkout", "admin", "notfound"]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
@@ -48,6 +54,12 @@ export function metadata({
     },
     email: brand.email,
     description: brand.description,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: brand.email,
+      availableLanguage: ["cs"],
+    },
   };
   const website = {
     "@type": "WebSite",
@@ -73,6 +85,12 @@ export function metadata({
     inLanguage: brand.language,
     isPartOf: { "@id": website["@id"] },
     about: { "@id": organization["@id"] },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: siteUrl + ogImage.path,
+      width: ogImage.width,
+      height: ogImage.height,
+    },
   };
   const graph = [organization, website, webPage];
   if (page === "home")
@@ -106,11 +124,20 @@ export function metadata({
       name: product.name,
       description: product.description,
       url: canonical,
-      image: siteUrl + "/assets/img/candle-1536.webp",
+      sku: product.id,
+      category: "Vonné svíčky",
+      image: [siteUrl + "/assets/img/candle-1536.webp", siteUrl + ogImage.path],
       brand: { "@type": "Brand", name: brand.name },
+      manufacturer: { "@id": organization["@id"] },
       material: "Sójový vosk; čiré sklo; dřevěný knot",
       additionalProperty: [
-        { "@type": "PropertyValue", name: "Velikosti", value: "Malá, velká" },
+        {
+          "@type": "PropertyValue",
+          name: "Velikosti",
+          value: product.variants?.length
+            ? product.variants.map((v) => v.name).join(", ")
+            : "Malá, velká",
+        },
         { "@type": "PropertyValue", name: "Vonné tóny", value: product.notes },
       ],
     });
@@ -149,13 +176,14 @@ export function renderHead({
   runtime = "static",
 }) {
   const privatePage = privatePages.has(page);
+  const image = new URL(ogImage.path, meta.canonical).href;
   return `<head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(meta.title)}</title><meta name="description" content="${esc(meta.description)}">
-<meta name="robots" content="${meta.robots}"><meta name="theme-color" content="#171614"><meta name="color-scheme" content="dark"><meta name="loomos-runtime" content="${runtime}">
+<meta name="robots" content="${meta.robots}"><meta name="author" content="LOOMOS"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#171614"><meta name="color-scheme" content="dark"><meta name="loomos-runtime" content="${runtime}">
 <link rel="canonical" href="${esc(meta.canonical)}">
-<meta property="og:locale" content="cs_CZ"><meta property="og:site_name" content="LOOMOS"><meta property="og:type" content="${page === "product" ? "product" : "website"}"><meta property="og:title" content="${esc(meta.title)}"><meta property="og:description" content="${esc(meta.description)}"><meta property="og:url" content="${esc(meta.canonical)}"><meta property="og:image" content="${new URL("/assets/img/candle-1536.webp", meta.canonical).href}"><meta property="og:image:alt" content="Ilustrační sójová svíčka LOOMOS v čirém skle s dřevěným knotem"><meta property="og:image:width" content="1536"><meta property="og:image:height" content="1024">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(meta.title)}"><meta name="twitter:description" content="${esc(meta.description)}"><meta name="twitter:image" content="${new URL("/assets/img/candle-1536.webp", meta.canonical).href}">
+<meta property="og:locale" content="cs_CZ"><meta property="og:site_name" content="LOOMOS"><meta property="og:type" content="${page === "product" ? "product" : "website"}"><meta property="og:title" content="${esc(meta.title)}"><meta property="og:description" content="${esc(meta.description)}"><meta property="og:url" content="${esc(meta.canonical)}"><meta property="og:image" content="${image}"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:alt" content="${ogImage.alt}"><meta property="og:image:width" content="${ogImage.width}"><meta property="og:image:height" content="${ogImage.height}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(meta.title)}"><meta name="twitter:description" content="${esc(meta.description)}"><meta name="twitter:image" content="${image}"><meta name="twitter:image:alt" content="${ogImage.alt}">
 <link rel="icon" href="/assets/img/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon-180.png"><link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/lora.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/cormorant-garamond.woff2" as="font" type="font/woff2" crossorigin>
 ${page === "home" ? '<link rel="preload" as="image" href="/assets/img/candle-1536.webp" imagesrcset="/assets/img/candle-960.webp 960w, /assets/img/candle-1536.webp 1536w" imagesizes="(max-width:700px) 960px, 100vw" fetchpriority="high">' : ""}

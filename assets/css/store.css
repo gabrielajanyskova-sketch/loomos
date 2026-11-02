@@ -159,6 +159,24 @@ p {
   letter-spacing: 0.13em;
   padding: 9px 16px;
 }
+.preview-notice {
+  margin: 0;
+  padding: 10px 16px;
+  background: #3a2a1d;
+  border-bottom: 1px solid #cb956840;
+  color: #f1e3d3;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.preview-notice strong {
+  color: var(--copper-light);
+}
+.preview-notice a {
+  color: var(--copper-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .site-header {
   height: 91px;
   border-bottom: 1px solid var(--line);
@@ -2057,4 +2075,14 @@ body:not(.admin-body) .benefits > div > .benefit-icon {
   stroke-width: 1.65;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.packeta-pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.packeta-pick p {
+  margin: 0;
 }

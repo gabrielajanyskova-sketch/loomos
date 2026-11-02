@@ -7,6 +7,11 @@ export const brand = {
   description:
     "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
 };
+/** Packeta (Zásilkovna) widget key. It is public by design; the API password never belongs here. */
+export const packeta = {
+  apiKey: "bba87c051aab6fc0",
+  library: "https://widget.packeta.com/v6/www/js/library.js",
+};
 export const faqs = [
   {
     question: "Z čeho jsou svíčky LOOMOS vyrobené?",

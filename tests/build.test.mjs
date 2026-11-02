@@ -44,7 +44,7 @@ test("deployment output never contains source, database, tests, secrets or old i
     );
   assert.ok(
     !readdirSync(new URL("../dist/produkty", import.meta.url)).includes(
-      "amber-tobacco.html",
+      "_sablona.html",
     ),
   );
   assert.match(read("_headers"), /frame-ancestors 'none'/);

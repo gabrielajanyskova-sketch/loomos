@@ -1,6 +1,0 @@
-node_modules/
-dist/
-.local/
-assets/fonts/
-assets/css/style.css
-package-lock.json
