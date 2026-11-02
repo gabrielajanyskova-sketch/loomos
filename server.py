@@ -10,6 +10,9 @@ import secrets
 import sqlite3
 import threading
 import time
+import urllib.request
+import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape as xml_escape
 from http.cookies import SimpleCookie
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import unquote, urlsplit
@@ -18,6 +21,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("LOOMOS_DATA_DIR", ROOT / ".local"))
 SESSIONS = {}
 ATTEMPTS = {}
+PACKETA_PENDING = set()
 LOCK = threading.Lock()
 SESSION_SECONDS = 8 * 60 * 60
 PRODUCT_TEMPLATE = ROOT / "produkty/_sablona.html"
@@ -26,6 +30,14 @@ CSP = (
     "img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; "
     "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
 )
+# Packeta (Zásilkovna). The API password is a secret: only ever read it from the environment.
+PACKETA_ORIGIN = "https://widget.packeta.com"
+PACKETA_API_URL = os.environ.get(
+    "PACKETA_API_URL", "https://www.zasilkovna.cz/api/rest"
+)
+CHECKOUT_CSP = CSP.replace(
+    "script-src 'self'", f"script-src 'self' {PACKETA_ORIGIN}"
+).replace("frame-src 'none'", f"frame-src {PACKETA_ORIGIN}")
 STATUSES = ("nova", "vyrizuje-se", "dokoncena", "zrusena")
 
 
@@ -121,7 +133,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header(
             "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
         )
-        self.send_header("Content-Security-Policy", CSP)
+        checkout = urlsplit(self.path).path in ("/pokladna", "/pokladna.html")
+        self.send_header("Content-Security-Policy", CHECKOUT_CSP if checkout else CSP)
         self.send_header("Cross-Origin-Opener-Policy", "same-origin")
         self.send_header("Cross-Origin-Resource-Policy", "same-origin")
         if self.path.startswith("/api/") or self.path.startswith("/admin"):
@@ -200,6 +213,7 @@ class Handler(SimpleHTTPRequestHandler):
                 {
                     "authenticated": self.authenticated(),
                     "configured": bool(os.environ.get("LOOMOS_ADMIN_PASSWORD")),
+                    "packeta": bool(os.environ.get("PACKETA_API_PASSWORD")),
                     "test_mode": True,
                 },
             )
@@ -306,6 +320,8 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.respond(401, {"error": "Přihlaste se do administrace."})
                 if path == "/api/admin/products":
                     return self.save_product(data)
+                if path == "/api/admin/packeta-packet":
+                    return self.packeta_packet(data)
                 if path == "/api/admin/order-status":
                     number = text(data.get("number"), "objednávka", 50)
                     status = data.get("status")
@@ -441,6 +457,106 @@ class Handler(SimpleHTTPRequestHandler):
             )
         return self.respond(200, p)
 
+    def packeta_packet(self, data):
+        number = text(data.get("number"), "objednávka", 50)
+        with LOCK:
+            if number in PACKETA_PENDING:
+                return self.respond(409, {"error": "Zásilka se právě vytváří."})
+            PACKETA_PENDING.add(number)
+        try:
+            return self.create_packet(number, data)
+        finally:
+            with LOCK:
+                PACKETA_PENDING.discard(number)
+
+    def create_packet(self, number, data):
+        password = os.environ.get("PACKETA_API_PASSWORD")
+        if not password:
+            return self.respond(
+                503, {"error": "Na serveru není nastavené PACKETA_API_PASSWORD."}
+            )
+        weight = data.get("weight")
+        if type(weight) not in (int, float) or not 0 < weight <= 15:
+            raise ValueError("Neplatná hmotnost.")
+        with connect() as db:
+            row = db.execute(
+                "SELECT payload FROM orders WHERE id=?", (number,)
+            ).fetchone()
+        if not row:
+            return self.respond(404, {"error": "Objednávka neexistuje."})
+        order = json.loads(row["payload"])
+        if order.get("packeta"):
+            return self.respond(409, {"error": "Zásilka už byla vytvořena."})
+        if order.get("shipping") != "zasilkovna" or not order.get("packeta_point_id"):
+            return self.respond(
+                400, {"error": "Objednávka nemá výdejní místo vybrané na mapě."}
+            )
+        customer = order["customer"]
+        first, _, last = customer["name"].strip().rpartition(" ")
+        attributes = {
+            "number": number,
+            "name": first or last,
+            "surname": last,
+            "email": customer["email"],
+            "phone": customer["phone"],
+            "addressId": order["packeta_point_id"],
+            "value": order["total"],
+            "cod": 0,
+            "weight": round(weight, 3),
+            "eshop": os.environ.get("PACKETA_SENDER", ""),
+        }
+        fields = "".join(
+            f"<{k}>{xml_escape(str(v))}</{k}>" for k, v in attributes.items() if v != ""
+        )
+        request = urllib.request.Request(
+            PACKETA_API_URL,
+            data=(
+                "<createPacket>"
+                f"<apiPassword>{xml_escape(password)}</apiPassword>"
+                f"<packetAttributes>{fields}</packetAttributes>"
+                "</createPacket>"
+            ).encode(),
+            headers={"Content-Type": "text/xml; charset=utf-8"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=15) as response:
+                reply = ET.fromstring(response.read(65536))
+        except (OSError, ET.ParseError):
+            return self.respond(
+                502, {"error": "Zásilkovna teď neodpovídá. Zkuste to znovu."}
+            )
+        if reply.findtext("status") != "ok":
+            detail = (
+                " ".join(
+                    t.strip() for t in reply.find("detail").itertext() if t.strip()
+                )
+                if reply.find("detail") is not None
+                else ""
+            )
+            message = reply.findtext("string") or "Zásilku se nepodařilo vytvořit."
+            return self.respond(
+                400, {"error": f"Zásilkovna: {message} {detail}".strip()[:500]}
+            )
+        packet = dict(
+            id=reply.findtext("result/id") or "",
+            barcode=reply.findtext("result/barcodeText")
+            or reply.findtext("result/barcode")
+            or "",
+        )
+        with connect() as db:
+            current = json.loads(
+                db.execute(
+                    "SELECT payload FROM orders WHERE id=?", (number,)
+                ).fetchone()["payload"]
+            )
+            current["packeta"] = packet
+            db.execute(
+                "UPDATE orders SET payload=? WHERE id=?",
+                (json.dumps(current, ensure_ascii=False), number),
+            )
+        return self.respond(201, packet)
+
     def place_order(self, data):
         request_id = text(data.get("request_id"), "identifikátor", 80)
         if not re.fullmatch("[a-f0-9-]{36}", request_id):
@@ -457,6 +573,13 @@ class Handler(SimpleHTTPRequestHandler):
         point = text(
             data.get("pickup_point", ""), "výdejní místo", 200, shipping == "zasilkovna"
         )
+        point_id = ""
+        if shipping == "zasilkovna":
+            point_id = text(
+                data.get("packeta_point_id", ""), "výdejní místo", 10, False
+            )
+            if point_id and not re.fullmatch(r"[0-9]{1,10}", point_id):
+                raise ValueError("Neplatné výdejní místo.")
         note = text(data.get("note", ""), "poznámka", 1000, False)
         items = data.get("items")
         if not isinstance(items, list) or not 1 <= len(items) <= 50:
@@ -516,6 +639,7 @@ class Handler(SimpleHTTPRequestHandler):
                 items=snapshot,
                 shipping=shipping,
                 pickup_point=point,
+                packeta_point_id=point_id,
                 shipping_price=shipping_price,
                 note=note,
                 total=sum(i["price"] * i["qty"] for i in snapshot) + shipping_price,

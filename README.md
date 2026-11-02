@@ -13,6 +13,19 @@ Aplikační server naslouchá na `127.0.0.1:8080`; port upravuje `PORT`, rozhran
 
 Data zůstávají v ignorované složce `.local/`, případně v `LOOMOS_DATA_DIR`. První spuštění načte `data/products.json`, další starty zachovávají úpravy. Verze migrací ukrývají původní ukázkové produkty a přidávají šest schválených vůní a dvě velikosti, aniž přepisují historické objednávky. Objednávky uchovávají kopii názvů a cen; cenu i velikost ověřuje server. Malá a velká svíčka mají pracovní ceny 249 Kč / 349 Kč. Objem ani doba hoření nejsou potvrzené. Doprava je zatím testovací: osobní odběr zdarma, Zásilkovna 79 Kč.
 
+## Zásilkovna (Packeta)
+
+V pokladně lokálního serveru si zákazník vybírá výdejní místo v oficiálním widgetu Zásilkovny. Veřejný klíč widgetu je v `assets/js/site.mjs`. Ten je veřejný záměrně. Externí skript a iframe z `widget.packeta.com` povoluje CSP jen na stránce pokladny. Když se mapa nenačte, lze výdejní místo napsat ručně.
+
+V administraci lze u objednávky s místem vybraným na mapě založit zásilku. Server k tomu potřebuje proměnné prostředí:
+
+```text
+PACKETA_API_PASSWORD=…   # heslo API z klientské sekce, nikdy do Gitu
+PACKETA_SENDER=…         # volitelné: označení odesílatele (eshop)
+```
+
+Bez hesla je tlačítko vypnuté. Zásilka se zakládá bez dobírky; štítek se tiskne v klientské sekci Zásilkovny. Pozor: založená zásilka je skutečná, i když je objednávka zatím zkušební.
+
 ## Cloudflare Pages a veřejná ukázka
 
 ```bash

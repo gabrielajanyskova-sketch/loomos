@@ -1,4 +1,4 @@
-import { faqs } from "./site.mjs";
+import { faqs, packeta } from "./site.mjs";
 import {
   money,
   esc,
@@ -210,7 +210,7 @@ import { validateCatalog, readCart } from "./catalog.mjs";
       el.innerHTML = `<div class="checkout-layout"><section class="panel"><h2>Objednávky zatím připravujeme.</h2><p>Košík si můžete vyzkoušet. Platby a odesílání objednávek spustíme po dokončení e-shopu.</p><a class="button" href="mailto:info@loomos.cz">Máte dotaz? Napište nám →</a></section>${summary(true)}</div>`;
       return;
     }
-    el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form"><h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="40"></label></div><h2>02 / Doprava</h2><label class="radio"><input type="radio" name="shipping" value="pickup" checked>Osobní odběr<span>Zdarma</span></label><label class="radio"><input type="radio" name="shipping" value="zasilkovna">Zásilkovna — výdejní místo<span>${money(79)}</span></label><div id="pickup-address" class="notice">Přesné místo a čas osobního odběru domluvíme individuálně.</div><div class="form-grid" id="delivery-fields" hidden><label class="full">Název nebo ID výdejního místa<input name="pickup_point" maxlength="200" placeholder="Zatím ruční výběr výdejního místa"></label></div><h2>03 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><p class="notice">Platební bránu připravujeme. Tímto krokem uložíte pouze zkušební objednávku, bez platby a expedice.</p><label class="check"><input type="checkbox" name="test_ack" required>Rozumím, že jde o zkušební objednávku bez platby a doručení.</label><p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Uložit zkušební objednávku →</button></form>${summary(true)}</div>`;
+    el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form"><h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="40"></label></div><h2>02 / Doprava</h2><label class="radio"><input type="radio" name="shipping" value="pickup" checked>Osobní odběr<span>Zdarma</span></label><label class="radio"><input type="radio" name="shipping" value="zasilkovna">Zásilkovna — výdejní místo<span>${money(79)}</span></label><div id="pickup-address" class="notice">Přesné místo a čas osobního odběru domluvíme individuálně.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat výdejní místo na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><label class="full">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><h2>03 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><p class="notice">Platební bránu připravujeme. Tímto krokem uložíte pouze zkušební objednávku, bez platby a expedice.</p><label class="check"><input type="checkbox" name="test_ack" required>Rozumím, že jde o zkušební objednávku bez platby a doručení.</label><p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Uložit zkušební objednávku →</button></form>${summary(true)}</div>`;
     const form = $("#checkout-form");
     form.addEventListener("change", () => {
       const shipping = form.elements.shipping.value;
@@ -222,6 +222,44 @@ import { validateCatalog, readCart } from "./catalog.mjs";
       $("#delivery-fields").hidden = shipping !== "zasilkovna";
       $("#pickup-address").hidden = shipping !== "pickup";
       form.elements.pickup_point.required = shipping === "zasilkovna";
+    });
+    let packetaLoad;
+    const loadPacketa = () =>
+      (packetaLoad ||= new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = packeta.library;
+        script.onload = () =>
+          window.Packeta?.Widget ? resolve(window.Packeta) : reject();
+        script.onerror = () => {
+          packetaLoad = null;
+          reject();
+        };
+        document.head.append(script);
+      }));
+    $("#packeta-pick").addEventListener("click", async () => {
+      try {
+        const Packeta = await loadPacketa();
+        Packeta.Widget.pick(
+          packeta.apiKey,
+          (point) => {
+            if (!point || !/^\d{1,10}$/.test(String(point.id))) return;
+            const label = String(
+              point.formatedValue || point.name || point.place || "",
+            ).slice(0, 200);
+            form.elements.packeta_point_id.value = String(point.id);
+            form.elements.pickup_point.value = label;
+            $("#packeta-selected").textContent = "Vybráno: " + label;
+          },
+          { country: "cz", language: "cs" },
+        );
+      } catch {
+        $("#packeta-selected").textContent =
+          "Mapu výdejních míst se nepodařilo načíst. Napište prosím název výdejního místa.";
+      }
+    });
+    form.elements.pickup_point.addEventListener("input", () => {
+      form.elements.packeta_point_id.value = "";
+      $("#packeta-selected").textContent = "";
     });
     let key = crypto.randomUUID();
     form.addEventListener("submit", async (e) => {
