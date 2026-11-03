@@ -5,6 +5,7 @@ import * as shop from "./shop.js";
 import * as account from "./account.js";
 import * as admin from "./admin.js";
 import * as workshop from "./workshop.js";
+import * as withdrawal from "./withdrawal.js";
 
 const routes = {
   "GET /api/products": (db) => shop.products(db),
@@ -12,6 +13,8 @@ const routes = {
   "POST /api/orders": shop.createOrder,
   "GET /api/orders/view": shop.viewOrder,
   "GET /api/qr": shop.qrImage,
+  "GET /api/invoice": withdrawal.customerInvoice,
+  "POST /api/withdrawal": withdrawal.withdraw,
 
   "GET /api/account/me": account.me,
   "POST /api/account/register": account.register,
@@ -32,6 +35,11 @@ const adminRoutes = {
   "GET /api/admin/overview": admin.overview,
   "GET /api/admin/orders": admin.orders,
   "POST /api/admin/order-status": admin.setStatus,
+  "POST /api/admin/order-delete": admin.deleteOrder,
+  "POST /api/admin/invoice": admin.createInvoice,
+  "GET /api/admin/invoice": admin.invoiceDownload,
+  "GET /api/admin/withdrawals": admin.withdrawals,
+  "POST /api/admin/withdrawal-resolved": admin.resolveWithdrawal,
   "POST /api/admin/packeta-packet": admin.packet,
   "GET /api/admin/stock": admin.stock,
   "POST /api/admin/stock": admin.setStock,
@@ -48,6 +56,8 @@ const adminRoutes = {
   "POST /api/admin/workshop/batch-delete": workshop.deleteBatch,
   "POST /api/admin/workshop/label": workshop.saveLabel,
   "POST /api/admin/workshop/wax": workshop.saveWax,
+  "POST /api/admin/workshop/wick-test": workshop.saveWickTest,
+  "POST /api/admin/workshop/wick-test-delete": workshop.deleteWickTest,
   "POST /api/admin/workshop/label-settings": workshop.saveLabelSettings,
 };
 

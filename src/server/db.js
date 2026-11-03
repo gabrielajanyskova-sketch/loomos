@@ -95,6 +95,41 @@ const SCHEMA = [
     note TEXT NOT NULL DEFAULT '',
     active INTEGER NOT NULL DEFAULT 1
   )`,
+  `CREATE TABLE IF NOT EXISTS workshop_wick_tests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created INTEGER NOT NULL,
+    jar_id INTEGER,
+    product_id TEXT NOT NULL DEFAULT '',
+    wax_id INTEGER,
+    wick TEXT NOT NULL,
+    hours REAL,
+    melt_mm INTEGER,
+    full_pool INTEGER NOT NULL DEFAULT 0,
+    soot INTEGER NOT NULL DEFAULT 0,
+    mushroom INTEGER NOT NULL DEFAULT 0,
+    flame TEXT NOT NULL DEFAULT '',
+    rating INTEGER,
+    note TEXT NOT NULL DEFAULT ''
+  )`,
+  `CREATE TABLE IF NOT EXISTS invoices (
+    number TEXT PRIMARY KEY,
+    series TEXT NOT NULL,
+    seq INTEGER NOT NULL,
+    order_number TEXT NOT NULL UNIQUE,
+    issued INTEGER NOT NULL,
+    payload TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS withdrawals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created INTEGER NOT NULL,
+    order_number TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    items TEXT NOT NULL DEFAULT '',
+    reason TEXT NOT NULL DEFAULT '',
+    matched INTEGER NOT NULL DEFAULT 0,
+    resolved INTEGER NOT NULL DEFAULT 0
+  )`,
   `CREATE TABLE IF NOT EXISTS workshop_batches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,

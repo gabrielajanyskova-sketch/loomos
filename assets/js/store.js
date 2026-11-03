@@ -512,10 +512,57 @@ async function renderOrderPage() {
   try {
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
-    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(o.shipping === "zasilkovna" ? "Zásilkovna — " + o.pickup_point : SHIPPING.pickup.label)}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}`;
+    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(o.shipping === "zasilkovna" ? "Zásilkovna — " + o.pickup_point : SHIPPING.pickup.label)}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }
+}
+
+/* ---------- withdrawal (§ 1830a OZ) ---------- */
+function renderWithdrawal() {
+  const el = $("#withdrawal-content");
+  const params = new URLSearchParams(location.search);
+  el.innerHTML = `<form id="withdrawal-form" class="panel checkout-form narrow-form" novalidate><p>Od smlouvy můžete odstoupit bez udání důvodu do 14 dnů od převzetí zboží. Vyplňte prosím údaje z objednávky. Přihlášení není potřeba.</p><div class="form-grid"><label>Jméno a příjmení<input name="name" required maxlength="120" autocomplete="name" value="${esc(member?.name || "")}"></label><label>E-mail použitý při objednávce<input name="email" type="email" required maxlength="200" autocomplete="email" value="${esc(member?.email || "")}"></label><label class="full">Číslo objednávky<input name="order_number" required maxlength="30" inputmode="numeric" value="${esc(params.get("objednavka") || "")}"></label><label class="full">Které zboží vracíte (nepovinné — prázdné = celá objednávka)<textarea name="items" rows="2" maxlength="1000" placeholder="např. Okurka, zázvor a máta — Velká, 1 ks"></textarea></label><label class="full">Důvod (nepovinné)<textarea name="reason" rows="2" maxlength="1000"></textarea></label></div><p class="error" role="alert"></p><button class="button" id="withdrawal-next">Pokračovat →</button></form>`;
+  const form = $("#withdrawal-form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const error = $(".error", form);
+    error.textContent = "";
+    if (!form.reportValidity()) return;
+    const data = Object.fromEntries(new FormData(form));
+    if (!form.dataset.review) {
+      form.dataset.review = "1";
+      form
+        .querySelectorAll("input, textarea")
+        .forEach((i) => (i.readOnly = true));
+      $(".form-grid", form).insertAdjacentHTML(
+        "afterend",
+        '<p class="notice" id="withdrawal-review">Zkontrolujte prosím údaje a odstoupení potvrďte. <button type="button" class="link-button" id="withdrawal-edit">Upravit údaje</button></p>',
+      );
+      $("#withdrawal-next").textContent = "Potvrdit odstoupení";
+      $("#withdrawal-edit").addEventListener("click", () => {
+        delete form.dataset.review;
+        form
+          .querySelectorAll("input, textarea")
+          .forEach((i) => (i.readOnly = false));
+        $("#withdrawal-review").remove();
+        $("#withdrawal-next").textContent = "Pokračovat →";
+      });
+      return;
+    }
+    const button = $("#withdrawal-next");
+    button.disabled = true;
+    try {
+      const result = await api("withdrawal", { ...data, confirm: true });
+      const at = new Date(result.received * 1000).toLocaleString("cs-CZ", {
+        timeZone: "Europe/Prague",
+      });
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Odstoupení od smlouvy jsme přijali.</h2><p>Přijato ${esc(at)}. Potvrzení jsme poslali na ${esc(data.email)}.</p><p>Zboží nám prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
+    } catch (err) {
+      error.textContent = err.message;
+      button.disabled = false;
+    }
+  });
 }
 
 /* ---------- account ---------- */
@@ -642,6 +689,7 @@ async function init() {
     "cart",
     "checkout",
     "account",
+    "withdrawal",
   ].includes(page);
   const [loaded, me] = await Promise.all([
     loadProducts().catch(() => null),
@@ -652,6 +700,7 @@ async function init() {
   if (page === "account") return renderAccount();
   if (page === "reset") return renderReset();
   if (page === "order") return renderOrderPage();
+  if (page === "withdrawal") return renderWithdrawal();
   if (!loaded) {
     const target =
       $("#home-products") ||

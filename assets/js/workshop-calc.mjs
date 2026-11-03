@@ -40,10 +40,13 @@ export function calcBatch({
   const avoidUfi = Number(no_ufi) === 1;
   const jarById = new Map(jars.map((j) => [j.id, j]));
   const oilById = new Map(oils.map((o) => [o.product_id, o]));
+  /** Supplier's no-UFI limit, or a stricter limit we calculated from the allergen declaration. */
+  const limitOf = (oil) =>
+    Math.min(oil.no_ufi_max_percent, oil.clp_max_percent ?? Infinity);
   const loadFor = (productId) => {
     const oil = oilById.get(productId);
     return avoidUfi && oil
-      ? Math.min(wanted, maxLoadWithoutUfi(oil.no_ufi_max_percent))
+      ? Math.min(wanted, maxLoadWithoutUfi(limitOf(oil)))
       : wanted;
   };
   const lines = [];
@@ -87,15 +90,15 @@ export function calcBatch({
     const oil = oilById.get(scent.product_id);
     if (!oil) continue;
     const concentration = concentrationOf(scent.load_percent);
-    if (concentration > oil.no_ufi_max_percent)
+    if (concentration > limitOf(oil))
       warnings.push(
-        `${scent.name}: koncentrace oleje ve svíčce ${cz(round(concentration, 1))} % je nad hranicí ${cz(oil.no_ufi_max_percent)} %, do které dodavatel uvádí „bez UFI“. Svíčka by potřebovala kód UFI a nahlášení — zapněte „Bez UFI“ nebo snižte olej.`,
+        `${scent.name}: koncentrace oleje ve svíčce ${cz(round(concentration, 1))} % je nad hranicí ${cz(limitOf(oil))} %${oil.clp_max_percent ? " (výpočet z deklarace alergenů)" : ", do které dodavatel uvádí „bez UFI“"}. Svíčka by potřebovala výstražnou etiketu, kód UFI a nahlášení — zapněte „Bez UFI“ nebo snižte olej.`,
       );
     else if (scent.load_percent < wanted)
       warnings.push(
         scent.load_percent < 1
           ? `${scent.name}: bez UFI lze dát jen ${cz(scent.load_percent)} % oleje — svíčka by skoro nevoněla. Tento olej bez UFI nepoužívejte, zvažte jiný.`
-          : `${scent.name}: olej snížen na ${cz(scent.load_percent)} %, aby svíčka zůstala pod hranicí bez UFI (${cz(oil.no_ufi_max_percent)} %).${scent.load_percent < SUPPLIER_LOAD.min ? " Vůně bude slabší než při doporučených 6–8 %." : ""}`,
+          : `${scent.name}: olej snížen na ${cz(scent.load_percent)} %, aby svíčka zůstala bez výstrahy a bez UFI (hranice ${cz(limitOf(oil))} %).${scent.load_percent < SUPPLIER_LOAD.min ? " Vůně bude slabší než při doporučených 6–8 %." : ""}`,
       );
     if (oil.vanillin_percent > 0)
       warnings.push(

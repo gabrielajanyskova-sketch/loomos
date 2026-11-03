@@ -2491,7 +2491,7 @@ tr.muted td {
 .label-circle {
   --label-d: 60mm;
   --label-font: 6.5pt;
-  --label-pad: 2.2mm;
+  --label-pad: 1.6mm;
   width: var(--label-d);
   height: var(--label-d);
   border-radius: 50%;
@@ -2502,7 +2502,7 @@ tr.muted td {
   flex: none;
   font-family: "DM Sans", Arial, sans-serif;
   font-size: var(--label-font);
-  line-height: 1.18;
+  line-height: 1.2; /* CLP: line spacing ≥ 120 % of the font size */
   box-shadow: 0 0 0 0.3mm #bbb;
 }
 .label-text {
@@ -2528,19 +2528,19 @@ tr.muted td {
   );
 }
 .label-text p {
-  margin: 0 0 0.5em;
+  margin: 0 0 0.2em;
   color: #111;
   font-size: inherit;
 }
 .label-text p:first-of-type {
-  padding-top: calc(var(--label-pad) + 1mm);
+  padding-top: var(--label-pad);
 }
 .label-brand {
   letter-spacing: 0.25em;
   font-weight: 700;
 }
 .label-name strong {
-  font-size: 1.25em;
+  font-size: 1.1em;
 }
 .label-maker {
   font-size: 0.9em;
@@ -2714,8 +2714,9 @@ tr.muted td {
 }
 .label-ghs {
   /* CLP: at least 1 cm² and 1/15 of the label area (diamond = half of the square) */
-  width: calc(var(--label-d) * 0.35);
-  height: calc(var(--label-d) * 0.35);
+  /* diamond = half the square: 0.33 × diameter covers 1/15 of the circle (CLP) */
+  width: calc(var(--label-d) * 0.33);
+  height: calc(var(--label-d) * 0.33);
   min-width: 10mm;
   min-height: 10mm;
 }
@@ -2765,4 +2766,40 @@ details.safety p {
 .steps li {
   margin: 0 0 12px;
   line-height: 1.6;
+}
+.label-icons {
+  display: flex;
+  justify-content: center;
+  gap: 0.6mm;
+  line-height: 0;
+}
+.label-icon {
+  width: calc(var(--label-d) * 0.1);
+  height: calc(var(--label-d) * 0.1);
+  min-width: 5.5mm;
+  min-height: 5.5mm;
+}
+
+/* ---------- order actions, withdrawal ---------- */
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin: 18px 0;
+}
+.narrow-form {
+  max-width: 720px;
+}
+.panel form.narrow-form,
+form.panel.narrow-form {
+  display: block;
+}
+.footer-legal .withdrawal-link {
+  color: var(--copper-light);
+  font-weight: 500;
+}
+/* Candle-use advice (GPSR / EN 15494) is not a CLP label element, so it may be a little smaller. */
+.label-text .label-safety {
+  font-size: 0.85em;
 }

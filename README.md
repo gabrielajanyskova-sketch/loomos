@@ -12,6 +12,8 @@ E-shop s ručně vyráběnými sójovými svíčkami. Běží celý na **Cloudfl
 - **Platba převodem s QR kódem** (český standard QR Platba / SPAYD) na webu i v e-mailu. Dobírka není. Platební brána je připravená jako další krok.
 - **Zásilkovna:** výběr výdejního místa na mapě, zakládání zásilek z administrace. Osobní odběr zdarma.
 - **E-maily:** potvrzení objednávky, upozornění obchodu, přijetí platby, odeslání, zrušení, registrace a obnova hesla.
+- **Faktury v PDF:** při změně na „Zaplaceno“ se vystaví faktura (neplátce DPH, roční číselná řada `20270001…`, zkušební objednávky řada `TEST-…`) a odejde jako příloha e-mailu; zákazník i administrace ji mohou kdykoli stáhnout.
+- **Tlačítko „Odstoupit od smlouvy zde“** (§ 1830a OZ, od 1. 1. 2027): v patičce každé stránky a u objednávky, formulář bez přihlášení se dvěma kroky (Pokračovat → Potvrdit odstoupení), potvrzení e-mailem s datem a časem, upozornění obchodu a přehled v administraci.
 - **Administrace** (`/admin/`): přehled, objednávky a jejich stavy, sklad, registrovaní zákazníci (blokace, smazání) a slevové kódy.
 - **Právní stránky:** obchodní podmínky, ochrana osobních údajů a cookies, údaje o prodejci v patičce.
 - **Google Analytics 4** se načte až po souhlasu návštěvníka (cookie lišta) a měří e-commerce události.
@@ -20,7 +22,7 @@ E-shop s ručně vyráběnými sójovými svíčkami. Běží celý na **Cloudfl
 
 Plánování výroby svíček pro majitelku, chráněné stejným heslem jako administrace (`ADMIN_PASSWORD`). Zadáte vůně, sklenice a počty kusů a Dílnička spočítá sójový vosk, vonný olej (v % z hmotnosti vosku, dodavatel doporučuje 6–8 %), rezervu na ztráty, sklenice a knoty. Režim **Bez UFI** (výchozí) u každé vůně sníží olej tak, aby hotová svíčka zůstala s 5% rezervou pod hranicí, do které dodavatel uvádí „bez UFI“; bez něj Dílnička na překročení upozorní. Upozorní také na vanilin (žloutnutí vosku). Uložené výroby lze označit „Hotovo“ a svíčky se přičtou na sklad e-shopu (podle velikosti nastavené u sklenice).
 
-**Etikety na dno:** Dílnička tiskne kulaté bezpečnostní etikety (název, hmotnost, „Obsahuje: …“ z dokumentů dodavatele, bezpečnostní pokyny, výrobce s telefonem a IČO). Průměr, písmo a rozložení archu se nastavují; náhled ukáže, jestli se text vejde.
+**Etikety na dno** hlídají pravidla vzhledu CLP (nařízení 2024/2865, očekávaná účinnost 1. 1. 2028): písmo aspoň 6,6 pt (výška malých písmen 1,2 mm), řádkování 120 %, výstražný symbol aspoň 1/15 plochy; náhled ukáže nejmenší kolečko pro každou vůni. **Etikety na dno:** Dílnička tiskne kulaté bezpečnostní etikety (název, hmotnost, „Obsahuje: …“ z dokumentů dodavatele, bezpečnostní pokyny, výrobce s telefonem a IČO). Průměr, písmo a rozložení archu se nastavují; náhled ukáže, jestli se text vejde.
 
 Údaje o vonných olejích (bod vzplanutí, vanilin, UFI…) jsou v `data/oils.json` a nikdy se nezveřejňují — čte je jen přihlášená administrace.
 

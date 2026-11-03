@@ -444,15 +444,26 @@ test("Dílnička: label texts and print settings are stored and validated", asyn
     ).status,
     400,
   );
+  assert.equal(
+    (
+      await a("/api/admin/workshop/label-settings", {
+        ...settings,
+        clp: true,
+      })
+    ).status,
+    400,
+  );
   const ws = (await a("/api/admin/workshop")).body;
   assert.equal(ws.labels["okurka-zazvor-mata"].contains, "Linalool, Limonene");
   assert.equal(ws.labels["okurka-zazvor-mata"].source, "upraveno ručně");
   assert.equal(ws.labels["pomeranc-vanilka"].contains, "Limonene, Linalool");
-  assert.equal(ws.labels["zazvor-zeleny-caj"].pictogram, true);
-  assert.match(ws.labels["zazvor-zeleny-caj"].extra, /Obsahuje: Citral/);
+  assert.equal(ws.labels["zazvor-zeleny-caj"].pictogram, false);
+  assert.match(ws.labels["zazvor-zeleny-caj"].contains, /^Citral/);
+  assert.match(ws.labels["zazvor-zeleny-caj"].source, /7 % oleje/);
   assert.match(ws.labels["morska-sul-paculi"].source, /Arabian Nights/);
   assert.equal(ws.label.diameter, 50);
   assert.equal(ws.label.phone, "+420 777 123 456");
+  assert.equal(ws.label.icons, false);
 });
 
 test("order tracking: status timeline, manual tracking number and notes reach the customer", async () => {
@@ -530,4 +541,128 @@ test("Dílnička: wax profiles are seeded, editable and stored with a batch", as
   });
   const batch = (await a("/api/admin/workshop")).body.batches[0];
   assert.equal(batch.result.wax.name, c3.name);
+});
+
+test("Dílnička: wick tests are logged, validated and deletable", async () => {
+  const a = await admin();
+  const jar = (await a("/api/admin/workshop")).body.jars[0];
+  assert.equal(
+    (
+      await a("/api/admin/workshop/wick-test", {
+        jar_id: jar.id,
+        wick: "dřevěný 15 mm",
+        product_id: "okurka-zazvor-mata",
+        hours: "3",
+        melt_mm: "77",
+        full_pool: true,
+        flame: "dobra",
+        rating: "5",
+      })
+    ).status,
+    201,
+  );
+  assert.equal(
+    (await a("/api/admin/workshop/wick-test", { wick: "x", flame: "obri" }))
+      .status,
+    400,
+  );
+  const tests = (await a("/api/admin/workshop")).body.wick_tests;
+  assert.equal(tests[0].wick, "dřevěný 15 mm");
+  assert.equal(tests[0].full_pool, true);
+  assert.equal(tests[0].melt_mm, 77);
+  await a("/api/admin/workshop/wick-test-delete", { id: tests[0].id });
+  assert.ok(
+    !(await a("/api/admin/workshop")).body.wick_tests.some(
+      (t) => t.id === tests[0].id,
+    ),
+  );
+});
+
+test("invoices on payment, customer PDF, withdrawal button flow and order deletion", async () => {
+  const call = client(shop.url);
+  const a = await admin();
+  const make = async () =>
+    (
+      await call(
+        "/api/orders",
+        order({ email: "faktura@example.com", shipping: "pickup" }),
+      )
+    ).body;
+  const paid = await make();
+  assert.equal((await call(`/api/invoice?t=${paid.token}`)).status, 404);
+  await a("/api/admin/order-status", {
+    number: paid.number,
+    status: "zaplacena",
+  });
+  const mail = await mailTo("faktura@example.com", /Platba přijata/);
+  const attachment = mail.body.attachments[0];
+  assert.match(attachment.filename, /^faktura-TEST-\d{4}-\d{4}\.pdf$/);
+  assert.equal(
+    Buffer.from(attachment.content, "base64").subarray(0, 4).toString(),
+    "%PDF",
+  );
+  const pdf = await call(`/api/invoice?t=${paid.token}`);
+  assert.equal(pdf.status, 200);
+  assert.equal(pdf.headers.get("content-type"), "application/pdf");
+  assert.match(
+    (await call(`/api/orders/view?t=${paid.token}`)).body.invoice,
+    /^TEST-/,
+  );
+  assert.equal(
+    (await call(`/api/admin/invoice?order=${paid.number}`)).status,
+    401,
+  );
+  assert.equal(
+    (await a(`/api/admin/invoice?order=${paid.number}`)).status,
+    200,
+  );
+
+  assert.equal(
+    (
+      await call("/api/withdrawal", {
+        name: "Jana",
+        email: "faktura@example.com",
+        order_number: paid.number,
+      })
+    ).status,
+    400,
+  );
+  const w = await call("/api/withdrawal", {
+    name: "Jana Nová",
+    email: "FAKTURA@example.com",
+    order_number: paid.number,
+    confirm: true,
+  });
+  assert.equal(w.status, 201);
+  assert.equal(w.body.matched, true);
+  const ack = await mailTo("faktura@example.com", /Potvrzení odstoupení/);
+  assert.match(ack.body.text, new RegExp(paid.number));
+  const unknown = await call("/api/withdrawal", {
+    name: "Někdo",
+    email: "nikdo@example.com",
+    order_number: "9999999",
+    confirm: true,
+  });
+  assert.equal(unknown.body.matched, false);
+  const list = (await a("/api/admin/withdrawals")).body;
+  assert.ok(list.some((x) => x.order_number === paid.number && x.matched));
+  const flagged = (await a("/api/admin/orders")).body.find(
+    (o) => o.number === paid.number,
+  );
+  assert.equal(flagged.withdrawals, 1);
+  assert.ok(flagged.withdrawal.at);
+
+  const extra = await make();
+  assert.equal(
+    (await a("/api/admin/order-delete", { number: extra.number })).status,
+    200,
+  );
+  assert.ok(
+    !(await a("/api/admin/orders")).body.some((o) => o.number === extra.number),
+  );
+  // Test orders with a TEST invoice may be deleted; real invoiced orders are protected (cancel instead).
+  assert.equal(
+    (await a("/api/admin/order-delete", { number: paid.number })).status,
+    200,
+  );
 });

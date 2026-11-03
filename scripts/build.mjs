@@ -116,6 +116,12 @@ for (const dir of ["img", "fonts"])
       await fs.readFile(path.join(root, "assets", dir, name)),
     );
   }
+for (const name of await fs.readdir(path.join(root, "assets/img/pikto")))
+  if (name.endsWith(".png"))
+    await write(
+      `assets/img/pikto/${name}`,
+      await fs.readFile(path.join(root, "assets/img/pikto", name)),
+    );
 await write("data/products.json", JSON.stringify(products));
 const pages = [
   ["index.html", "home"],
@@ -131,6 +137,7 @@ const pages = [
   ["obchodni-podminky.html", "terms"],
   ["ochrana-osobnich-udaju.html", "privacy"],
   ["slozeni-a-bezpecnost.html", "safety"],
+  ["odstoupeni.html", "withdrawal"],
   ...products.map((p) => [`produkty/${p.id}.html`, "product", p]),
 ];
 const sitemap = [];
@@ -213,7 +220,7 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie bez ftalátů.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku. Velká svíčka: sklenice 30 cl, cca 220 g vosku.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products.map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`).join("\n")}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie bez ftalátů.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně 30 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně 40 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products.map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`).join("\n")}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
 );
 await write(
   "site.webmanifest",

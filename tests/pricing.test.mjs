@@ -170,7 +170,9 @@ test("Dílnička: 'Bez UFI' caps each scent under the supplier's limit", async (
   }
   assert.equal(r.scents.find((s) => s.product_id === "okurka").load_percent, 8);
   assert.match(r.warnings.join(" "), /Duch: bez UFI lze dát jen/);
-  assert.ok(!/potřebovala kód UFI/.test(r.warnings.join(" ")));
+  assert.ok(
+    !/potřebovala výstražnou etiketu, kód UFI/.test(r.warnings.join(" ")),
+  );
   const off = calcBatch({
     items: [{ product_id: "goji", jar_id: 1, count: 1 }],
     jars: [{ id: 1, name: "Malá", fill_g: 180, wicks: 1 }],
@@ -179,5 +181,25 @@ test("Dílnička: 'Bez UFI' caps each scent under the supplier's limit", async (
     loss_percent: 0,
     no_ufi: 0,
   });
-  assert.match(off.warnings.join(" "), /potřebovala kód UFI/);
+  assert.match(
+    off.warnings.join(" "),
+    /potřebovala výstražnou etiketu, kód UFI/,
+  );
+});
+
+test("round label includes the EN 15494 pictograms unless switched off", async () => {
+  const { labelHtml, EN15494_ICONS } = await import("../assets/js/labels.mjs");
+  const base = { name: "Test", grams: 180, contains: "Limonene" };
+  assert.equal(EN15494_ICONS.length, 5);
+  assert.match(labelHtml(base), /nikdy nenechávejte bez dozoru/);
+  assert.match(labelHtml(base), /\/assets\/img\/pikto\/odstup-10cm\.png/);
+  assert.ok(!labelHtml({ ...base, icons: false }).includes("label-icon"));
+  assert.ok(!labelHtml(base).includes("style="));
+});
+
+test("CLP label format: 6.6 pt DM Sans gives an x-height of at least 1.2 mm", async () => {
+  const { xHeightMm, CLP_FORMAT } = await import("../assets/js/labels.mjs");
+  assert.ok(xHeightMm(CLP_FORMAT.minFontPt) >= 1.2);
+  assert.ok(xHeightMm(6) < 1.2);
+  assert.equal(CLP_FORMAT.lineHeight, 1.2);
 });

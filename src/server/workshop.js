@@ -38,13 +38,13 @@ const DEFAULT_JARS = [
     name: "Oxford 20 cl (střední) — průhledná",
     fill_g: 180,
     variant_id: "mala",
-    note: "Ø 74 × 87 mm, vnitřní Ø 67 mm, sklo cca 296 g. S víčkem plnit cca 165 g. Dodavatel doporučuje knot HTP 105, hoření cca 33 h.",
+    note: "Ø 74 × 87 mm, vnitřní Ø 67 mm, sklo cca 296 g. S víčkem plnit cca 165 g. Dodavatel sklenic doporučuje bavlněný knot HTP 105 (hoření cca 33 h); u dřevěného knotu vyzkoušejte vhodnou šířku.",
   },
   {
     name: "Kimberley 30 cl (velká) — průhledná",
     fill_g: 220,
     variant_id: "velka",
-    note: "Ø 81,5 × 93 mm, vnitřní Ø 77 mm, sklo cca 370 g. S víčkem plnit cca 200 g. Dodavatel doporučuje knot HTP 126, hoření až 40 h.",
+    note: "Ø 81,5 × 93 mm, vnitřní Ø 77 mm, sklo cca 370 g. S víčkem plnit cca 200 g. Dodavatel sklenic doporučuje bavlněný knot HTP 126 (hoření až 40 h); u dřevěného knotu vyzkoušejte vhodnou šířku.",
   },
 ];
 async function seedJars(db) {
@@ -56,7 +56,7 @@ async function seedJars(db) {
     ...DEFAULT_JARS.map((j) =>
       db
         .prepare(
-          "INSERT INTO workshop_jars (name, fill_g, wicks, wick, variant_id, note) VALUES (?,?,1,'',?,?)",
+          "INSERT INTO workshop_jars (name, fill_g, wicks, wick, variant_id, note) VALUES (?,?,1,'dřevěný knot',?,?)",
         )
         .bind(j.name, j.fill_g, j.variant_id, j.note),
     ),
@@ -68,13 +68,15 @@ async function seedJars(db) {
 
 export const LABEL_DEFAULTS = {
   diameter: 60,
-  font: 6.5,
+  font: 6.6,
   phone: "",
   columns: 3,
   rows: 4,
   margin_top: 15,
   margin_left: 15,
   gap: 5,
+  icons: true,
+  clp: true,
 };
 async function labelSettings(db) {
   const row = await db
@@ -95,7 +97,12 @@ const seedLabels = (db) =>
       .map((l) =>
         db
           .prepare(
-            "INSERT OR IGNORE INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,?)",
+            `INSERT INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,?)
+             ON CONFLICT(product_id) DO UPDATE SET contains=excluded.contains, extra=excluded.extra,
+               pictogram=excluded.pictogram, source=excluded.source
+             WHERE workshop_labels.source != 'upraveno ručně'
+               AND (workshop_labels.contains != excluded.contains OR workshop_labels.extra != excluded.extra
+                 OR workshop_labels.pictogram != excluded.pictogram OR workshop_labels.source != excluded.source)`,
           )
           .bind(
             l.product_id,
@@ -227,14 +234,23 @@ export async function overview(db) {
     db.prepare("SELECT * FROM workshop_labels").all(),
     labelSettings(db),
   ]);
-  const [waxes, waxSetting] = await Promise.all([
+  const [waxes, waxSetting, wickTests] = await Promise.all([
     db.prepare("SELECT * FROM workshop_waxes ORDER BY id").all(),
     db
       .prepare("SELECT value FROM workshop_settings WHERE key='wax_id'")
       .first(),
+    db
+      .prepare("SELECT * FROM workshop_wick_tests ORDER BY id DESC LIMIT 300")
+      .all(),
   ]);
   return json({
     waxes: waxes.results,
+    wick_tests: wickTests.results.map((t) => ({
+      ...t,
+      full_pool: Boolean(t.full_pool),
+      soot: Boolean(t.soot),
+      mushroom: Boolean(t.mushroom),
+    })),
     wax_id: waxSetting
       ? Number(waxSetting.value)
       : (waxes.results[0]?.id ?? null),
@@ -489,12 +505,75 @@ export async function saveLabelSettings(db, request) {
     margin_top: num("margin_top", 0, 60),
     margin_left: num("margin_left", 0, 60),
     gap: num("gap", 0, 30),
+    icons: data.icons === true || data.icons === "on",
+    clp: data.clp === true || data.clp === "on",
   };
+  if (value.clp && value.font < 6.6)
+    fail(
+      400,
+      "Podle pravidel CLP musí mít písmo aspoň 6,6 pt (výška malých písmen 1,2 mm). Zvětšete písmo, nebo vypněte kontrolu CLP.",
+    );
   await db
     .prepare(
       "INSERT INTO workshop_settings (key, value) VALUES ('label', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
     )
     .bind(JSON.stringify(value))
+    .run();
+  return json({ ok: true });
+}
+
+/** Wick test log: which wick size works in which jar with which wax and scent. */
+export async function saveWickTest(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 4096);
+  const optional = (key, max, decimals = false) => {
+    const v = data[key];
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    if (
+      !Number.isFinite(n) ||
+      n < 0 ||
+      n > max ||
+      (!decimals && !Number.isInteger(n))
+    )
+      fail(400, "Zkontrolujte čísla v testu knotu.");
+    return n;
+  };
+  const productId = data.product_id || "";
+  if (productId && !scentIds.has(productId)) fail(400, "Neznámá vůně.");
+  if (!["", "mala", "dobra", "velka", "nestabilni"].includes(data.flame || ""))
+    fail(400, "Neplatný plamen.");
+  const rating = optional("rating", 5);
+  if (rating !== null && rating < 1) fail(400, "Hodnocení je 1–5.");
+  await db
+    .prepare(
+      "INSERT INTO workshop_wick_tests (created, jar_id, product_id, wax_id, wick, hours, melt_mm, full_pool, soot, mushroom, flame, rating, note) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    )
+    .bind(
+      now(),
+      optional("jar_id", 1e9),
+      productId,
+      optional("wax_id", 1e9),
+      text(data.wick, "knot", 80),
+      optional("hours", 100, true),
+      optional("melt_mm", 300),
+      data.full_pool ? 1 : 0,
+      data.soot ? 1 : 0,
+      data.mushroom ? 1 : 0,
+      data.flame || "",
+      rating,
+      text(data.note, "poznámka", 500, false),
+    )
+    .run();
+  return json({ ok: true }, 201);
+}
+
+export async function deleteWickTest(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 512);
+  await db
+    .prepare("DELETE FROM workshop_wick_tests WHERE id=?")
+    .bind(Number(data.id))
     .run();
   return json({ ok: true });
 }

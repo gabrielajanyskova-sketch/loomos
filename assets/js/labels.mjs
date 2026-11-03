@@ -11,7 +11,29 @@ const esc = (s) =>
   );
 
 export const SAFETY_TEXT =
-  "Nenechávejte hořet bez dozoru. Mimo dosah dětí a zvířat. Nestavte k hořlavým předmětům, do průvanu ani na zdroj tepla, jen na nehořlavou podložku. Zkracujte knot, hořte max. 4 h, nepřenášejte a nehaste vodou.";
+  "Nenechávejte hořet bez dozoru. Mimo dosah dětí, zvířat a hořlavých předmětů. Stavte na nehořlavou podložku mimo průvan. Zkracujte knot, hořte max. 4 h, nehaste vodou.";
+/** With the EN 15494 pictograms the text only adds what the pictures do not say. */
+export const SAFETY_TEXT_WITH_ICONS =
+  "Stavte na nehořlavou podložku mimo průvan. Zkracujte knot, hořte max. 4 h.";
+
+/** Safety pictograms per ČSN EN 15494 (from svicky.cz's reference sheet, distance set to 10 cm). */
+const PICTOGRAMS = [
+  ["varovani", "Obecný symbol varování"],
+  ["bez-dozoru", "Hořící svíčku nikdy nenechávejte bez dozoru"],
+  ["deti-zvirata", "Hořící svíčku umístěte mimo dosah dětí a domácích zvířat"],
+  [
+    "odstup-10cm",
+    "Mezi hořícími svíčkami vždy ponechte vzdálenost nejméně 10 cm",
+  ],
+  [
+    "horlave-predmety",
+    "Hořící svíčku nenechávejte v blízkosti předmětů, které se mohou snadno vznítit",
+  ],
+];
+export const EN15494_ICONS = PICTOGRAMS.map(
+  ([file, alt]) =>
+    `<img class="label-icon" src="/assets/img/pikto/${file}.png" alt="${alt}" width="256" height="256">`,
+);
 
 /** HTML of one label; sizes are applied by the caller through CSS custom properties. */
 /** GHS07 exclamation mark (CLP): red diamond, white background, black symbol. */
@@ -26,15 +48,39 @@ export function labelHtml({
   pictogram,
   phone,
   batch,
+  icons,
 }) {
   const maker = [
     `${seller.name}, ${sellerAddress}`,
     phone ? `tel. ${phone}` : "",
-    seller.email,
+    "loomos.cz",
   ]
     .filter(Boolean)
     .join(" · ");
-  return `<div class="label-circle"><div class="label-text"><span class="label-shape left" aria-hidden="true"></span><span class="label-shape right" aria-hidden="true"></span><p class="label-name"><strong>LOOMOS ${esc(name)}</strong><br>sójová svíčka · ${esc(grams)} g</p>${pictogram ? `<p class="label-pictogram">${GHS07}</p>` : ""}${extra ? `<p>${esc(extra)}</p>` : ""}${contains ? `<p>Obsahuje ${esc(contains)}. Může vyvolat alergickou reakci.</p>` : ""}<p>${esc(SAFETY_TEXT)}</p><p class="label-maker">${esc(maker)}</p>${batch ? `<p class="label-maker">Šarže: ${esc(batch)}</p>` : ""}</div></div>`;
+  return `<div class="label-circle"><div class="label-text"><span class="label-shape left" aria-hidden="true"></span><span class="label-shape right" aria-hidden="true"></span><p class="label-name"><strong>${esc(name)}</strong> · sójová svíčka ${esc(grams)} g</p>${pictogram ? `<p class="label-pictogram">${GHS07}</p>` : ""}${extra ? `<p>${esc(extra)}</p>` : ""}${contains ? `<p>Obsahuje ${esc(contains)}. Může vyvolat alergickou reakci.</p>` : ""}${icons === false ? "" : `<p class="label-icons">${EN15494_ICONS.join("")}</p>`}<p class="label-safety">${esc(icons === false ? SAFETY_TEXT : SAFETY_TEXT_WITH_ICONS)}</p><p class="label-maker">${esc(maker)}</p>${batch ? `<p class="label-maker">Šarže: ${esc(batch)}</p>` : ""}</div></div>`;
+}
+
+/**
+ * Label formatting rules of the revised CLP regulation (EU) 2024/2865 (expected from 1. 1. 2028):
+ * x-height of at least 1.2 mm for packaging up to 0.5 l/kg and line spacing of at least 120 %.
+ * DM Sans has an x-height of 0.526 em, so 6.6 pt gives 1.22 mm.
+ */
+export const CLP_FORMAT = {
+  minXHeightMm: 1.2,
+  xHeightRatio: 0.526,
+  minFontPt: 6.6,
+  lineHeight: 1.2,
+};
+export const xHeightMm = (fontPt) =>
+  Math.round(fontPt * 0.352778 * CLP_FORMAT.xHeightRatio * 100) / 100;
+
+/** Smallest circle (mm) in which the label text fits, measured in the browser. */
+export function smallestFit(el, settings, from = 40, to = 140) {
+  for (let d = from; d <= to; d++) {
+    sizeLabel(el, { ...settings, diameter: d });
+    if (!overflows(el)) return d;
+  }
+  return null;
 }
 
 /** Size a rendered label (mm / pt) without inline style attributes (CSP-safe). */

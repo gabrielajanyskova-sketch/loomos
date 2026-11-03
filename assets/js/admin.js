@@ -89,7 +89,18 @@ async function renderOverview(el) {
     !config.live &&
       "Zkušební provoz: objednávky jsou označené jako zkušební. Ostrý prodej zapnete proměnnou SHOP_LIVE=1.",
   ].filter(Boolean);
-  el.innerHTML = `<div class="stats"><div class="stat">Čeká na platbu<strong>${o.awaiting_payment}</strong></div><div class="stat">Zaplaceno, k odeslání<strong>${o.to_ship}</strong></div><div class="stat">Tržby (zaplacené, ostré)<strong>${esc(o.revenue_label)}</strong></div><div class="stat">Objednávek celkem<strong>${o.orders}</strong></div><div class="stat">Registrovaných zákazníků<strong>${o.customers}</strong></div><div class="stat">Docházející zboží (≤ 2 ks)<strong>${o.low_stock}</strong></div></div>${warnings.map((w) => `<p class="notice">${esc(w)}</p>`).join("")}`;
+  el.innerHTML = `<div class="stats"><div class="stat">Čeká na platbu<strong>${o.awaiting_payment}</strong></div><div class="stat">Zaplaceno, k odeslání<strong>${o.to_ship}</strong></div><div class="stat">Tržby (zaplacené, ostré)<strong>${esc(o.revenue_label)}</strong></div><div class="stat">Objednávek celkem<strong>${o.orders}</strong></div><div class="stat">Registrovaných zákazníků<strong>${o.customers}</strong></div><div class="stat">Docházející zboží (≤ 2 ks)<strong>${o.low_stock}</strong></div></div>${warnings.map((w) => `<p class="notice">${esc(w)}</p>`).join("")}<div id="withdrawals"></div>`;
+  const list = (await api("withdrawals")).filter((w) => !w.resolved);
+  if (list.length)
+    $("#withdrawals", el).innerHTML =
+      `<section class="panel"><h2>Odstoupení od smlouvy k vyřízení</h2><div class="table-wrap"><table><thead><tr><th>Přijato</th><th>Objednávka</th><th>Zákazník</th><th>Zboží / důvod</th><th></th></tr></thead><tbody>${list
+        .map(
+          (w) =>
+            `<tr><td>${date(w.created)}</td><td>${w.matched ? `<button class="inline-button" data-order="${esc(w.order_number)}">${esc(w.order_number)}</button>` : `${esc(w.order_number)} <small class="error">nespárováno</small>`}</td><td>${esc(w.name)}<br><small>${esc(w.email)}</small></td><td>${esc(w.items || "celá objednávka")}${w.reason ? `<br><small>${esc(w.reason)}</small>` : ""}</td><td><button class="inline-button" data-resolve-withdrawal="${w.id}">Vyřízeno</button></td></tr>`,
+        )
+        .join(
+          "",
+        )}</tbody></table></div><p class="muted">Zákazník má 14 dní na vrácení zboží. Peníze vraťte do 14 dnů od odstoupení, nejdříve po obdržení zboží. Pak objednávku přepněte na „Zrušeno“ (vrátí zboží na sklad) a odstoupení označte jako vyřízené.</p></section>`;
 }
 
 /* ---------- orders ---------- */
@@ -117,7 +128,7 @@ async function renderOrders(el) {
       ? `<div class="table-wrap"><table><thead><tr><th>Číslo</th><th>Zákazník</th><th>Doprava</th><th>Celkem</th><th>Stav</th><th></th></tr></thead><tbody>${list
           .map(
             (o) =>
-              `<tr><td><strong>${esc(o.number)}</strong>${o.test ? ' <small class="muted">test</small>' : ""}<br><small>${date(o.created)}</small></td><td>${esc(o.customer.name)}${o.registered ? ' <small class="muted">· účet</small>' : ""}<br><small>${esc(o.customer.email)}</small></td><td>${o.shipping === "zasilkovna" ? "Zásilkovna" : "Osobně"}</td><td>${money(o.pricing.total)}</td><td><span class="status-label">${esc(ORDER_STATUS[o.status])}</span></td><td><button class="inline-button" data-order="${esc(o.number)}">Detail →</button></td></tr>`,
+              `<tr><td><strong>${esc(o.number)}</strong>${o.test ? ' <small class="muted">test</small>' : ""}${o.withdrawals ? ' <small class="error">odstoupení</small>' : ""}<br><small>${date(o.created)}</small></td><td>${esc(o.customer.name)}${o.registered ? ' <small class="muted">· účet</small>' : ""}<br><small>${esc(o.customer.email)}</small></td><td>${o.shipping === "zasilkovna" ? "Zásilkovna" : "Osobně"}</td><td>${money(o.pricing.total)}</td><td><span class="status-label">${esc(ORDER_STATUS[o.status])}</span></td><td><button class="inline-button" data-order="${esc(o.number)}">Detail →</button></td></tr>`,
           )
           .join("")}</tbody></table></div>`
       : '<div class="panel">Žádné objednávky v tomto výběru.</div>'
@@ -138,7 +149,7 @@ function orderDetail(number) {
             ? '<p class="notice">Pro automatické zakládání zásilek nastavte v Cloudflare PACKETA_API_PASSWORD.</p>'
             : '<form id="packet-form" class="inline-form"><label>Hmotnost (kg)<input name="weight" type="number" min="0.01" max="15" step="0.01" required></label><button class="button">Vytvořit zásilku v Zásilkovně</button></form>';
   $("#admin-content").innerHTML =
-    `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="notice">Zkušební objednávka.</p>' : ""}<div class="detail-columns"><div><h3>Zákazník</h3><p>${esc(o.customer.name)}${o.registered ? " (registrovaný)" : ""}<br><a href="mailto:${esc(o.customer.email)}">${esc(o.customer.email)}</a><br>${esc(o.customer.phone)}</p><h3>Doprava</h3><p>${o.shipping === "zasilkovna" ? `Zásilkovna — ${esc(o.pickup_point)}${o.packeta_point_id ? ` <small>(ID ${esc(o.packeta_point_id)})</small>` : ""}` : esc(SHIPPING.pickup.label)}</p><h3>Poznámka</h3><p>${esc(o.note || "—")}</p></div><div><h3>Položky</h3><div class="table-wrap"><table><tbody>${o.items.map((i) => `<tr><td>${i.qty}× ${esc(i.name)}</td><td>${money(i.total)}</td></tr>`).join("")}${p.memberSavings ? `<tr><td>Sleva s účtem 5 %</td><td>−${money(p.memberSavings)}</td></tr>` : ""}${p.codeDiscount ? `<tr><td>Kód ${esc(p.code)}</td><td>−${money(p.codeDiscount)}</td></tr>` : ""}<tr><td>Doprava</td><td>${money(p.shippingPrice)}</td></tr><tr><td><strong>Celkem (VS ${esc(o.number)})</strong></td><td><strong>${money(p.total)}</strong></td></tr></tbody></table></div><p class="muted">Vytvořeno ${date(o.created)} · <a href="/objednavka.html?t=${esc(o.token)}" target="_blank" rel="noopener">stránka pro zákazníka</a></p></div></div>${packeta}<form id="status-form" class="inline-form"><label>Stav objednávky<select name="status" ${o.status === "zrusena" ? "disabled" : ""}>${Object.entries(
+    `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="notice">Zkušební objednávka.</p>' : ""}${o.withdrawal ? `<p class="notice error">Zákazník odstoupil od smlouvy ${date(o.withdrawal.at)}${o.withdrawal.items ? ` — ${esc(o.withdrawal.items)}` : " — celá objednávka"}${o.withdrawal.reason ? `. Důvod: ${esc(o.withdrawal.reason)}` : ""}.</p>` : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/admin/invoice?order=${encodeURIComponent(o.number)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : o.status !== "zrusena" ? '<button type="button" class="inline-button" id="issue-invoice">Vystavit fakturu</button><small class="muted">Faktura se vystaví a pošle sama při změně na „Zaplaceno“.</small>' : ""}<button type="button" class="inline-button danger" id="delete-order">Smazat objednávku</button></div><div class="detail-columns"><div><h3>Zákazník</h3><p>${esc(o.customer.name)}${o.registered ? " (registrovaný)" : ""}<br><a href="mailto:${esc(o.customer.email)}">${esc(o.customer.email)}</a><br>${esc(o.customer.phone)}</p><h3>Doprava</h3><p>${o.shipping === "zasilkovna" ? `Zásilkovna — ${esc(o.pickup_point)}${o.packeta_point_id ? ` <small>(ID ${esc(o.packeta_point_id)})</small>` : ""}` : esc(SHIPPING.pickup.label)}</p><h3>Poznámka</h3><p>${esc(o.note || "—")}</p></div><div><h3>Položky</h3><div class="table-wrap"><table><tbody>${o.items.map((i) => `<tr><td>${i.qty}× ${esc(i.name)}</td><td>${money(i.total)}</td></tr>`).join("")}${p.memberSavings ? `<tr><td>Sleva s účtem 5 %</td><td>−${money(p.memberSavings)}</td></tr>` : ""}${p.codeDiscount ? `<tr><td>Kód ${esc(p.code)}</td><td>−${money(p.codeDiscount)}</td></tr>` : ""}<tr><td>Doprava</td><td>${money(p.shippingPrice)}</td></tr><tr><td><strong>Celkem (VS ${esc(o.number)})</strong></td><td><strong>${money(p.total)}</strong></td></tr></tbody></table></div><p class="muted">Vytvořeno ${date(o.created)} · <a href="/objednavka.html?t=${esc(o.token)}" target="_blank" rel="noopener">stránka pro zákazníka</a></p></div></div>${packeta}<form id="status-form" class="inline-form"><label>Stav objednávky<select name="status" ${o.status === "zrusena" ? "disabled" : ""}>${Object.entries(
       ORDER_STATUS,
     )
       .map(
@@ -149,6 +160,27 @@ function orderDetail(number) {
         "",
       )}</select></label><label>Sledovací číslo zásilky<input name="tracking" maxlength="40" value="${esc(o.tracking || "")}" placeholder="${esc(o.packeta?.barcode || "např. Z 123 456 7890")}"></label><label class="wide">Vzkaz pro zákazníka (nepovinné, uvidí ho v e-mailu i u objednávky)<textarea name="note" rows="2" maxlength="500" placeholder="např. Svíčky jsme zabalili s malým dárkem."></textarea></label><label class="check"><input type="checkbox" name="notify" checked>Poslat zákazníkovi e-mail</label><button class="button" ${o.status === "zrusena" ? "disabled" : ""}>Uložit stav</button></form><p class="muted">Zrušení vrátí zboží zpět na sklad. Při změně na „Zaplaceno“ dostane zákazník potvrzení o přijetí platby.</p>${o.history?.length ? `<h3>Historie</h3><ul class="history">${o.history.map((h) => `<li>${date(h.at)} — ${esc(ORDER_STATUS[h.status] || h.status)}${h.note ? `<br><small>Vzkaz: ${esc(h.note)}</small>` : ""}</li>`).join("")}</ul>` : ""}</section>`;
   $("#back").onclick = () => show("orders");
+  $("#issue-invoice")?.addEventListener("click", () =>
+    guard(async () => {
+      const r = await api("invoice", { number });
+      orders = await api("orders");
+      orderDetail(number);
+      status(`Faktura ${r.number} je vystavená.`);
+    }),
+  );
+  $("#delete-order").addEventListener("click", () => {
+    if (
+      !confirm(
+        `Opravdu trvale smazat objednávku ${number}? Zboží se vrátí na sklad. Tuto akci nelze vrátit.`,
+      )
+    )
+      return;
+    guard(async () => {
+      await api("order-delete", { number });
+      status(`Objednávka ${number} je smazaná.`);
+      await show("orders");
+    });
+  });
   $("#status-form").addEventListener("submit", (e) => {
     e.preventDefault();
     const f = e.currentTarget;
@@ -310,7 +342,20 @@ document.querySelectorAll("[data-tab]").forEach((b) =>
 document.addEventListener("click", (e) => {
   if (!e.target.closest("#admin-content")) return;
   const order = e.target.closest("[data-order]");
-  if (order) orderDetail(order.dataset.order);
+  if (order)
+    guard(async () => {
+      if (!orders.some((o) => o.number === order.dataset.order))
+        orders = await api("orders");
+      orderDetail(order.dataset.order);
+    });
+  const resolve = e.target.closest("[data-resolve-withdrawal]");
+  if (resolve)
+    guard(async () => {
+      await api("withdrawal-resolved", {
+        id: Number(resolve.dataset.resolveWithdrawal),
+      });
+      await show("overview");
+    });
   const chip = e.target.closest("[data-filter]");
   if (chip) {
     filter = chip.dataset.filter;
