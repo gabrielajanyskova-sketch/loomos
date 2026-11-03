@@ -107,6 +107,7 @@ export async function saveSettings(db, request) {
     [
       ["load_percent", load],
       ["loss_percent", loss],
+      ["no_ufi", data.no_ufi === false || data.no_ufi === 0 ? 0 : 1],
     ].map(([k, v]) =>
       db
         .prepare(
@@ -188,6 +189,7 @@ export async function saveBatch(db, request) {
   const config = {
     load_percent: percent(data.load_percent, "vonný olej %", 20),
     loss_percent: percent(data.loss_percent, "rezerva %", 30),
+    no_ufi: data.no_ufi === false || data.no_ufi === 0 ? 0 : 1,
   };
   const jars = await jarsOf(db, true);
   for (const i of items)
@@ -195,13 +197,14 @@ export async function saveBatch(db, request) {
   const result = calcBatch({ items, jars, oils, ...config });
   await db
     .prepare(
-      "INSERT INTO workshop_batches (created, name, load_percent, loss_percent, items, result) VALUES (?,?,?,?,?,?)",
+      "INSERT INTO workshop_batches (created, name, load_percent, loss_percent, no_ufi, items, result) VALUES (?,?,?,?,?,?,?)",
     )
     .bind(
       now(),
       text(data.name, "název výroby", 120, false),
       config.load_percent,
       config.loss_percent,
+      config.no_ufi,
       JSON.stringify(items),
       JSON.stringify(result),
     )

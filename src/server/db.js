@@ -81,6 +81,7 @@ const SCHEMA = [
     status TEXT NOT NULL DEFAULT 'planovano',
     load_percent REAL NOT NULL,
     loss_percent REAL NOT NULL,
+    no_ufi INTEGER NOT NULL DEFAULT 1,
     items TEXT NOT NULL,
     result TEXT NOT NULL,
     finished INTEGER

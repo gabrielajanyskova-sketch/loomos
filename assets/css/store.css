@@ -2482,3 +2482,7 @@ tr.muted td {
 .admin-body.workshop-body {
   display: block;
 }
+.workshop-settings label.check {
+  flex-direction: row;
+  align-items: center;
+}

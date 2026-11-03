@@ -1,4 +1,9 @@
-import { calcBatch, fillFromWater, SUPPLIER_LOAD } from "./workshop-calc.mjs";
+import {
+  calcBatch,
+  fillFromWater,
+  maxLoadWithoutUfi,
+  SUPPLIER_LOAD,
+} from "./workshop-calc.mjs";
 
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) =>
@@ -78,6 +83,7 @@ const activeJars = () => data.jars.filter((j) => j.active);
 const scentName = (id) => data.scents.find((s) => s.id === id)?.name || id;
 const settings = () => ({
   load_percent: Number($("#load").value),
+  no_ufi: $("#no-ufi").checked ? 1 : 0,
   loss_percent: Number($("#loss").value),
 });
 
@@ -90,6 +96,7 @@ function render() {
     <div class="workshop-settings">
       <label>Vonný olej (% z vosku)<input id="load" type="number" min="0" max="20" step="0.5" value="${data.settings.load_percent}"></label>
       <label>Rezerva na ztráty (%)<input id="loss" type="number" min="0" max="30" step="1" value="${data.settings.loss_percent}"></label>
+      <label class="check wide"><input type="checkbox" id="no-ufi" ${data.settings.no_ufi ? "checked" : ""}>Bez UFI — u každé vůně držet olej pod hranicí, do které dodavatel uvádí „bez UFI“ (s 5% rezervou)</label>
       <label class="wide">Název výroby (nepovinné)<input id="batch-name" maxlength="120" placeholder="např. Vánoční várka"></label>
     </div>
     <p class="muted">Dodavatel doporučuje ${SUPPLIER_LOAD.min}–${SUPPLIER_LOAD.max} % vonného oleje. Rezerva pokryje vosk, který zůstane v konvičce.</p>
@@ -139,9 +146,9 @@ function renderResult() {
   }
   el.innerHTML = `<h2>Výpočet</h2>
     <div class="stats"><div class="stat">Svíček<strong>${r.totals.candles}</strong></div><div class="stat">Sójový vosk celkem<strong>${grams(r.totals.wax)}</strong></div><div class="stat">Vonný olej celkem<strong>${grams(r.totals.oil)}</strong></div></div>
-    <p class="muted">Koncentrace oleje v hotové svíčce: ${num(r.totals.concentration, 2)} %. Množství už obsahuje rezervu ${settings().loss_percent} %.</p>
+    <p class="muted">Množství už obsahuje rezervu ${settings().loss_percent} %. Olej je v % z hmotnosti vosku; „ve svíčce“ je podíl oleje v hotové svíčce.</p>
     <h3>Podle vůně</h3>
-    <div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Svíček</th><th>Vosk</th><th>Vonný olej</th><th>Bod vzplanutí</th></tr></thead><tbody>${r.scents.map((s) => `<tr><td>${esc(scentName(s.product_id))}</td><td>${s.candles}</td><td>${grams(s.wax)}</td><td><strong>${grams(s.oil)}</strong> <small class="muted">≈ ${Math.round(s.oil)} ml</small></td><td>${s.flashpoint_c ? s.flashpoint_c + " °C" : "—"}</td></tr>`).join("")}</tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Svíček</th><th>Olej %</th><th>Vosk</th><th>Vonný olej</th><th>Bod vzplanutí</th></tr></thead><tbody>${r.scents.map((s) => `<tr><td>${esc(scentName(s.product_id))}</td><td>${s.candles}</td><td>${num(s.load_percent)} %<br><small class="muted">ve svíčce ${num(s.concentration, 2)} %</small></td><td>${grams(s.wax)}</td><td><strong>${grams(s.oil)}</strong> <small class="muted">≈ ${Math.round(s.oil)} ml</small></td><td>${s.flashpoint_c ? s.flashpoint_c + " °C" : "—"}</td></tr>`).join("")}</tbody></table></div>
     <h3>Sklenice a knoty</h3>
     <div class="table-wrap"><table><thead><tr><th>Sklenice</th><th>Kusů</th><th>Knotů</th></tr></thead><tbody>${r.jars.map((j) => `<tr><td>${esc(j.name)}</td><td>${j.candles}</td><td>${j.wicks}${j.wick ? ` × ${esc(j.wick)}` : ""}</td></tr>`).join("")}</tbody></table></div>
     <h3>Rozpis</h3>
@@ -160,7 +167,7 @@ function renderBatches() {
   el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Výroba</th><th>Svíček</th><th>Vosk</th><th>Olej</th><th>Stav</th><th></th></tr></thead><tbody>${data.batches
     .map(
       (b) =>
-        `<tr><td>${esc(b.name || "Výroba " + b.id)}<br><small>${new Date(b.created * 1000).toLocaleDateString("cs-CZ")} · olej ${num(b.load_percent)} %</small></td><td>${b.result.totals.candles}</td><td>${grams(b.result.totals.wax)}</td><td>${grams(b.result.totals.oil)}</td><td>${b.status === "hotovo" ? '<span class="status-label">Hotovo</span>' : "Plánováno"}</td><td><button class="inline-button" data-load="${b.id}">Načíst</button> ${b.status === "hotovo" ? "" : `<button class="inline-button" data-done="${b.id}">Hotovo → na sklad</button>`} <button class="inline-button danger" data-delete="${b.id}">Smazat</button></td></tr>`,
+        `<tr><td>${esc(b.name || "Výroba " + b.id)}<br><small>${new Date(b.created * 1000).toLocaleDateString("cs-CZ")} · olej ${num(b.load_percent)} %${b.no_ufi ? " · bez UFI" : ""}</small></td><td>${b.result.totals.candles}</td><td>${grams(b.result.totals.wax)}</td><td>${grams(b.result.totals.oil)}</td><td>${b.status === "hotovo" ? '<span class="status-label">Hotovo</span>' : "Plánováno"}</td><td><button class="inline-button" data-load="${b.id}">Načíst</button> ${b.status === "hotovo" ? "" : `<button class="inline-button" data-done="${b.id}">Hotovo → na sklad</button>`} <button class="inline-button danger" data-delete="${b.id}">Smazat</button></td></tr>`,
     )
     .join("")}</tbody></table></div>
     <p class="muted">„Hotovo → na sklad“ přičte svíčky do skladu e-shopu u sklenic, které mají nastavenou velikost (malá / velká).</p>`;
@@ -196,10 +203,10 @@ function renderJars() {
 
 function renderOils() {
   $("#oils").innerHTML =
-    `<div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Olej od dodavatele</th><th>Bod vzplanutí</th><th>Vanilin</th><th>Difuzéry max.</th><th>Bez UFI do</th></tr></thead><tbody>${data.oils
+    `<div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Olej od dodavatele</th><th>Bod vzplanutí</th><th>Vanilin</th><th>Difuzéry max.</th><th>Bez UFI do</th><th>Max. olej bez UFI</th></tr></thead><tbody>${data.oils
       .map(
         (o) =>
-          `<tr><td>${esc(o.name)}</td><td><small>${esc(o.supplier_name)}</small></td><td>${o.flashpoint_c} °C</td><td>${o.vanillin_percent ? num(o.vanillin_percent, 2) + " %" : "ne"}</td><td>${o.diffuser_max_percent ? o.diffuser_max_percent + " %" : "nevhodný"}</td><td>${num(o.no_ufi_max_percent, 2)} %</td></tr>`,
+          `<tr><td>${esc(o.name)}</td><td><small>${esc(o.supplier_name)}</small></td><td>${o.flashpoint_c} °C</td><td>${o.vanillin_percent ? num(o.vanillin_percent, 2) + " %" : "ne"}</td><td>${o.diffuser_max_percent ? o.diffuser_max_percent + " %" : "nevhodný"}</td><td>${num(o.no_ufi_max_percent, 2)} % ve svíčce</td><td>${num(maxLoadWithoutUfi(o.no_ufi_max_percent))} % z vosku</td></tr>`,
       )
       .join("")}</tbody></table></div>`;
 }
@@ -221,14 +228,14 @@ document.addEventListener("input", (e) => {
     saveDraft();
     renderResult();
   }
-  if (["load", "loss"].includes(e.target.id)) renderResult();
+  if (["load", "loss", "no-ufi"].includes(e.target.id)) renderResult();
   if (e.target.name === "water_g") {
     const water = Number(e.target.value);
     if (water > 0) e.target.form.elements.fill_g.value = fillFromWater(water);
   }
 });
 document.addEventListener("change", (e) => {
-  if (["load", "loss"].includes(e.target.id))
+  if (["load", "loss", "no-ufi"].includes(e.target.id))
     guard(() => api("workshop/settings", settings()))();
 });
 document.addEventListener(
@@ -271,6 +278,7 @@ document.addEventListener(
       const b = data.batches.find((b) => b.id === Number(t.dataset.load));
       rows = b.items.map((i) => ({ ...i }));
       $("#load").value = b.load_percent;
+      $("#no-ufi").checked = Boolean(b.no_ufi);
       $("#loss").value = b.loss_percent;
       $("#batch-name").value = b.name;
       window.scrollTo({ top: 0, behavior: "smooth" });
