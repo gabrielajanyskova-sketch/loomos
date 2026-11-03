@@ -124,14 +124,14 @@ const DEFAULT_WAXES = [
   {
     name: "Nature Wax C-3",
     melt: "45 °C",
-    heat_to: null,
-    add_oil_at: null,
+    heat_to: 77,
+    add_oil_at: 65,
     pour_from: 55,
     pour_to: 65,
-    max_load: "7–8 %",
+    max_load: "6–8 %, max. 10 %",
     cure_min: 10,
     cure_max: 14,
-    note: "Teplotu zahřátí a přidání oleje dodavatel na stránce neuvádí — doplňte podle návodu výrobce nebo vlastních zkoušek.",
+    note: "Zahřívat na 65–77 °C, nikdy nad 93 °C. Olej přidávat při 65–70 °C. Při chladnu (pod 22 °C) sklenice předehřát kvůli přilnavosti ke sklu. Zapálit nejdříve po 48 hodinách, ideálně po 1–2 týdnech.",
   },
 ];
 const WAX_FIELDS = [
