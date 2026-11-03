@@ -31,8 +31,11 @@ const titles = {
   workshop: "Dílnička | LOOMOS",
   terms: "Obchodní podmínky | LOOMOS",
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",
+  safety: "Složení a bezpečnost svíček | LOOMOS",
 };
 const descriptions = {
+  safety:
+    "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používáme, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si ze čtyř vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
   wholesale:
     "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište nám a domluvíme se osobně.",
@@ -46,6 +49,7 @@ const crumbs = {
   wholesale: "Spolupráce",
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
+  safety: "Složení a bezpečnost",
 };
 const shorten = (text, max) =>
   text.length <= max

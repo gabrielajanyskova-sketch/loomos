@@ -27,6 +27,11 @@ export const packeta = {
 };
 export const faqs = [
   {
+    question: "Jsou vonné oleje ve svíčkách bezpečné?",
+    answer:
+      "Ano. Používáme vonné oleje určené přímo pro svíčky, bez ftalátů a s certifikátem IFRA, podle kterého je jejich použití ve svíčkách bez omezení. Dávkujeme je v množství doporučeném výrobcem (6–8 %) a každou várku vážíme. Látky uvedené na etiketě jsou většinou přirozené složky vůní, jaké najdete i v kosmetice; povinně se uvádějí kvůli lidem s alergií. Podrobnosti najdete na stránce Složení a bezpečnost.",
+  },
+  {
     question: "Z čeho jsou svíčky LOOMOS vyrobené?",
     answer:
       "Svíčky vyrábíme ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používáme vonné oleje dovážené z Velké Británie, které neobsahují ftaláty.",
