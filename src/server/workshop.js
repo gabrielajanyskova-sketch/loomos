@@ -100,7 +100,9 @@ const seedLabels = (db) =>
             `INSERT INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,?)
              ON CONFLICT(product_id) DO UPDATE SET contains=excluded.contains, extra=excluded.extra,
                pictogram=excluded.pictogram, source=excluded.source
-             WHERE workshop_labels.source != 'upraveno ručně' AND workshop_labels.source != excluded.source`,
+             WHERE workshop_labels.source != 'upraveno ručně'
+               AND (workshop_labels.contains != excluded.contains OR workshop_labels.extra != excluded.extra
+                 OR workshop_labels.pictogram != excluded.pictogram OR workshop_labels.source != excluded.source)`,
           )
           .bind(
             l.product_id,

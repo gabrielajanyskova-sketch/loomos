@@ -2491,7 +2491,7 @@ tr.muted td {
 .label-circle {
   --label-d: 60mm;
   --label-font: 6.5pt;
-  --label-pad: 2.2mm;
+  --label-pad: 1.6mm;
   width: var(--label-d);
   height: var(--label-d);
   border-radius: 50%;
@@ -2528,19 +2528,19 @@ tr.muted td {
   );
 }
 .label-text p {
-  margin: 0 0 0.35em;
+  margin: 0 0 0.2em;
   color: #111;
   font-size: inherit;
 }
 .label-text p:first-of-type {
-  padding-top: calc(var(--label-pad) + 1mm);
+  padding-top: var(--label-pad);
 }
 .label-brand {
   letter-spacing: 0.25em;
   font-weight: 700;
 }
 .label-name strong {
-  font-size: 1.25em;
+  font-size: 1.1em;
 }
 .label-maker {
   font-size: 0.9em;
@@ -2774,8 +2774,8 @@ details.safety p {
   line-height: 0;
 }
 .label-icon {
-  width: calc(var(--label-d) * 0.115);
-  height: calc(var(--label-d) * 0.115);
+  width: calc(var(--label-d) * 0.1);
+  height: calc(var(--label-d) * 0.1);
   min-width: 5.5mm;
   min-height: 5.5mm;
 }
