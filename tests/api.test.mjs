@@ -444,6 +444,15 @@ test("Dílnička: label texts and print settings are stored and validated", asyn
     ).status,
     400,
   );
+  assert.equal(
+    (
+      await a("/api/admin/workshop/label-settings", {
+        ...settings,
+        clp: true,
+      })
+    ).status,
+    400,
+  );
   const ws = (await a("/api/admin/workshop")).body;
   assert.equal(ws.labels["okurka-zazvor-mata"].contains, "Linalool, Limonene");
   assert.equal(ws.labels["okurka-zazvor-mata"].source, "upraveno ručně");

@@ -2502,7 +2502,7 @@ tr.muted td {
   flex: none;
   font-family: "DM Sans", Arial, sans-serif;
   font-size: var(--label-font);
-  line-height: 1.18;
+  line-height: 1.2; /* CLP: line spacing ≥ 120 % of the font size */
   box-shadow: 0 0 0 0.3mm #bbb;
 }
 .label-text {
@@ -2714,8 +2714,9 @@ tr.muted td {
 }
 .label-ghs {
   /* CLP: at least 1 cm² and 1/15 of the label area (diamond = half of the square) */
-  width: calc(var(--label-d) * 0.35);
-  height: calc(var(--label-d) * 0.35);
+  /* diamond = half the square: 0.33 × diameter covers 1/15 of the circle (CLP) */
+  width: calc(var(--label-d) * 0.33);
+  height: calc(var(--label-d) * 0.33);
   min-width: 10mm;
   min-height: 10mm;
 }

@@ -4,7 +4,14 @@ import {
   maxLoadWithoutUfi,
   SUPPLIER_LOAD,
 } from "./workshop-calc.mjs";
-import { labelHtml, overflows, sizeLabel } from "./labels.mjs";
+import {
+  CLP_FORMAT,
+  labelHtml,
+  overflows,
+  sizeLabel,
+  smallestFit,
+  xHeightMm,
+} from "./labels.mjs";
 
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) =>
@@ -299,10 +306,16 @@ function renderLabelPreview() {
   const circle = $(".label-circle", preview);
   sizeLabel(circle, data.label);
   const fits = !overflows(circle);
-  $("#label-fit").textContent = fits
-    ? `Text se vejde (průměr ${num(data.label.diameter)} mm, písmo ${num(data.label.font)} pt).`
-    : "Text se nevejde — zvětšete průměr nebo zmenšete písmo.";
-  $("#label-fit").className = "label-fit" + (fits ? "" : " bad");
+  const x = xHeightMm(data.label.font);
+  const clpOk = x >= CLP_FORMAT.minXHeightMm;
+  const minimum = smallestFit(circle, data.label);
+  sizeLabel(circle, data.label);
+  $("#label-fit").innerHTML = `${
+    fits
+      ? `Text se vejde (průměr ${num(data.label.diameter)} mm, písmo ${num(data.label.font)} pt).`
+      : "Text se nevejde — zvětšete průměr nebo zmenšete písmo."
+  }<br>${minimum ? `Nejmenší kolečko pro tuto vůni: <strong>${minimum} mm</strong>.` : "Ani 140 mm nestačí — text je pro dno příliš dlouhý."}<br>CLP (od 2028): výška malých písmen ${num(x, 2)} mm ${clpOk ? "✓" : "✗ — potřeba aspoň 1,2 mm (písmo 6,6 pt)"}, řádkování 120 % ✓`;
+  $("#label-fit").className = "label-fit" + (fits && clpOk ? "" : " bad");
   const texts = data.labels[$("#label-print").elements.scent.value];
   $("#label-missing").hidden = Boolean(texts?.contains);
 }
@@ -337,6 +350,7 @@ function renderLabels() {
         <label>Okraj nahoře (mm)<input name="margin_top" type="number" min="0" max="60" step="0.5" value="${l.margin_top}"></label>
         <label>Okraj vlevo (mm)<input name="margin_left" type="number" min="0" max="60" step="0.5" value="${l.margin_left}"></label>
         <label>Mezera mezi kroužky (mm)<input name="gap" type="number" min="0" max="30" step="0.5" value="${l.gap}"></label>
+        <label class="check wide"><input type="checkbox" name="clp" ${l.clp !== false ? "checked" : ""}>Hlídat pravidla CLP pro vzhled etiket (od 2028: písmo aspoň 6,6 pt, řádkování 120 %)</label>
         <label class="check wide"><input type="checkbox" name="icons" ${l.icons !== false ? "checked" : ""}>Tisknout bezpečnostní piktogramy (ČSN EN 15494)</label>
         <div class="workshop-actions"><button class="inline-button">Uložit nastavení</button></div>
       </form>

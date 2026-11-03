@@ -191,3 +191,10 @@ test("round label includes the EN 15494 pictograms unless switched off", async (
   assert.ok(!labelHtml({ ...base, icons: false }).includes("label-icon"));
   assert.ok(!labelHtml(base).includes("style="));
 });
+
+test("CLP label format: 6.6 pt DM Sans gives an x-height of at least 1.2 mm", async () => {
+  const { xHeightMm, CLP_FORMAT } = await import("../assets/js/labels.mjs");
+  assert.ok(xHeightMm(CLP_FORMAT.minFontPt) >= 1.2);
+  assert.ok(xHeightMm(6) < 1.2);
+  assert.equal(CLP_FORMAT.lineHeight, 1.2);
+});

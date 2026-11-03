@@ -68,7 +68,7 @@ async function seedJars(db) {
 
 export const LABEL_DEFAULTS = {
   diameter: 60,
-  font: 6.5,
+  font: 6.6,
   phone: "",
   columns: 3,
   rows: 4,
@@ -76,6 +76,7 @@ export const LABEL_DEFAULTS = {
   margin_left: 15,
   gap: 5,
   icons: true,
+  clp: true,
 };
 async function labelSettings(db) {
   const row = await db
@@ -500,7 +501,13 @@ export async function saveLabelSettings(db, request) {
     margin_left: num("margin_left", 0, 60),
     gap: num("gap", 0, 30),
     icons: data.icons === true || data.icons === "on",
+    clp: data.clp === true || data.clp === "on",
   };
+  if (value.clp && value.font < 6.6)
+    fail(
+      400,
+      "Podle pravidel CLP musí mít písmo aspoň 6,6 pt (výška malých písmen 1,2 mm). Zvětšete písmo, nebo vypněte kontrolu CLP.",
+    );
   await db
     .prepare(
       "INSERT INTO workshop_settings (key, value) VALUES ('label', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",

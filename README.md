@@ -22,7 +22,7 @@ E-shop s ručně vyráběnými sójovými svíčkami. Běží celý na **Cloudfl
 
 Plánování výroby svíček pro majitelku, chráněné stejným heslem jako administrace (`ADMIN_PASSWORD`). Zadáte vůně, sklenice a počty kusů a Dílnička spočítá sójový vosk, vonný olej (v % z hmotnosti vosku, dodavatel doporučuje 6–8 %), rezervu na ztráty, sklenice a knoty. Režim **Bez UFI** (výchozí) u každé vůně sníží olej tak, aby hotová svíčka zůstala s 5% rezervou pod hranicí, do které dodavatel uvádí „bez UFI“; bez něj Dílnička na překročení upozorní. Upozorní také na vanilin (žloutnutí vosku). Uložené výroby lze označit „Hotovo“ a svíčky se přičtou na sklad e-shopu (podle velikosti nastavené u sklenice).
 
-**Etikety na dno:** Dílnička tiskne kulaté bezpečnostní etikety (název, hmotnost, „Obsahuje: …“ z dokumentů dodavatele, bezpečnostní pokyny, výrobce s telefonem a IČO). Průměr, písmo a rozložení archu se nastavují; náhled ukáže, jestli se text vejde.
+**Etikety na dno** hlídají pravidla vzhledu CLP (nařízení 2024/2865, očekávaná účinnost 1. 1. 2028): písmo aspoň 6,6 pt (výška malých písmen 1,2 mm), řádkování 120 %, výstražný symbol aspoň 1/15 plochy; náhled ukáže nejmenší kolečko pro každou vůni. **Etikety na dno:** Dílnička tiskne kulaté bezpečnostní etikety (název, hmotnost, „Obsahuje: …“ z dokumentů dodavatele, bezpečnostní pokyny, výrobce s telefonem a IČO). Průměr, písmo a rozložení archu se nastavují; náhled ukáže, jestli se text vejde.
 
 Údaje o vonných olejích (bod vzplanutí, vanilin, UFI…) jsou v `data/oils.json` a nikdy se nezveřejňují — čte je jen přihlášená administrace.
 
