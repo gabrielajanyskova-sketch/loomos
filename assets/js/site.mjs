@@ -39,7 +39,7 @@ export const faqs = [
   {
     question: "Jaké velikosti svíček připravujete?",
     answer:
-      "Každou vůni připravujeme v malé a velké velikosti. Přesný objem a dobu hoření ještě doplníme. Uvedené ceny jsou zatím pracovní.",
+      "Každou vůni nabízíme ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku, velká ve sklenici 30 cl přibližně 220 g. Uvedené ceny jsou zatím pracovní.",
   },
   {
     question: "Mohu už odeslat objednávku?",

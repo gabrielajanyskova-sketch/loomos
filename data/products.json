@@ -13,12 +13,14 @@
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku"
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku"
       }
     ],
     "pyramid": {
@@ -41,12 +43,14 @@
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku"
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku"
       }
     ],
     "pyramid": {
@@ -69,12 +73,14 @@
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku"
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku"
       }
     ],
     "pyramid": {
@@ -97,12 +103,14 @@
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku"
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku"
       }
     ],
     "pyramid": {
@@ -125,12 +133,14 @@
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku"
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku"
       }
     ],
     "pyramid": {
@@ -153,12 +163,14 @@
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku"
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku"
       }
     ],
     "pyramid": {

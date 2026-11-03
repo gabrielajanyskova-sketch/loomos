@@ -357,6 +357,15 @@ test("Dílnička: jars, saved batch, finished candles go to stock; supplier data
   );
   const ws = (await a("/api/admin/workshop")).body;
   assert.equal(ws.oils.length, 6);
+  assert.deepEqual(
+    ws.jars
+      .filter((j) => /Oxford|Kimberley/.test(j.name))
+      .map((j) => [j.fill_g, j.variant_id]),
+    [
+      [220, "velka"],
+      [180, "mala"],
+    ],
+  );
   const jar = ws.jars.find((j) => j.name === "Velká čirá");
   const before = (await a("/api/admin/stock")).body.find(
     (s) => s.product_id === "zazvor-zeleny-caj" && s.variant_id === "velka",

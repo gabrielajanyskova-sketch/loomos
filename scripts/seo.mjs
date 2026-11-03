@@ -175,7 +175,9 @@ export function metadata({
           "@type": "PropertyValue",
           name: "Velikosti",
           value: product.variants?.length
-            ? product.variants.map((v) => v.name).join(", ")
+            ? product.variants
+                .map((v) => (v.detail ? `${v.name} (${v.detail})` : v.name))
+                .join(", ")
             : "Malá, velká",
         },
         { "@type": "PropertyValue", name: "Vonné tóny", value: product.notes },

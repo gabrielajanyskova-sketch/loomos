@@ -16,7 +16,9 @@ async function settings(db) {
     .prepare("SELECT key, value FROM workshop_settings")
     .all();
   const stored = Object.fromEntries(
-    results.map((r) => [r.key, Number(r.value)]),
+    results
+      .filter((r) => r.key in DEFAULTS)
+      .map((r) => [r.key, Number(r.value)]),
   );
   return { ...DEFAULTS, ...stored };
 }
@@ -29,7 +31,42 @@ const jarsOf = async (db, all = false) =>
       .all()
   ).results;
 
+/** The two jars the shop sells in (supplier data, NI Candle Supplies). Added once; editable later. */
+const DEFAULT_JARS = [
+  {
+    name: "Oxford 20 cl (střední) — průhledná",
+    fill_g: 180,
+    variant_id: "mala",
+    note: "Ø 74 × 87 mm, vnitřní Ø 67 mm, sklo cca 296 g. S víčkem plnit cca 165 g. Dodavatel doporučuje knot HTP 105, hoření cca 33 h.",
+  },
+  {
+    name: "Kimberley 30 cl (velká) — průhledná",
+    fill_g: 220,
+    variant_id: "velka",
+    note: "Ø 81,5 × 93 mm, vnitřní Ø 77 mm, sklo cca 370 g. S víčkem plnit cca 200 g. Dodavatel doporučuje knot HTP 126, hoření až 40 h.",
+  },
+];
+async function seedJars(db) {
+  const seeded = await db
+    .prepare("SELECT 1 FROM workshop_settings WHERE key='seeded_jars'")
+    .first();
+  if (seeded) return;
+  await db.batch([
+    ...DEFAULT_JARS.map((j) =>
+      db
+        .prepare(
+          "INSERT INTO workshop_jars (name, fill_g, wicks, wick, variant_id, note) VALUES (?,?,1,'',?,?)",
+        )
+        .bind(j.name, j.fill_g, j.variant_id, j.note),
+    ),
+    db.prepare(
+      "INSERT OR IGNORE INTO workshop_settings (key, value) VALUES ('seeded_jars', '1')",
+    ),
+  ]);
+}
+
 export async function overview(db) {
+  await seedJars(db);
   const [jars, config, batches] = await Promise.all([
     jarsOf(db, true),
     settings(db),
