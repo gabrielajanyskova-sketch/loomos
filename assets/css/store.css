@@ -2708,3 +2708,14 @@ tr.muted td {
 .inline-form textarea {
   width: 100%;
 }
+.label-pictogram {
+  margin: 0 0 0.3em;
+  line-height: 0;
+}
+.label-ghs {
+  /* CLP: at least 1 cm² and 1/15 of the label area (diamond = half of the square) */
+  width: calc(var(--label-d) * 0.35);
+  height: calc(var(--label-d) * 0.35);
+  min-width: 10mm;
+  min-height: 10mm;
+}

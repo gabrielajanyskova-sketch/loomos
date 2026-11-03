@@ -130,6 +130,7 @@ const labelValues = () => {
     grams: jar?.fill_g ?? "",
     contains: texts.contains,
     extra: texts.extra,
+    pictogram: texts.pictogram,
     phone: data.label.phone,
     batch: f.elements.batch.value.trim(),
   };
@@ -165,7 +166,7 @@ function renderLabels() {
     <details><summary>Texty podle vůní</summary>${data.scents
       .map((s) => {
         const t = data.labels[s.id] || {};
-        return `<form class="jar-form label-texts" data-label-scent="${esc(s.id)}"><h3>${esc(s.name)}</h3><label class="wide">Obsahuje (látky z dokumentu dodavatele, oddělené čárkou)<textarea name="contains" rows="2" maxlength="1000" placeholder="např. Linalool, Limonene, Citral">${esc(t.contains)}</textarea></label><label class="wide">Další upozornění z dokumentu (nepovinné)<textarea name="extra" rows="2" maxlength="1000">${esc(t.extra)}</textarea></label><div class="workshop-actions"><button class="inline-button">Uložit texty</button></div></form>`;
+        return `<form class="jar-form label-texts" data-label-scent="${esc(s.id)}"><h3>${esc(s.name)}</h3><label class="wide">Obsahuje — alergeny (věta EUH208, oddělené čárkou)<textarea name="contains" rows="2" maxlength="1000" placeholder="např. Linalool, Limonene, Citral">${esc(t.contains)}</textarea></label><label class="wide">Varování a pokyny z dokumentu (H a P věty)<textarea name="extra" rows="4" maxlength="1500">${esc(t.extra)}</textarea></label><label class="check wide"><input type="checkbox" name="pictogram" ${t.pictogram ? "checked" : ""}>Tisknout výstražný symbol (vykřičník GHS07)</label>${t.source ? `<p class="muted wide">Zdroj: ${esc(t.source)}</p>` : ""}<div class="workshop-actions"><button class="inline-button">Uložit texty</button></div></form>`;
       })
       .join("")}</details>
     <details><summary>Nastavení tisku a údaje na etiketě</summary>
@@ -443,9 +444,10 @@ document.addEventListener(
         product_id: id,
         contains: e.target.elements.contains.value.replace(/[.\s]+$/, ""),
         extra: e.target.elements.extra.value,
+        pictogram: e.target.elements.pictogram.checked,
       };
       await api("workshop/label", body);
-      data.labels[id] = { contains: body.contains, extra: body.extra };
+      data.labels[id] = { ...body, source: "upraveno ručně" };
       status("Texty etikety jsou uložené.");
       return renderLabelPreview();
     }

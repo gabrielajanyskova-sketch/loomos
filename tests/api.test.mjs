@@ -446,6 +446,11 @@ test("Dílnička: label texts and print settings are stored and validated", asyn
   );
   const ws = (await a("/api/admin/workshop")).body;
   assert.equal(ws.labels["okurka-zazvor-mata"].contains, "Linalool, Limonene");
+  assert.equal(ws.labels["okurka-zazvor-mata"].source, "upraveno ručně");
+  assert.equal(ws.labels["pomeranc-vanilka"].contains, "Limonene, Linalool");
+  assert.equal(ws.labels["zazvor-zeleny-caj"].pictogram, true);
+  assert.match(ws.labels["zazvor-zeleny-caj"].extra, /Obsahuje: Citral/);
+  assert.match(ws.labels["morska-sul-paculi"].source, /Arabian Nights/);
   assert.equal(ws.label.diameter, 50);
   assert.equal(ws.label.phone, "+420 777 123 456");
 });

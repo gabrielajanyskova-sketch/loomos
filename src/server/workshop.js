@@ -1,5 +1,6 @@
 /** Dílnička: production planning (admin only). Supplier oil data never leaves the admin API. */
 import oilData from "../../data/oils.json";
+import labelDefaults from "../../data/labels.json";
 import { assertSameOrigin, fail, json, readJson, text } from "./http.js";
 import { now } from "./db.js";
 import { catalog, variantsOf } from "./catalog.js";
@@ -86,8 +87,29 @@ async function labelSettings(db) {
   }
 }
 
+/** Label texts from the supplier's CLP documents; never overwrites the owner's edits. */
+const seedLabels = (db) =>
+  db.batch(
+    labelDefaults
+      .filter((l) => scentIds.has(l.product_id))
+      .map((l) =>
+        db
+          .prepare(
+            "INSERT OR IGNORE INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,?)",
+          )
+          .bind(
+            l.product_id,
+            l.contains,
+            l.extra,
+            l.pictogram ? 1 : 0,
+            l.supplier,
+          ),
+      ),
+  );
+
 export async function overview(db) {
   await seedJars(db);
+  await seedLabels(db);
   const [jars, config, batches, labels, label] = await Promise.all([
     jarsOf(db, true),
     settings(db),
@@ -109,7 +131,12 @@ export async function overview(db) {
     labels: Object.fromEntries(
       labels.results.map((l) => [
         l.product_id,
-        { contains: l.contains, extra: l.extra },
+        {
+          contains: l.contains,
+          extra: l.extra,
+          pictogram: Boolean(l.pictogram),
+          source: l.source,
+        },
       ]),
     ),
     label,
@@ -299,16 +326,17 @@ export async function deleteBatch(db, request) {
 /** Text from the supplier's "KE STAŽENÍ" documents (Substances / Mixtures) for each scent. */
 export async function saveLabel(db, request) {
   assertSameOrigin(request);
-  const data = await readJson(request, 4096);
+  const data = await readJson(request, 8192);
   if (!scentIds.has(data.product_id)) fail(400, "Neznámá vůně.");
   await db
     .prepare(
-      "INSERT INTO workshop_labels (product_id, contains, extra) VALUES (?,?,?) ON CONFLICT(product_id) DO UPDATE SET contains=excluded.contains, extra=excluded.extra",
+      "INSERT INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,'upraveno ručně') ON CONFLICT(product_id) DO UPDATE SET contains=excluded.contains, extra=excluded.extra, pictogram=excluded.pictogram, source=excluded.source",
     )
     .bind(
       data.product_id,
       text(data.contains, "obsahuje", 1000, false),
-      text(data.extra, "další upozornění", 1000, false),
+      text(data.extra, "další upozornění", 1500, false),
+      data.pictogram === true ? 1 : 0,
     )
     .run();
   return json({ ok: true });
