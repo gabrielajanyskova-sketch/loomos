@@ -775,7 +775,7 @@ test("Balíkovna: point picked on the Česká pošta map is required and kept fo
     }),
   );
   assert.equal(res.status, 201, JSON.stringify(res.body));
-  assert.equal(res.body.pricing.shippingPrice, 79);
+  assert.equal(res.body.pricing.shippingPrice, 89);
   assert.deepEqual(res.body.balikovna, {
     id: "74101",
     zip: "74101",

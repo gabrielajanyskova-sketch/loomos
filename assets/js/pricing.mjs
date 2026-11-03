@@ -36,7 +36,7 @@ export const SHIPPING = {
   },
   balikovna: {
     label: "Balíkovna — Česká pošta",
-    price: 79,
+    price: 89,
     kind: "point",
     provider: "balikovna",
   },
