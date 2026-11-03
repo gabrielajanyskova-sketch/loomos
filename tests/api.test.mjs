@@ -224,7 +224,7 @@ test("discount codes, stock limits and admin order handling", async () => {
     400,
   );
   await a("/api/admin/stock", {
-    product_id: "svatecni-duch",
+    product_id: "morska-sul-paculi",
     variant_id: "velka",
     quantity: 1,
   });
@@ -236,20 +236,23 @@ test("discount codes, stock limits and admin order handling", async () => {
   assert.equal((await call("/api/codes/check", { code: "NIC" })).status, 400);
   const tooMany = await call(
     "/api/orders",
-    order({ items: [{ id: "svatecni-duch", variant: "velka", qty: 2 }] }),
+    order({ items: [{ id: "morska-sul-paculi", variant: "velka", qty: 2 }] }),
   );
   assert.equal(tooMany.status, 409);
   const ok = await call(
     "/api/orders",
     order({
       code: "test10",
-      items: [{ id: "svatecni-duch", variant: "velka", qty: 1 }],
+      items: [{ id: "morska-sul-paculi", variant: "velka", qty: 1 }],
     }),
   );
   assert.equal(ok.status, 201, JSON.stringify(ok.body));
   assert.equal(ok.body.pricing.codeDiscount, 35);
   const products = (await call("/api/products")).body;
-  assert.equal(products.find((p) => p.id === "svatecni-duch").stock.velka, 0);
+  assert.equal(
+    products.find((p) => p.id === "morska-sul-paculi").stock.velka,
+    0,
+  );
   assert.equal(
     (
       await call(
@@ -288,7 +291,7 @@ test("discount codes, stock limits and admin order handling", async () => {
   const stock = (await a("/api/admin/stock")).body;
   assert.equal(
     stock.find(
-      (s) => s.product_id === "svatecni-duch" && s.variant_id === "velka",
+      (s) => s.product_id === "morska-sul-paculi" && s.variant_id === "velka",
     ).quantity,
     1,
   );
@@ -356,7 +359,7 @@ test("Dílnička: jars, saved batch, finished candles go to stock; supplier data
     200,
   );
   const ws = (await a("/api/admin/workshop")).body;
-  assert.equal(ws.oils.length, 6);
+  assert.equal(ws.oils.length, 4);
   assert.deepEqual(
     ws.jars
       .filter((j) => /Oxford|Kimberley/.test(j.name))

@@ -237,7 +237,7 @@ await write(
 );
 await write(
   "_redirects",
-  "/index.html / 301\n/produkty/amber-tobacco /obchod 301\n/produkty/sandalwood-leather /obchod 301\n/produkty/fig-wild-berry /obchod 301\n",
+  "/index.html / 301\n/produkty/amber-tobacco /obchod 301\n/produkty/sandalwood-leather /obchod 301\n/produkty/fig-wild-berry /obchod 301\n/produkty/goji-cerveny-pomeranc /obchod 301\n/produkty/svatecni-duch /obchod 301\n",
 );
 console.log(
   `Built ${pages.length} pages in dist; canonical ${siteUrl}; indexing ${indexable ? "enabled" : "disabled (prelaunch)"}.`,

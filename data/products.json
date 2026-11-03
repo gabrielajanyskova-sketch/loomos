@@ -90,36 +90,6 @@
     }
   },
   {
-    "id": "svatecni-duch",
-    "name": "Sváteční duch",
-    "subtitle": "Atmosféra výjimečných chvil.",
-    "notes": "Skořice · jablko · hřebíček · vanilka",
-    "price": 249,
-    "category": "svicky",
-    "description": "Vánoce v jedné sklenici. Pečené jablko, pomeranč a lesní plody doprovází skořice, v srdci se ozve brandy, hřebíček a zázvor a vše zjemní krémová vanilka. Vůně, která provoní celý byt jako sváteční pečení.",
-    "active": true,
-    "price_provisional": true,
-    "variants": [
-      {
-        "id": "mala",
-        "name": "Malá",
-        "price": 249,
-        "detail": "20 cl · cca 180 g vosku"
-      },
-      {
-        "id": "velka",
-        "name": "Velká",
-        "price": 349,
-        "detail": "30 cl · cca 220 g vosku"
-      }
-    ],
-    "pyramid": {
-      "top": "Skořice, jablko, lesní plody, pomeranč",
-      "heart": "Brandy, hřebíček, zázvor",
-      "base": "Vanilka"
-    }
-  },
-  {
     "id": "zazvor-zeleny-caj",
     "name": "Zázvor a zelený čaj",
     "subtitle": "Klid a jasná mysl.",
@@ -147,36 +117,6 @@
       "top": "Zelený čaj",
       "heart": "Citronová tráva",
       "base": "Zázvor"
-    }
-  },
-  {
-    "id": "goji-cerveny-pomeranc",
-    "name": "Goji a červený pomeranč",
-    "subtitle": "Šťavnatá energie do každého dne.",
-    "notes": "Pomeranč · malina · rebarbora · vanilka",
-    "price": 249,
-    "category": "svicky",
-    "description": "Ovocná a radostná vůně plná sluníčka. Šťavnatý pomeranč, malina a citron s kapkou cukru přecházejí v srdce z rebarbory, jahody, jasmínu, fialky a svěžího eukalyptu. Vše hřejivě dozní vanilkou a ambrou. Rozjasní pokoj i náladu.",
-    "active": true,
-    "price_provisional": true,
-    "variants": [
-      {
-        "id": "mala",
-        "name": "Malá",
-        "price": 249,
-        "detail": "20 cl · cca 180 g vosku"
-      },
-      {
-        "id": "velka",
-        "name": "Velká",
-        "price": 349,
-        "detail": "30 cl · cca 220 g vosku"
-      }
-    ],
-    "pyramid": {
-      "top": "Pomeranč, malina, citron, cukr",
-      "heart": "Pomeranč, rebarbora, jahoda, jasmín, fialka, eukalyptus",
-      "base": "Vanilka, ambra"
     }
   }
 ]

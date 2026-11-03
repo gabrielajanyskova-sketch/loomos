@@ -37,8 +37,8 @@ try {
   const requests = [];
   page.on("request", (r) => requests.push(r.url()));
   await page.goto(base);
-  await page.locator(".product-card").nth(5).waitFor();
-  assert.equal(await page.locator(".product-card").count(), 6);
+  await page.locator(".product-card").nth(3).waitFor();
+  assert.equal(await page.locator(".product-card").count(), 4);
   assert.match(
     await page.locator(".product-card .member-price").first().textContent(),
     /237/,
@@ -90,7 +90,7 @@ try {
   const noJs = await browser.newContext({ javaScriptEnabled: false });
   const plain = await noJs.newPage();
   await plain.goto(base);
-  assert.equal(await plain.locator(".product-card").count(), 6);
+  assert.equal(await plain.locator(".product-card").count(), 4);
   assert.match(await plain.locator(".footer-legal").textContent(), /19616295/);
   await plain.goto(base + "/obchodni-podminky");
   assert.match(await plain.locator("h1").textContent(), /Obchodní/);
@@ -138,7 +138,7 @@ try {
   for (const route of [
     "/",
     "/obchod",
-    "/produkty/goji-cerveny-pomeranc",
+    "/produkty/zazvor-zeleny-caj",
     "/kosik",
     "/pokladna",
     "/ucet",

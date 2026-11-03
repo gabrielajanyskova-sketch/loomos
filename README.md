@@ -4,7 +4,7 @@ E-shop s ručně vyráběnými sójovými svíčkami. Běží celý na **Cloudfl
 
 ## Co e-shop umí
 
-- Katalog šesti vůní ve dvou velikostech; HTML se předgeneruje (SEO, funguje i bez JavaScriptu).
+- Katalog čtyř vůní ve dvou velikostech; HTML se předgeneruje (SEO, funguje i bez JavaScriptu).
 - **Zákaznické účty:** registrace, přihlášení, zapomenuté heslo e-mailem, změna údajů a hesla, historie objednávek, smazání účtu (GDPR).
 - **Sleva 5 % pro přihlášené** na každou položku; v košíku je vidět původní cena, sleva i celková úspora.
 - **Slevové kódy:** procenta nebo částka, minimální nákup, platnost od–do, limit použití.

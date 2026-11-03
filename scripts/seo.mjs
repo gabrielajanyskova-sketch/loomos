@@ -19,7 +19,7 @@ const privatePages = new Set([
 ]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
-  shop: "Sójové svíčky — šest vůní, dvě velikosti | LOOMOS",
+  shop: "Sójové svíčky — čtyři vůně, dvě velikosti | LOOMOS",
   wholesale: "Spolupráce a zakázková tvorba | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
@@ -33,7 +33,7 @@ const titles = {
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",
 };
 const descriptions = {
-  shop: "Vyberte si ze šesti vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
+  shop: "Vyberte si ze čtyř vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
   wholesale:
     "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište nám a domluvíme se osobně.",
   terms:

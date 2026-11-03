@@ -34,7 +34,7 @@ export const faqs = [
   {
     question: "Jaké vůně si mohu vybrat?",
     answer:
-      "V nabídce je Okurka, zázvor a máta; Pomeranč a vanilka; Mořská sůl a pačuli; Sváteční duch; Zázvor a zelený čaj; Goji a červený pomeranč.",
+      "V nabídce je Okurka, zázvor a máta; Pomeranč a vanilka; Mořská sůl a pačuli; Zázvor a zelený čaj.",
   },
   {
     question: "Jaké velikosti svíček připravujete?",

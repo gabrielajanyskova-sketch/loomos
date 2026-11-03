@@ -30,16 +30,6 @@
     "no_ufi_max_percent": 11.1
   },
   {
-    "product_id": "svatecni-duch",
-    "supplier_name": "Vonný olej „Sváteční duch“ (Festive Spirit)",
-    "flashpoint_c": 68,
-    "vanillin_percent": 2.5,
-    "diffuser_max_percent": 25,
-    "room_spray": true,
-    "phthalate_free": true,
-    "no_ufi_max_percent": 0.51
-  },
-  {
     "product_id": "zazvor-zeleny-caj",
     "supplier_name": "Vonný olej s čerstvým zázvorem a zeleným čajem",
     "flashpoint_c": 86,
@@ -48,15 +38,5 @@
     "room_spray": true,
     "phthalate_free": true,
     "no_ufi_max_percent": 7.94
-  },
-  {
-    "product_id": "goji-cerveny-pomeranc",
-    "supplier_name": "Vonný olej z goji a krvavého pomeranče – modifikovaný",
-    "flashpoint_c": 61,
-    "vanillin_percent": 0.3,
-    "diffuser_max_percent": 25,
-    "room_spray": true,
-    "phthalate_free": true,
-    "no_ufi_max_percent": 4.19
   }
 ]
