@@ -13,13 +13,12 @@ export const ORDER_STATUS = {
 export function trackingOf(order) {
   const code = (order.tracking || order.packeta?.barcode || "").trim();
   if (!code) return null;
-  return {
-    code,
-    url:
-      shippingProvider(order.shipping) === "packeta"
-        ? `https://tracking.packeta.com/cs/?id=${encodeURIComponent(code.replace(/\s/g, ""))}`
-        : null,
+  const id = encodeURIComponent(code.replace(/\s/g, ""));
+  const urls = {
+    packeta: `https://tracking.packeta.com/cs/?id=${id}`,
+    balikovna: `https://www.postaonline.cz/trackandtrace/-/zasilka/cislo?parcelNumbers=${id}`,
   };
+  return { code, url: urls[shippingProvider(order.shipping)] || null };
 }
 
 /** Steps of the customer-facing timeline; the third step depends on the delivery method. */
