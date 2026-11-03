@@ -3,10 +3,44 @@
  * All amounts are whole Czech crowns.
  */
 export const MEMBER_DISCOUNT_PERCENT = 5;
+/**
+ * kind: "pickup" (in person), "point" (Packeta pick-up point / Z-BOX chosen on the map)
+ * or "home" (Packeta home delivery). `packeta` holds the map widget filter.
+ */
 export const SHIPPING = {
-  pickup: { label: "Osobní odběr — Starojická Lhota", price: 0 },
-  zasilkovna: { label: "Zásilkovna — výdejní místo", price: 79 },
+  pickup: {
+    label: "Osobní odběr — Starojická Lhota",
+    price: 0,
+    kind: "pickup",
+  },
+  zasilkovna: {
+    label: "Zásilkovna — výdejní místo",
+    price: 79,
+    kind: "point",
+    packeta: { vendors: [{ country: "cz" }] },
+  },
+  zbox: {
+    label: "Zásilkovna — Z-BOX",
+    price: 79,
+    kind: "point",
+    packeta: { vendors: [{ country: "cz", group: "zbox" }] },
+  },
+  domu: {
+    label: "Zásilkovna — doručení domů",
+    price: 119,
+    kind: "home",
+  },
 };
+export const shippingKind = (id) => SHIPPING[id]?.kind || "pickup";
+/** One line describing where the order goes. */
+export function shippingSummary(order) {
+  const s = SHIPPING[order.shipping];
+  if (!s) return order.shipping || "";
+  if (s.kind === "point") return `${s.label}: ${order.pickup_point}`;
+  if (s.kind === "home" && order.address)
+    return `${s.label}: ${order.address.street}, ${order.address.zip} ${order.address.city}`;
+  return s.label;
+}
 export const PAYMENT = {
   transfer: { label: "Bankovní převod (QR platba)", available: true },
   card: { label: "Platba kartou online", available: false },

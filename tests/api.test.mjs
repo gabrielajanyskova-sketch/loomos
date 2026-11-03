@@ -666,3 +666,87 @@ test("invoices on payment, customer PDF, withdrawal button flow and order deleti
     200,
   );
 });
+
+test("Zásilkovna: Z-BOX and home delivery are priced, validated and shown everywhere", async () => {
+  const call = client(shop.url);
+  const zbox = await call(
+    "/api/orders",
+    order({
+      shipping: "zbox",
+      pickup_point: "Z-BOX Nový Jičín, Masarykovo nám.",
+      packeta_point_id: "4321",
+    }),
+  );
+  assert.equal(zbox.status, 201, JSON.stringify(zbox.body));
+  assert.equal(zbox.body.pricing.shippingPrice, 79);
+  assert.equal(
+    (await call("/api/orders", order({ shipping: "zbox", pickup_point: "" })))
+      .status,
+    400,
+  );
+  assert.equal(
+    (
+      await call(
+        "/api/orders",
+        order({
+          shipping: "domu",
+          street: "Hlavní",
+          city: "Praha",
+          zip: "11000",
+        }),
+      )
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await call(
+        "/api/orders",
+        order({
+          shipping: "domu",
+          street: "Hlavní 5",
+          city: "Praha",
+          zip: "1100",
+        }),
+      )
+    ).status,
+    400,
+  );
+  const home = await call(
+    "/api/orders",
+    order({
+      email: "domu@example.com",
+      shipping: "domu",
+      street: "Hlavní 12/3a",
+      city: "Nový Jičín",
+      zip: "741 01",
+      pickup_point: "",
+      packeta_point_id: "",
+    }),
+  );
+  assert.equal(home.status, 201, JSON.stringify(home.body));
+  assert.equal(home.body.pricing.shippingPrice, 119);
+  assert.deepEqual(home.body.address, {
+    street: "Hlavní 12/3a",
+    city: "Nový Jičín",
+    zip: "74101",
+  });
+  const mail = await mailTo("domu@example.com", new RegExp(home.body.number));
+  assert.match(
+    mail.body.text,
+    /doručení domů: Hlavní 12\/3a, 74101 Nový Jičín/,
+  );
+  const a = await admin();
+  const before = shop.packets.length;
+  const packet = await a("/api/admin/packeta-packet", {
+    number: home.body.number,
+    weight: 0.6,
+  });
+  assert.equal(packet.status, 201, JSON.stringify(packet.body));
+  const xml = shop.packets.slice(before).join("");
+  assert.match(xml, /<addressId>106<\/addressId>/);
+  assert.match(
+    xml,
+    /<street>Hlavní<\/street><houseNumber>12\/3a<\/houseNumber><city>Nový Jičín<\/city><zip>74101<\/zip>/,
+  );
+});

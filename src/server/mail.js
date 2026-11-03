@@ -1,6 +1,6 @@
 /** Transactional e-mail through Resend. Keys come only from the environment. */
 import { seller, sellerAddress } from "../../assets/js/site.mjs";
-import { SHIPPING } from "../../assets/js/pricing.mjs";
+import { shippingSummary } from "../../assets/js/pricing.mjs";
 
 const esc = (s) =>
   String(s).replace(
@@ -112,9 +112,7 @@ export function orderRows(order) {
       `−${czk(order.pricing.codeDiscount)}`,
     ]);
   rows.push([
-    order.shipping === "zasilkovna"
-      ? `Zásilkovna — ${order.pickup_point}`
-      : SHIPPING.pickup.label,
+    shippingSummary(order),
     order.pricing.shippingPrice ? czk(order.pricing.shippingPrice) : "Zdarma",
   ]);
   rows.push(["Celkem", czk(order.pricing.total), true]);

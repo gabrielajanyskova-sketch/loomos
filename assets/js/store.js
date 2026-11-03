@@ -15,6 +15,7 @@ import {
   SHIPPING,
   PAYMENT,
   MAX_QTY,
+  shippingSummary,
 } from "./pricing.mjs";
 import { qrSvg } from "./payment.mjs";
 import { ORDER_STATUS, orderSteps } from "./orders.mjs";
@@ -399,7 +400,7 @@ function renderCheckout() {
         `<label class="radio ${p.available ? "" : "disabled"}"><input type="radio" name="payment" value="${id}" ${p.available ? (id === "transfer" ? "checked" : "") : "disabled"}>${esc(p.label)}<span>${p.available ? "Zdarma" : "Připravujeme"}</span></label>`,
     )
     .join("");
-  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvíme po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat výdejní místo na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><label class="full">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesíláme po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
+  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvíme po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesíláme po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
   const form = $("#checkout-form");
   const renderSummary = () => {
     $("#checkout-summary").innerHTML = summary({
@@ -410,15 +411,12 @@ function renderCheckout() {
   renderSummary();
   bindSummary($("#checkout-summary"), renderSummary);
   track("begin_checkout");
-  form.addEventListener("change", (e) => {
-    if (e.target.name !== "shipping") return;
+  // A point chosen for one Packeta option is kept separately from the other option.
+  const chosen = {};
+  const openMap = async () => {
     const shipping = form.elements.shipping.value;
-    $("#delivery-fields").hidden = shipping !== "zasilkovna";
-    $("#pickup-address").hidden = shipping !== "pickup";
-    form.elements.pickup_point.required = shipping === "zasilkovna";
-    renderSummary();
-  });
-  $("#packeta-pick").addEventListener("click", async () => {
+    const option = SHIPPING[shipping];
+    if (option?.kind !== "point") return;
     try {
       const Packeta = await loadPacketa();
       Packeta.Widget.pick(
@@ -428,17 +426,49 @@ function renderCheckout() {
           const label = String(
             point.formatedValue || point.name || point.place || "",
           ).slice(0, 200);
+          chosen[shipping] = { id: String(point.id), label };
           form.elements.packeta_point_id.value = String(point.id);
           form.elements.pickup_point.value = label;
           $("#packeta-selected").textContent = "Vybráno: " + label;
         },
-        { country: "cz", language: "cs" },
+        { country: "cz", language: "cs", ...option.packeta },
       );
     } catch {
       $("#packeta-selected").textContent =
-        "Mapu výdejních míst se nepodařilo načíst. Napište prosím název výdejního místa.";
+        "Mapu se nepodařilo načíst. Napište prosím název výdejního místa nebo Z-BOXu.";
     }
+  };
+  const applyShipping = (open) => {
+    const shipping = form.elements.shipping.value;
+    const kind = SHIPPING[shipping]?.kind;
+    $("#delivery-fields").hidden = kind !== "point";
+    $("#home-fields").hidden = kind !== "home";
+    $("#pickup-address").hidden = kind !== "pickup";
+    form.elements.pickup_point.required = kind === "point";
+    for (const name of ["street", "city", "zip"])
+      form.elements[name].required = kind === "home";
+    if (kind === "point") {
+      const isBox = shipping === "zbox";
+      $("#packeta-pick").textContent = isBox
+        ? "Vybrat Z-BOX na mapě →"
+        : "Vybrat výdejní místo na mapě →";
+      $("#pickup-point-label").firstChild.textContent = isBox
+        ? "Z-BOX"
+        : "Výdejní místo";
+      const point = chosen[shipping];
+      form.elements.packeta_point_id.value = point?.id || "";
+      form.elements.pickup_point.value = point?.label || "";
+      $("#packeta-selected").textContent = point
+        ? "Vybráno: " + point.label
+        : "";
+      if (open && !point) openMap();
+    }
+    renderSummary();
+  };
+  form.addEventListener("change", (e) => {
+    if (e.target.name === "shipping") applyShipping(true);
   });
+  $("#packeta-pick").addEventListener("click", openMap);
   form.elements.pickup_point.addEventListener("input", () => {
     form.elements.packeta_point_id.value = "";
     $("#packeta-selected").textContent = "";
@@ -512,7 +542,7 @@ async function renderOrderPage() {
   try {
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
-    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(o.shipping === "zasilkovna" ? "Zásilkovna — " + o.pickup_point : SHIPPING.pickup.label)}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
+    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }

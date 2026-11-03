@@ -4,7 +4,7 @@ import fontkit from "@pdf-lib/fontkit";
 import regularFont from "./fonts/dm-sans-regular.bin";
 import boldFont from "./fonts/dm-sans-bold.bin";
 import { seller, sellerAddress } from "../../assets/js/site.mjs";
-import { SHIPPING } from "../../assets/js/pricing.mjs";
+import { shippingSummary } from "../../assets/js/pricing.mjs";
 import { now } from "./db.js";
 import { bank } from "./shop.js";
 
@@ -34,6 +34,7 @@ export async function issueInvoice(db, env, row) {
     pricing: order.pricing,
     shipping: order.shipping,
     pickup_point: order.pickup_point,
+    address: order.address || null,
     member: order.member,
     test,
     paid_at: issued,
@@ -141,12 +142,7 @@ export async function invoicePdf(invoice) {
     ["Datum splatnosti", date(invoice.issued)],
     ["Způsob úhrady", "Bankovní převod"],
     ...(data.bank ? [["Účet", data.bank.account]] : []),
-    [
-      "Doprava",
-      data.shipping === "zasilkovna"
-        ? `Zásilkovna – ${data.pickup_point}`
-        : SHIPPING.pickup.label,
-    ],
+    ["Doprava", shippingSummary(data)],
   ];
   for (const [label, value] of facts) {
     text(label, left, y, { color: muted });

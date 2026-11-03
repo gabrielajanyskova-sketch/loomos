@@ -1,3 +1,4 @@
+import { shippingKind } from "./pricing.mjs";
 /** Order states shared by the admin, the customer account and the server. */
 export const ORDER_STATUS = {
   nova: "Čeká na platbu",
@@ -15,7 +16,7 @@ export function trackingOf(order) {
   return {
     code,
     url:
-      order.shipping === "zasilkovna"
+      shippingKind(order.shipping) !== "pickup"
         ? `https://tracking.packeta.com/cs/?id=${encodeURIComponent(code.replace(/\s/g, ""))}`
         : null,
   };

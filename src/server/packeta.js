@@ -32,6 +32,14 @@ const tag = (body, name) => {
     : "";
 };
 
+/** "Hlavní 12/3a" → { street: "Hlavní", houseNumber: "12/3a" } */
+export function splitStreet(value) {
+  const m = String(value)
+    .trim()
+    .match(/^(.*?)[\s,]+(\d[\w/-]*)$/);
+  return m ? { street: m[1], houseNumber: m[2] } : { street: value };
+}
+
 export async function createPacket(env, { number, order, weight }) {
   if (!env.PACKETA_API_PASSWORD)
     fail(503, "V Cloudflare chybí tajná proměnná PACKETA_API_PASSWORD.");
@@ -43,7 +51,15 @@ export async function createPacket(env, { number, order, weight }) {
     surname: split > 0 ? name.slice(split + 1) : name,
     email: order.customer.email,
     phone: order.customer.phone,
-    addressId: order.packeta_point_id,
+    ...(order.address
+      ? {
+          // Packeta carrier for home delivery in the Czech Republic (override with PACKETA_HOME_CARRIER_ID).
+          addressId: env.PACKETA_HOME_CARRIER_ID || "106",
+          ...splitStreet(order.address.street),
+          city: order.address.city,
+          zip: order.address.zip,
+        }
+      : { addressId: order.packeta_point_id }),
     value: order.pricing.total,
     cod: 0,
     weight: Math.round(weight * 1000) / 1000,
