@@ -170,7 +170,7 @@ test("Dílnička: 'Bez UFI' caps each scent under the supplier's limit", async (
   }
   assert.equal(r.scents.find((s) => s.product_id === "okurka").load_percent, 8);
   assert.match(r.warnings.join(" "), /Duch: bez UFI lze dát jen/);
-  assert.ok(!/potřebovala kód UFI/.test(r.warnings.join(" ")));
+  assert.ok(!/potřebovala výstražnou etiketu, kód UFI/.test(r.warnings.join(" ")));
   const off = calcBatch({
     items: [{ product_id: "goji", jar_id: 1, count: 1 }],
     jars: [{ id: 1, name: "Malá", fill_g: 180, wicks: 1 }],
@@ -179,7 +179,7 @@ test("Dílnička: 'Bez UFI' caps each scent under the supplier's limit", async (
     loss_percent: 0,
     no_ufi: 0,
   });
-  assert.match(off.warnings.join(" "), /potřebovala kód UFI/);
+  assert.match(off.warnings.join(" "), /potřebovala výstražnou etiketu, kód UFI/);
 });
 
 test("round label includes the EN 15494 pictograms unless switched off", async () => {

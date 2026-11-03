@@ -1,17 +1,17 @@
 [
   {
     "product_id": "okurka-zazvor-mata",
-    "supplier": "Cucumber Ginger & Mint (R), CLP etiketa 10 %, šarže 00632-25, 17223-25, 28816-25, 46944-25, 66975-25, 17975-26, 29304-26",
-    "pictogram": true,
-    "extra": "Obsahuje: Geranyl acetate. Varování: Může vyvolat alergickou kožní reakci. Škodlivý pro vodní organismy, s dlouhodobými účinky. Je-li nutná lékařská pomoc, mějte po ruce obal nebo štítek výrobku. Uchovávejte mimo dosah dětí. Zamezte vdechování par. Zabraňte uvolnění do životního prostředí. Používejte ochranné rukavice/ochranné brýle/obličejový štít. PŘI STYKU S KŮŽÍ: Omyjte velkým množstvím vody a mýdla. Při podráždění kůže nebo vyrážce: Vyhledejte lékařskou pomoc/ošetření. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
-    "contains": "2,4-Dimethyl-3-cyclohexen-1-carboxaldehyde, Benzyl salicylate, Ethyl Linalool, Hexyl Cinnamal, Isohexenyl cyclohexenyl carboxaldehyde"
+    "supplier": "Výpočet LOOMOS pro 8 % oleje z vosku (7,4 % ve svíčce) z bezpečnostního listu a deklarace alergenů dodavatele, šarže 17975-26, 29304-26 — Geranyl acetate 0,84 % < 1 %, bez H317; ke kontrole dodavatelem",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
+    "contains": "Geranyl acetate, 2,4-Dimethyl-3-cyclohexen-1-carboxaldehyde, Benzyl salicylate, Ethyl Linalool, Hexyl Cinnamal, Isohexenyl cyclohexenyl carboxaldehyde"
   },
   {
     "product_id": "zazvor-zeleny-caj",
-    "supplier": "Fresh Ginger & Green Tea, CLP etiketa 10 %, šarže 46673-24, 52860-24, 33763-25, 67174-25, 15610-26, 47672-26",
-    "pictogram": true,
-    "extra": "Obsahuje: Citral. Varování: Může vyvolat alergickou kožní reakci. Škodlivý pro vodní organismy, s dlouhodobými účinky. Je-li nutná lékařská pomoc, mějte po ruce obal nebo štítek výrobku. Uchovávejte mimo dosah dětí. Zamezte vdechování par. Zabraňte uvolnění do životního prostředí. Používejte ochranné rukavice/ochranné brýle/obličejový štít. PŘI STYKU S KŮŽÍ: Omyjte velkým množstvím vody a mýdla. Při podráždění kůže nebo vyrážce: Vyhledejte lékařskou pomoc/ošetření. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
-    "contains": "2,4-Dimethyl-3-cyclohexen-1-carboxaldehyde, Eugenol, Geranial, Isoeugenol, Limonene, Linalool, Linalyl acetate, delta-Damascone"
+    "supplier": "Výpočet LOOMOS pro max. 7 % oleje z vosku (6,5 % ve svíčce) z bezpečnostního listu a deklarace alergenů dodavatele, šarže 47672-26 — Citral 0,95 % < 1 %, bez H317; při vyšší dávce platí etiketa s výstrahou; ke kontrole dodavatelem",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
+    "contains": "Citral, 2,4-Dimethyl-3-cyclohexen-1-carboxaldehyde, Eugenol, Geranial, Isoeugenol, Limonene, Linalool, Linalyl acetate, delta-Damascone"
   },
   {
     "product_id": "morska-sul-paculi",

@@ -481,7 +481,7 @@ function renderOils() {
     `<div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Olej od dodavatele</th><th>Bod vzplanutí</th><th>Vanilin</th><th>Difuzéry max.</th><th>Bez UFI do</th><th>Max. olej bez UFI</th></tr></thead><tbody>${data.oils
       .map(
         (o) =>
-          `<tr><td>${esc(o.name)}</td><td><small>${esc(o.supplier_name)}</small></td><td>${o.flashpoint_c} °C</td><td>${o.vanillin_percent ? num(o.vanillin_percent, 2) + " %" : "ne"}</td><td>${o.diffuser_max_percent ? o.diffuser_max_percent + " %" : "nevhodný"}</td><td>${num(o.no_ufi_max_percent, 2)} % ve svíčce</td><td>${num(maxLoadWithoutUfi(o.no_ufi_max_percent))} % z vosku</td></tr>`,
+          `<tr><td>${esc(o.name)}</td><td><small>${esc(o.supplier_name)}</small></td><td>${o.flashpoint_c} °C</td><td>${o.vanillin_percent ? num(o.vanillin_percent, 2) + " %" : "ne"}</td><td>${o.diffuser_max_percent ? o.diffuser_max_percent + " %" : "nevhodný"}</td><td>${num(o.no_ufi_max_percent, 2)} % ve svíčce${o.clp_max_percent ? `<br><small title="${esc(o.clp_note || "")}">přísněji ${num(o.clp_max_percent, 2)} % (citral)</small>` : ""}</td><td>${num(maxLoadWithoutUfi(Math.min(o.no_ufi_max_percent, o.clp_max_percent ?? Infinity)))} % z vosku</td></tr>`,
       )
       .join("")}</tbody></table></div>`;
 }

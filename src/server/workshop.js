@@ -97,7 +97,10 @@ const seedLabels = (db) =>
       .map((l) =>
         db
           .prepare(
-            "INSERT OR IGNORE INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,?)",
+            `INSERT INTO workshop_labels (product_id, contains, extra, pictogram, source) VALUES (?,?,?,?,?)
+             ON CONFLICT(product_id) DO UPDATE SET contains=excluded.contains, extra=excluded.extra,
+               pictogram=excluded.pictogram, source=excluded.source
+             WHERE workshop_labels.source != 'upraveno ručně' AND workshop_labels.source != excluded.source`,
           )
           .bind(
             l.product_id,
