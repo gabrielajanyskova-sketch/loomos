@@ -28,22 +28,21 @@ Připojení subdomény: v projektu Pages _Custom domains → Set up a custom dom
 
 ## Nastavení v Cloudflare (jednorázově)
 
-1. **Databáze:** _Storage & Databases → D1 → Create database_, název `loomos`.
-2. **Propojení s webem:** _Workers & Pages → projekt → Settings → Bindings → Add → D1 database_, název proměnné **`DB`**, databáze `loomos`. Tabulky se vytvoří samy při prvním požadavku.
-3. **Proměnné:** _Settings → Variables and Secrets_. Tajné hodnoty přidávejte jako **Secret** (typ „Encrypt“):
+1. **Databáze** `loomos` (D1) je připojená v `wrangler.jsonc` pod názvem `DB`. Tabulky se vytvoří samy při prvním požadavku. Soubor `wrangler.jsonc` je pro projekt zdrojem pravdy (výstupní složka `dist`, databáze), proto se proměnné v dashboardu zadávají jako **Secret**.
+2. **Proměnné:** _Workers & Pages → projekt → Settings → Variables and Secrets → Add_, typ **Secret** (Encrypt):
 
-| Název                  | Typ    | Hodnota                                                                 |
-| ---------------------- | ------ | ----------------------------------------------------------------------- |
-| `ADMIN_PASSWORD`       | Secret | heslo do administrace, alespoň 12 znaků                                 |
-| `RESEND_API_KEY`       | Secret | API klíč z Resendu (Sending access, doména loomos.cz)                   |
-| `BANK_ACCOUNT`         | Text   | číslo účtu, např. `123456789/0800` nebo `19-123456789/0100`             |
-| `PACKETA_API_PASSWORD` | Secret | heslo API ze Zásilkovny (volitelné, pro zakládání zásilek)              |
-| `PACKETA_SENDER`       | Text   | označení odesílatele ze Zásilkovny (volitelné)                          |
-| `MAIL_FROM`            | Text   | volitelné, výchozí `LOOMOS <objednavky@loomos.cz>`                      |
-| `SHOP_EMAIL`           | Text   | volitelné, kam chodí upozornění na objednávky; výchozí `info@loomos.cz` |
-| `SHOP_LIVE`            | Text   | `1` = ostrý prodej (bez zkušebních upozornění)                          |
-| `SITE_INDEXABLE`       | Text   | `1` = povolit indexaci vyhledávači                                      |
-| `GA_MEASUREMENT_ID`    | Text   | ID Google Analytics, např. `G-ABC123XYZ` (volitelné)                    |
+| Název                  | Hodnota                                                                 |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `ADMIN_PASSWORD`       | heslo do administrace a Dílničky, alespoň 12 znaků                      |
+| `RESEND_API_KEY`       | API klíč z Resendu (Sending access, doména loomos.cz)                   |
+| `BANK_ACCOUNT`         | číslo účtu, např. `123456789/0800` nebo `19-123456789/0100`             |
+| `PACKETA_API_PASSWORD` | heslo API ze Zásilkovny (volitelné, pro zakládání zásilek)              |
+| `PACKETA_SENDER`       | označení odesílatele ze Zásilkovny (volitelné)                          |
+| `MAIL_FROM`            | volitelné, výchozí `LOOMOS <objednavky@loomos.cz>`                      |
+| `SHOP_EMAIL`           | volitelné, kam chodí upozornění na objednávky; výchozí `info@loomos.cz` |
+| `SHOP_LIVE`            | `1` = ostrý prodej (bez zkušebních upozornění)                          |
+
+Pro sestavení (_Settings → Build → Variables_): `SITE_INDEXABLE=1` povolí indexaci, `GA_MEASUREMENT_ID=G-…` zapne Google Analytics.
 
 Po změně proměnných spusťte nový deploy (_Deployments → Retry deployment_). Build: příkaz `npm run build`, výstupní složka `dist`.
 
