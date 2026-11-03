@@ -750,3 +750,36 @@ test("Zásilkovna: Z-BOX and home delivery are priced, validated and shown every
     /<street>Hlavní<\/street><houseNumber>12\/3a<\/houseNumber><city>Nový Jičín<\/city><zip>74101<\/zip>/,
   );
 });
+
+test("Balíkovna: point picked on the Česká pošta map is required and kept for the label", async () => {
+  const call = client(shop.url);
+  assert.equal(
+    (
+      await call(
+        "/api/orders",
+        order({ shipping: "balikovna", packeta_point_id: "" }),
+      )
+    ).status,
+    400,
+  );
+  const res = await call(
+    "/api/orders",
+    order({
+      email: "balikovna@example.com",
+      shipping: "balikovna",
+      pickup_point: "",
+      packeta_point_id: "",
+      balikovna_id: "74101",
+      balikovna_zip: "741 01",
+      balikovna_name: "Nový Jičín 1",
+    }),
+  );
+  assert.equal(res.status, 201, JSON.stringify(res.body));
+  assert.equal(res.body.pricing.shippingPrice, 79);
+  assert.deepEqual(res.body.balikovna, {
+    id: "74101",
+    zip: "74101",
+    name: "Nový Jičín 1",
+  });
+  assert.equal(res.body.pickup_point, "Nový Jičín 1, 741 01");
+});

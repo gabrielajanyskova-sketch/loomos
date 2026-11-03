@@ -17,6 +17,7 @@ import {
   SHIPPING,
   PAYMENT,
   shippingKind,
+  shippingProvider,
 } from "../../assets/js/pricing.mjs";
 import {
   czechAccountToIban,
@@ -117,6 +118,7 @@ const publicOrder = (row, env) => {
     shipping: order.shipping,
     pickup_point: order.pickup_point,
     address: order.address || null,
+    balikovna: order.balikovna || null,
     payment:
       row.status === "nova"
         ? paymentInfo(env, { ...order, number: row.number })
@@ -188,7 +190,18 @@ export async function createOrder(db, request, env, ctx) {
   let pickupPoint = "";
   let pointId = "";
   let address = null;
-  if (shippingKind(shipping) === "point") {
+  let balikovna = null;
+  if (shippingProvider(shipping) === "balikovna") {
+    // Česká pošta needs the Balíkovna ZIP and name for the label ("BALÍKOVNA / ZIP NAME").
+    balikovna = {
+      id: text(String(data.balikovna_id ?? ""), "Balíkovna", 12),
+      zip: text(data.balikovna_zip, "PSČ Balíkovny", 6).replace(/\s/g, ""),
+      name: text(data.balikovna_name, "Balíkovna", 120),
+    };
+    if (!/^\d{1,12}$/.test(balikovna.id) || !/^\d{5}$/.test(balikovna.zip))
+      fail(400, "Vyberte prosím Balíkovnu na mapě.");
+    pickupPoint = `${balikovna.name}, ${balikovna.zip.slice(0, 3)} ${balikovna.zip.slice(3)}`;
+  } else if (shippingKind(shipping) === "point") {
     pickupPoint = text(data.pickup_point, "výdejní místo", 200);
     pointId = text(data.packeta_point_id, "výdejní místo", 10, false);
     if (pointId && !/^\d{1,10}$/.test(pointId))
@@ -247,6 +260,7 @@ export async function createOrder(db, request, env, ctx) {
     pickup_point: pickupPoint,
     packeta_point_id: pointId,
     ...(address ? { address } : {}),
+    ...(balikovna ? { balikovna } : {}),
     payment: data.payment,
     note,
     member: Boolean(member),

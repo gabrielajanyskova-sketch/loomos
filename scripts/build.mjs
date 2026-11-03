@@ -248,8 +248,9 @@ const ga = gaId
     }
   : { script: "", connect: "", img: "" };
 const packetaOrigin = "https://widget.packeta.com";
+const balikovnaOrigin = "https://b2c.cpost.cz";
 const policy = ({ packeta = false } = {}) =>
-  `default-src 'self'; script-src 'self'${ga.script}${packeta ? " " + packetaOrigin : ""}; style-src 'self'; font-src 'self'; img-src 'self' data:${ga.img}; connect-src 'self'${ga.connect}; object-src 'none'; frame-src ${packeta ? packetaOrigin : "'none'"}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
+  `default-src 'self'; script-src 'self'${ga.script}${packeta ? " " + packetaOrigin : ""}; style-src 'self'; font-src 'self'; img-src 'self' data:${ga.img}; connect-src 'self'${ga.connect}; object-src 'none'; frame-src ${packeta ? `${packetaOrigin} ${balikovnaOrigin}` : "'none'"}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
 const csp = policy();
 const expires = new Date(Date.now() + 365 * 864e5).toISOString();
 await write(
@@ -258,7 +259,7 @@ await write(
 );
 await write(
   "_headers",
-  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/dilnicka/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/pokladna*\n  ! Content-Security-Policy\n  Content-Security-Policy: ${policy({ packeta: true })}\n`,
+  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/dilnicka/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/pokladna*\n  ! Content-Security-Policy\n  Content-Security-Policy: ${policy({ packeta: true })}\n  ! Permissions-Policy\n  Permissions-Policy: camera=(), microphone=(), geolocation=(self "${balikovnaOrigin}"), payment=(), usb=()\n`,
 );
 await write(
   "_redirects",

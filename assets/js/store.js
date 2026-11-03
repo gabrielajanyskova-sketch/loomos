@@ -400,7 +400,7 @@ function renderCheckout() {
         `<label class="radio ${p.available ? "" : "disabled"}"><input type="radio" name="payment" value="${id}" ${p.available ? (id === "transfer" ? "checked" : "") : "disabled"}>${esc(p.label)}<span>${p.available ? "Zdarma" : "Připravujeme"}</span></label>`,
     )
     .join("");
-  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvíme po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesíláme po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
+  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvíme po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><input type="hidden" name="balikovna_id"><input type="hidden" name="balikovna_zip"><input type="hidden" name="balikovna_name"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesíláme po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
   const form = $("#checkout-form");
   const renderSummary = () => {
     $("#checkout-summary").innerHTML = summary({
@@ -413,10 +413,54 @@ function renderCheckout() {
   track("begin_checkout");
   // A point chosen for one Packeta option is kept separately from the other option.
   const chosen = {};
+  const setPoint = (shipping, point) => {
+    chosen[shipping] = point;
+    form.elements.packeta_point_id.value = point?.packetaId || "";
+    form.elements.balikovna_id.value = point?.balikovna?.id || "";
+    form.elements.balikovna_zip.value = point?.balikovna?.zip || "";
+    form.elements.balikovna_name.value = point?.balikovna?.name || "";
+    form.elements.pickup_point.value = point?.label || "";
+    $("#packeta-selected").textContent = point ? "Vybráno: " + point.label : "";
+  };
+  /** Česká pošta Balíkovna map (iframe + postMessage, see their implementation manual). */
+  const openBalikovna = () => {
+    const dialog = document.createElement("div");
+    dialog.className = "map-dialog";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-label", "Výběr Balíkovny");
+    dialog.innerHTML =
+      '<div class="map-dialog-box"><button type="button" class="map-dialog-close" aria-label="Zavřít">✕</button><iframe title="Výběr místa pro vyzvednutí zásilky" src="https://b2c.cpost.cz/locations/?type=BALIKOVNY" allow="geolocation"></iframe></div>';
+    const close = () => {
+      window.removeEventListener("message", onMessage);
+      document.removeEventListener("keydown", onKey);
+      dialog.remove();
+    };
+    const onKey = (e) => e.key === "Escape" && close();
+    document.addEventListener("keydown", onKey);
+    const onMessage = (event) => {
+      if (event.origin !== "https://b2c.cpost.cz") return;
+      if (event.data?.message !== "pickerResult" || !event.data.point) return;
+      const point = event.data.point;
+      const zip = String(point.zip || "").replace(/\s/g, "");
+      if (!/^\d{5}$/.test(zip) || !/^\d{1,12}$/.test(String(point.id))) return;
+      const name = String(point.name || "").slice(0, 120);
+      setPoint("balikovna", {
+        label: `${name}, ${zip.slice(0, 3)} ${zip.slice(3)}`,
+        balikovna: { id: String(point.id), zip, name },
+      });
+      close();
+    };
+    window.addEventListener("message", onMessage);
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog || e.target.closest(".map-dialog-close")) close();
+    });
+    document.body.append(dialog);
+  };
   const openMap = async () => {
     const shipping = form.elements.shipping.value;
     const option = SHIPPING[shipping];
     if (option?.kind !== "point") return;
+    if (option.provider === "balikovna") return openBalikovna();
     try {
       const Packeta = await loadPacketa();
       Packeta.Widget.pick(
@@ -426,10 +470,7 @@ function renderCheckout() {
           const label = String(
             point.formatedValue || point.name || point.place || "",
           ).slice(0, 200);
-          chosen[shipping] = { id: String(point.id), label };
-          form.elements.packeta_point_id.value = String(point.id);
-          form.elements.pickup_point.value = label;
-          $("#packeta-selected").textContent = "Vybráno: " + label;
+          setPoint(shipping, { packetaId: String(point.id), label });
         },
         { country: "cz", language: "cs", ...option.packeta },
       );
@@ -444,23 +485,20 @@ function renderCheckout() {
     $("#delivery-fields").hidden = kind !== "point";
     $("#home-fields").hidden = kind !== "home";
     $("#pickup-address").hidden = kind !== "pickup";
-    form.elements.pickup_point.required = kind === "point";
+    form.elements.pickup_point.required =
+      kind === "point" && shipping !== "balikovna";
     for (const name of ["street", "city", "zip"])
       form.elements[name].required = kind === "home";
     if (kind === "point") {
-      const isBox = shipping === "zbox";
-      $("#packeta-pick").textContent = isBox
-        ? "Vybrat Z-BOX na mapě →"
-        : "Vybrat výdejní místo na mapě →";
-      $("#pickup-point-label").firstChild.textContent = isBox
-        ? "Z-BOX"
-        : "Výdejní místo";
+      const title =
+        { zbox: "Z-BOX", balikovna: "Balíkovna" }[shipping] || "Výdejní místo";
+      $("#packeta-pick").textContent =
+        `Vybrat ${{ zbox: "Z-BOX", balikovna: "Balíkovnu" }[shipping] || "výdejní místo"} na mapě →`;
+      $("#pickup-point-label").firstChild.textContent = title;
+      // Balíkovna must be picked on the map (the label needs its ZIP); Packeta points can be typed.
+      $("#pickup-point-label").hidden = shipping === "balikovna";
       const point = chosen[shipping];
-      form.elements.packeta_point_id.value = point?.id || "";
-      form.elements.pickup_point.value = point?.label || "";
-      $("#packeta-selected").textContent = point
-        ? "Vybráno: " + point.label
-        : "";
+      setPoint(shipping, point || null);
       if (open && !point) openMap();
     }
     renderSummary();
@@ -477,6 +515,14 @@ function renderCheckout() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
+    if (
+      form.elements.shipping.value === "balikovna" &&
+      !form.elements.balikovna_id.value
+    ) {
+      $("#checkout-error").textContent = "Vyberte prosím Balíkovnu na mapě.";
+      openMap();
+      return;
+    }
     const btn = $("#place-order");
     btn.disabled = true;
     $("#checkout-error").textContent = "";

@@ -4,8 +4,9 @@
  */
 export const MEMBER_DISCOUNT_PERCENT = 5;
 /**
- * kind: "pickup" (in person), "point" (Packeta pick-up point / Z-BOX chosen on the map)
- * or "home" (Packeta home delivery). `packeta` holds the map widget filter.
+ * kind: "pickup" (in person), "point" (pick-up point / Z-BOX / Balíkovna chosen on a map)
+ * or "home" (home delivery). provider: "packeta" (Zásilkovna) or "balikovna" (Česká pošta).
+ * `packeta` holds the Packeta map widget filter.
  */
 export const SHIPPING = {
   pickup: {
@@ -17,21 +18,31 @@ export const SHIPPING = {
     label: "Zásilkovna — výdejní místo",
     price: 79,
     kind: "point",
+    provider: "packeta",
     packeta: { vendors: [{ country: "cz" }] },
   },
   zbox: {
     label: "Zásilkovna — Z-BOX",
     price: 79,
     kind: "point",
+    provider: "packeta",
     packeta: { vendors: [{ country: "cz", group: "zbox" }] },
   },
   domu: {
     label: "Zásilkovna — doručení domů",
     price: 119,
     kind: "home",
+    provider: "packeta",
+  },
+  balikovna: {
+    label: "Balíkovna — Česká pošta",
+    price: 79,
+    kind: "point",
+    provider: "balikovna",
   },
 };
 export const shippingKind = (id) => SHIPPING[id]?.kind || "pickup";
+export const shippingProvider = (id) => SHIPPING[id]?.provider || null;
 /** One line describing where the order goes. */
 export function shippingSummary(order) {
   const s = SHIPPING[order.shipping];
