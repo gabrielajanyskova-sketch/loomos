@@ -67,7 +67,7 @@ async function seedJars(db) {
 }
 
 export const LABEL_DEFAULTS = {
-  diameter: 63.5,
+  diameter: 60,
   font: 6.6,
   phone: "",
   columns: 3,

@@ -2799,3 +2799,7 @@ form.panel.narrow-form {
   color: var(--copper-light);
   font-weight: 500;
 }
+/* Candle-use advice (GPSR / EN 15494) is not a CLP label element, so it may be a little smaller. */
+.label-text .label-safety {
+  font-size: 0.85em;
+}
