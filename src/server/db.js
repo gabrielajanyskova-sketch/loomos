@@ -111,6 +111,25 @@ const SCHEMA = [
     rating INTEGER,
     note TEXT NOT NULL DEFAULT ''
   )`,
+  `CREATE TABLE IF NOT EXISTS invoices (
+    number TEXT PRIMARY KEY,
+    series TEXT NOT NULL,
+    seq INTEGER NOT NULL,
+    order_number TEXT NOT NULL UNIQUE,
+    issued INTEGER NOT NULL,
+    payload TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS withdrawals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created INTEGER NOT NULL,
+    order_number TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    items TEXT NOT NULL DEFAULT '',
+    reason TEXT NOT NULL DEFAULT '',
+    matched INTEGER NOT NULL DEFAULT 0,
+    resolved INTEGER NOT NULL DEFAULT 0
+  )`,
   `CREATE TABLE IF NOT EXISTS workshop_batches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,

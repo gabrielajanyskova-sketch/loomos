@@ -567,3 +567,92 @@ test("Dílnička: wick tests are logged, validated and deletable", async () => {
     ),
   );
 });
+
+test("invoices on payment, customer PDF, withdrawal button flow and order deletion", async () => {
+  const call = client(shop.url);
+  const a = await admin();
+  const make = async () =>
+    (
+      await call(
+        "/api/orders",
+        order({ email: "faktura@example.com", shipping: "pickup" }),
+      )
+    ).body;
+  const paid = await make();
+  assert.equal((await call(`/api/invoice?t=${paid.token}`)).status, 404);
+  await a("/api/admin/order-status", {
+    number: paid.number,
+    status: "zaplacena",
+  });
+  const mail = await mailTo("faktura@example.com", /Platba přijata/);
+  const attachment = mail.body.attachments[0];
+  assert.match(attachment.filename, /^faktura-TEST-\d{4}-\d{4}\.pdf$/);
+  assert.equal(
+    Buffer.from(attachment.content, "base64").subarray(0, 4).toString(),
+    "%PDF",
+  );
+  const pdf = await call(`/api/invoice?t=${paid.token}`);
+  assert.equal(pdf.status, 200);
+  assert.equal(pdf.headers.get("content-type"), "application/pdf");
+  assert.match(
+    (await call(`/api/orders/view?t=${paid.token}`)).body.invoice,
+    /^TEST-/,
+  );
+  assert.equal(
+    (await call(`/api/admin/invoice?order=${paid.number}`)).status,
+    401,
+  );
+  assert.equal(
+    (await a(`/api/admin/invoice?order=${paid.number}`)).status,
+    200,
+  );
+
+  assert.equal(
+    (
+      await call("/api/withdrawal", {
+        name: "Jana",
+        email: "faktura@example.com",
+        order_number: paid.number,
+      })
+    ).status,
+    400,
+  );
+  const w = await call("/api/withdrawal", {
+    name: "Jana Nová",
+    email: "FAKTURA@example.com",
+    order_number: paid.number,
+    confirm: true,
+  });
+  assert.equal(w.status, 201);
+  assert.equal(w.body.matched, true);
+  const ack = await mailTo("faktura@example.com", /Potvrzení odstoupení/);
+  assert.match(ack.body.text, new RegExp(paid.number));
+  const unknown = await call("/api/withdrawal", {
+    name: "Někdo",
+    email: "nikdo@example.com",
+    order_number: "9999999",
+    confirm: true,
+  });
+  assert.equal(unknown.body.matched, false);
+  const list = (await a("/api/admin/withdrawals")).body;
+  assert.ok(list.some((x) => x.order_number === paid.number && x.matched));
+  const flagged = (await a("/api/admin/orders")).body.find(
+    (o) => o.number === paid.number,
+  );
+  assert.equal(flagged.withdrawals, 1);
+  assert.ok(flagged.withdrawal.at);
+
+  const extra = await make();
+  assert.equal(
+    (await a("/api/admin/order-delete", { number: extra.number })).status,
+    200,
+  );
+  assert.ok(
+    !(await a("/api/admin/orders")).body.some((o) => o.number === extra.number),
+  );
+  // Test orders with a TEST invoice may be deleted; real invoiced orders are protected (cancel instead).
+  assert.equal(
+    (await a("/api/admin/order-delete", { number: paid.number })).status,
+    200,
+  );
+});

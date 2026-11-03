@@ -137,6 +137,7 @@ const pages = [
   ["obchodni-podminky.html", "terms"],
   ["ochrana-osobnich-udaju.html", "privacy"],
   ["slozeni-a-bezpecnost.html", "safety"],
+  ["odstoupeni.html", "withdrawal"],
   ...products.map((p) => [`produkty/${p.id}.html`, "product", p]),
 ];
 const sitemap = [];

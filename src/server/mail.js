@@ -61,7 +61,7 @@ function render(title, blocks) {
 
 export async function sendMail(
   env,
-  { to, subject, title, blocks, replyTo, key },
+  { to, subject, title, blocks, replyTo, key, attachments },
 ) {
   if (!env.RESEND_API_KEY) {
     console.log(`E-mail "${key}" skipped: RESEND_API_KEY is not set.`);
@@ -85,6 +85,7 @@ export async function sendMail(
           text,
           html,
           ...(replyTo ? { reply_to: replyTo } : {}),
+          ...(attachments?.length ? { attachments } : {}),
         }),
       },
     );

@@ -18,6 +18,8 @@ import { catalog, variantsOf } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
 import { createPacket } from "./packeta.js";
+import { invoiceFor, invoicePdf, issueInvoice, pdfBase64 } from "./invoice.js";
+import { binary } from "./http.js";
 
 export async function requireAdmin(db, request) {
   if ((await readSession(db, request, "admin")) === null)
@@ -59,17 +61,24 @@ export async function logout(db, request) {
 
 const adminOrder = (row) => ({
   ...JSON.parse(row.payload),
+  invoice: row.invoice_number || null,
   number: row.number,
   created: row.created,
   status: row.status,
   test: Boolean(row.test),
   registered: row.customer_id != null,
   token: row.public_token,
+  withdrawals: row.open_withdrawals || 0,
 });
 
 export async function orders(db) {
   const { results } = await db
-    .prepare("SELECT * FROM orders ORDER BY id DESC LIMIT 500")
+    .prepare(
+      `SELECT o.*, i.number AS invoice_number,
+        (SELECT COUNT(*) FROM withdrawals w WHERE w.order_number = o.number AND w.resolved = 0) AS open_withdrawals
+       FROM orders o LEFT JOIN invoices i ON i.order_number = o.number
+       ORDER BY o.id DESC LIMIT 500`,
+    )
     .all();
   return json(results.map(adminOrder));
 }
@@ -147,6 +156,20 @@ export async function setStatus(db, request, env, ctx) {
     : note || trackingChanged
       ? ["Novinka k vaší objednávce", "máme pro vás novinku k objednávce."]
       : null;
+  // Paid → issue the invoice and attach it to the "payment received" e-mail.
+  let attachments = [];
+  if (statusChanged && status === "zaplacena") {
+    const invoice = await issueInvoice(db, env, {
+      ...row,
+      payload: JSON.stringify(order),
+    });
+    attachments = [
+      {
+        filename: `faktura-${invoice.number}.pdf`,
+        content: pdfBase64(await invoicePdf(invoice)),
+      },
+    ];
+  }
   if (data.notify !== false && mail) {
     const [title, body] = mail;
     const track = trackingOf(order);
@@ -158,9 +181,13 @@ export async function setStatus(db, request, env, ctx) {
         title,
         key: `status-${number}-${status}-${order.history?.length || 0}-${track?.code || ""}`,
         replyTo: shopEmail(env),
+        attachments,
         blocks: [
           `Dobrý den, ${order.customer.name},\n${body}`,
           ...(note ? [`Vzkaz od nás: ${note}`] : []),
+          ...(attachments.length
+            ? ["Fakturu najdete v příloze tohoto e-mailu."]
+            : []),
           ...(track && ["odeslana", "dokoncena"].includes(status)
             ? [
                 track.url
@@ -402,4 +429,83 @@ export async function overview(db) {
     )
     .first();
   return json({ ...row, revenue_label: czk(row.revenue) });
+}
+
+export async function deleteOrder(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 512);
+  const number = text(data.number, "objednávka", 30);
+  const row = await db
+    .prepare("SELECT * FROM orders WHERE number=?")
+    .bind(number)
+    .first();
+  if (!row) fail(404, "Objednávka neexistuje.");
+  const invoice = await invoiceFor(db, number);
+  if (invoice && !row.test)
+    fail(
+      409,
+      `K objednávce je vystavená faktura ${invoice.number}. Smazáním by vznikla díra v číselné řadě faktur — objednávku místo toho zrušte.`,
+    );
+  const order = JSON.parse(row.payload);
+  const statements = [
+    db.prepare("DELETE FROM orders WHERE number=?").bind(number),
+    db.prepare("DELETE FROM invoices WHERE order_number=?").bind(number),
+  ];
+  if (row.status !== "zrusena")
+    for (const item of order.items)
+      statements.push(
+        db
+          .prepare(
+            "UPDATE stock SET quantity = quantity + ? WHERE product_id=? AND variant_id=?",
+          )
+          .bind(item.qty, item.id, item.variant),
+      );
+  await db.batch(statements);
+  return json({ ok: true });
+}
+
+export async function createInvoice(db, request, env) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 512);
+  const row = await db
+    .prepare("SELECT * FROM orders WHERE number=?")
+    .bind(text(data.number, "objednávka", 30))
+    .first();
+  if (!row) fail(404, "Objednávka neexistuje.");
+  if (row.status === "zrusena")
+    fail(400, "Ke zrušené objednávce fakturu nevystavíme.");
+  const invoice = await issueInvoice(db, env, row);
+  return json({ number: invoice.number });
+}
+
+export async function invoiceDownload(db, request) {
+  const number = new URL(request.url).searchParams.get("order") || "";
+  const invoice = await invoiceFor(db, number);
+  if (!invoice) fail(404, "Faktura neexistuje.");
+  return binary(await invoicePdf(invoice), "application/pdf", {
+    "Content-Disposition": `inline; filename="faktura-${invoice.number}.pdf"`,
+  });
+}
+
+export async function withdrawals(db) {
+  const { results } = await db
+    .prepare("SELECT * FROM withdrawals ORDER BY id DESC LIMIT 200")
+    .all();
+  return json(
+    results.map((w) => ({
+      ...w,
+      matched: Boolean(w.matched),
+      resolved: Boolean(w.resolved),
+    })),
+  );
+}
+
+export async function resolveWithdrawal(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 256);
+  await db
+    .prepare("UPDATE withdrawals SET resolved=1 WHERE id=?")
+    .bind(Number(data.id))
+    .run();
+  return json({ ok: true });
 }

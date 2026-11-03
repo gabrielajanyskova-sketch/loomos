@@ -2778,3 +2778,23 @@ details.safety p {
   min-width: 5.5mm;
   min-height: 5.5mm;
 }
+
+/* ---------- order actions, withdrawal ---------- */
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin: 18px 0;
+}
+.narrow-form {
+  max-width: 720px;
+}
+.panel form.narrow-form,
+form.panel.narrow-form {
+  display: block;
+}
+.footer-legal .withdrawal-link {
+  color: var(--copper-light);
+  font-weight: 500;
+}

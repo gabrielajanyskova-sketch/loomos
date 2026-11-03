@@ -132,7 +132,11 @@ export async function viewOrder(db, request, env) {
     .bind(token)
     .first();
   if (!row) fail(404, "Objednávka nenalezena.");
-  return json(publicOrder(row, env));
+  const invoice = await db
+    .prepare("SELECT number FROM invoices WHERE order_number=?")
+    .bind(row.number)
+    .first();
+  return json({ ...publicOrder(row, env), invoice: invoice?.number || null });
 }
 
 export async function qrImage(db, request, env) {
