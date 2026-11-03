@@ -7,6 +7,20 @@ export const brand = {
   description:
     "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
 };
+/** Seller identification required by Czech consumer law (public data from ARES). */
+export const seller = {
+  name: "Gabriela Janýšková",
+  ico: "19616295",
+  street: "Starojická Lhota 45",
+  city: "Starý Jičín",
+  zip: "741 01",
+  country: "Česká republika",
+  register: "Fyzická osoba podnikající dle živnostenského zákona",
+  email: "info@loomos.cz",
+  // null until the owner confirms; the legal pages only mention VAT once this is set.
+  vatPayer: null,
+};
+export const sellerAddress = `${seller.street}, ${seller.zip} ${seller.city}`;
 /** Packeta (Zásilkovna) widget key. It is public by design; the API password never belongs here. */
 export const packeta = {
   apiKey: "bba87c051aab6fc0",

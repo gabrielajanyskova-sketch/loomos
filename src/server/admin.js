@@ -1,0 +1,378 @@
+import {
+  assertSameOrigin,
+  clientIp,
+  fail,
+  json,
+  readJson,
+  text,
+} from "./http.js";
+import { now } from "./db.js";
+import {
+  createSession,
+  endSession,
+  limit,
+  readSession,
+  safeEqual,
+} from "./auth.js";
+import { catalog, variantsOf } from "./catalog.js";
+import { ORDER_STATUS } from "../../assets/js/orders.mjs";
+import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
+import { createPacket } from "./packeta.js";
+
+export async function requireAdmin(db, request) {
+  if ((await readSession(db, request, "admin")) === null)
+    fail(401, "Přihlaste se do administrace.");
+}
+
+export async function session(db, request, env) {
+  return json({
+    authenticated: (await readSession(db, request, "admin")) !== null,
+    configured: Boolean(env.ADMIN_PASSWORD),
+    packeta: Boolean(env.PACKETA_API_PASSWORD),
+    mail: Boolean(env.RESEND_API_KEY),
+    live: env.SHOP_LIVE === "1",
+  });
+}
+
+export async function login(db, request, env) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 1024);
+  if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12)
+    fail(
+      503,
+      "Nastavte v Cloudflare tajnou proměnnou ADMIN_PASSWORD (alespoň 12 znaků).",
+    );
+  await limit(db, `admin-login:${clientIp(request)}`, 10, 900);
+  await limit(db, "admin-login:all", 50, 900);
+  if (!(await safeEqual(String(data.password || ""), env.ADMIN_PASSWORD)))
+    fail(401, "Nesprávné heslo.");
+  const cookie = await createSession(db, request, "admin", 0);
+  return json({ ok: true }, 200, { "Set-Cookie": cookie });
+}
+
+export async function logout(db, request) {
+  assertSameOrigin(request);
+  return json({ ok: true }, 200, {
+    "Set-Cookie": await endSession(db, request, "admin"),
+  });
+}
+
+const adminOrder = (row) => ({
+  ...JSON.parse(row.payload),
+  number: row.number,
+  created: row.created,
+  status: row.status,
+  test: Boolean(row.test),
+  registered: row.customer_id != null,
+  token: row.public_token,
+});
+
+export async function orders(db) {
+  const { results } = await db
+    .prepare("SELECT * FROM orders ORDER BY id DESC LIMIT 500")
+    .all();
+  return json(results.map(adminOrder));
+}
+
+const STATUS_MAIL = {
+  zaplacena: [
+    "Platba přijata",
+    "děkujeme, vaše platba dorazila. Svíčky teď pečlivě připravujeme a brzy vám dáme vědět o odeslání.",
+  ],
+  odeslana: [
+    "Objednávka je na cestě",
+    "vaše objednávka je odeslaná. Jakmile dorazí na výdejní místo, Zásilkovna vám pošle zprávu.",
+  ],
+  "k-vyzvednuti": [
+    "Objednávka je připravená",
+    "vaše objednávka je připravená k osobnímu vyzvednutí. Ozveme se vám a domluvíme čas předání.",
+  ],
+  zrusena: [
+    "Objednávka byla zrušena",
+    "vaše objednávka byla zrušena. Pokud jste už platili, peníze vám vrátíme na účet, ze kterého platba přišla. S dotazy nám napište.",
+  ],
+};
+
+export async function setStatus(db, request, env, ctx) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 2048);
+  const number = text(data.number, "objednávka", 20);
+  const status = data.status;
+  if (!Object.hasOwn(ORDER_STATUS, status)) fail(400, "Neplatný stav.");
+  const row = await db
+    .prepare("SELECT * FROM orders WHERE number=?")
+    .bind(number)
+    .first();
+  if (!row) fail(404, "Objednávka neexistuje.");
+  if (row.status === status) return json(adminOrder(row));
+  if (row.status === "zrusena")
+    fail(400, "Zrušenou objednávku už nelze obnovit. Vytvořte novou.");
+  const order = JSON.parse(row.payload);
+  order.history = [...(order.history || []), { status, at: now() }];
+  const statements = [
+    db
+      .prepare("UPDATE orders SET status=?, payload=? WHERE number=?")
+      .bind(status, JSON.stringify(order), number),
+  ];
+  if (status === "zrusena")
+    for (const item of order.items)
+      statements.push(
+        db
+          .prepare(
+            "UPDATE stock SET quantity = quantity + ? WHERE product_id=? AND variant_id=?",
+          )
+          .bind(item.qty, item.id, item.variant),
+      );
+  await db.batch(statements);
+  if (data.notify !== false && STATUS_MAIL[status]) {
+    const [title, body] = STATUS_MAIL[status];
+    const tracking =
+      status === "odeslana" && order.packeta?.barcode
+        ? [
+            {
+              button: [
+                "Sledovat zásilku",
+                `https://tracking.packeta.com/cs/?id=${encodeURIComponent(order.packeta.barcode.replace(/\s/g, ""))}`,
+              ],
+            },
+          ]
+        : [];
+    ctx.waitUntil(
+      sendMail(env, {
+        to: order.customer.email,
+        subject: `${title} — objednávka ${number} | LOOMOS`,
+        title,
+        key: `status-${number}-${status}`,
+        replyTo: shopEmail(env),
+        blocks: [
+          `Dobrý den, ${order.customer.name},\n${body}`,
+          { rows: orderRows(order) },
+          ...tracking,
+        ],
+      }),
+    );
+  }
+  return json(adminOrder({ ...row, status, payload: JSON.stringify(order) }));
+}
+
+export async function packet(db, request, env) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 1024);
+  const number = text(data.number, "objednávka", 20);
+  const weight = data.weight;
+  if (typeof weight !== "number" || !(weight > 0 && weight <= 15))
+    fail(400, "Zadejte hmotnost 0,01–15 kg.");
+  const row = await db
+    .prepare("SELECT * FROM orders WHERE number=?")
+    .bind(number)
+    .first();
+  if (!row) fail(404, "Objednávka neexistuje.");
+  const order = JSON.parse(row.payload);
+  if (order.packeta) fail(409, "Zásilka už byla vytvořena.");
+  if (order.shipping !== "zasilkovna" || !order.packeta_point_id)
+    fail(400, "Objednávka nemá výdejní místo vybrané na mapě.");
+  // Claim the order first so a double click cannot create two packets.
+  const claim = await db
+    .prepare(
+      "UPDATE orders SET payload=json_set(payload,'$.packeta',json('{\"pending\":true}')) WHERE number=? AND json_extract(payload,'$.packeta') IS NULL",
+    )
+    .bind(number)
+    .run();
+  if (!claim.meta.changes) fail(409, "Zásilka se právě vytváří.");
+  let result;
+  try {
+    result = await createPacket(env, { number, order, weight });
+  } catch (error) {
+    await db
+      .prepare(
+        "UPDATE orders SET payload=json_remove(payload,'$.packeta') WHERE number=?",
+      )
+      .bind(number)
+      .run();
+    throw error;
+  }
+  await db
+    .prepare(
+      "UPDATE orders SET payload=json_set(payload,'$.packeta',json(?)) WHERE number=?",
+    )
+    .bind(JSON.stringify(result), number)
+    .run();
+  return json(result, 201);
+}
+
+export async function stock(db) {
+  const { results } = await db.prepare("SELECT * FROM stock").all();
+  const map = Object.fromEntries(
+    results.map((r) => [`${r.product_id}::${r.variant_id}`, r.quantity]),
+  );
+  return json(
+    catalog.flatMap((p) =>
+      variantsOf(p).map((v) => ({
+        product_id: p.id,
+        variant_id: v.id,
+        name: p.name + (v.name ? ` — ${v.name}` : ""),
+        price: v.price,
+        quantity: map[`${p.id}::${v.id}`] ?? null,
+      })),
+    ),
+  );
+}
+
+export async function setStock(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 1024);
+  const product = catalog.find((p) => p.id === data.product_id);
+  const variant =
+    product && variantsOf(product).find((v) => v.id === data.variant_id);
+  if (!variant) fail(400, "Neznámý produkt.");
+  const quantity = data.quantity;
+  if (quantity === null)
+    await db
+      .prepare("DELETE FROM stock WHERE product_id=? AND variant_id=?")
+      .bind(product.id, variant.id)
+      .run();
+  else if (Number.isInteger(quantity) && quantity >= 0 && quantity <= 100000)
+    await db
+      .prepare(
+        "INSERT INTO stock (product_id, variant_id, quantity) VALUES (?,?,?) ON CONFLICT(product_id, variant_id) DO UPDATE SET quantity=excluded.quantity",
+      )
+      .bind(product.id, variant.id, quantity)
+      .run();
+  else fail(400, "Zadejte počet kusů (celé číslo).");
+  return json({ ok: true });
+}
+
+export async function customers(db) {
+  const { results } = await db
+    .prepare(
+      `SELECT c.id, c.email, c.name, c.phone, c.created, c.blocked,
+        COUNT(o.id) AS orders, COALESCE(SUM(CASE WHEN o.status != 'zrusena' THEN o.total END), 0) AS spent
+       FROM customers c LEFT JOIN orders o ON o.customer_id = c.id
+       GROUP BY c.id ORDER BY c.id DESC LIMIT 1000`,
+    )
+    .all();
+  return json(results.map((c) => ({ ...c, blocked: Boolean(c.blocked) })));
+}
+
+export async function customerAction(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 1024);
+  const id = data.id;
+  if (!Number.isInteger(id)) fail(400, "Neplatný zákazník.");
+  if (data.action === "block" || data.action === "unblock") {
+    const blocked = data.action === "block" ? 1 : 0;
+    await db.batch([
+      db.prepare("UPDATE customers SET blocked=? WHERE id=?").bind(blocked, id),
+      ...(blocked
+        ? [
+            db
+              .prepare(
+                "DELETE FROM sessions WHERE kind='customer' AND subject=?",
+              )
+              .bind(id),
+          ]
+        : []),
+    ]);
+  } else if (data.action === "delete") {
+    await db.batch([
+      db
+        .prepare("UPDATE orders SET customer_id=NULL WHERE customer_id=?")
+        .bind(id),
+      db
+        .prepare("DELETE FROM sessions WHERE kind='customer' AND subject=?")
+        .bind(id),
+      db.prepare("DELETE FROM resets WHERE customer_id=?").bind(id),
+      db.prepare("DELETE FROM customers WHERE id=?").bind(id),
+    ]);
+  } else fail(400, "Neznámá akce.");
+  return json({ ok: true });
+}
+
+export async function codes(db) {
+  const { results } = await db
+    .prepare("SELECT * FROM codes ORDER BY created DESC")
+    .all();
+  return json(results.map((c) => ({ ...c, active: Boolean(c.active) })));
+}
+
+const optionalInt = (value, label, min, max) => {
+  if (value === null || value === undefined || value === "") return null;
+  if (!Number.isInteger(value) || value < min || value > max)
+    fail(400, `Zkontrolujte pole ${label}.`);
+  return value;
+};
+
+export async function saveCode(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 2048);
+  const code = text(data.code, "kód", 40).toUpperCase();
+  if (!/^[A-Z0-9_-]{3,40}$/.test(code))
+    fail(400, "Kód smí obsahovat jen písmena bez diakritiky, čísla, - a _.");
+  if (!["percent", "fixed"].includes(data.type))
+    fail(400, "Neplatný typ slevy.");
+  const value = optionalInt(
+    data.value,
+    "hodnota",
+    1,
+    data.type === "percent" ? 90 : 100000,
+  );
+  if (value === null) fail(400, "Zadejte hodnotu slevy.");
+  const minTotal =
+    optionalInt(data.min_total, "minimální nákup", 0, 1000000) ?? 0;
+  const maxUses = optionalInt(data.max_uses, "počet použití", 1, 1000000);
+  const validFrom = optionalInt(data.valid_from, "platnost od", 0, 4102444800);
+  const validTo = optionalInt(data.valid_to, "platnost do", 0, 4102444800);
+  const note = text(data.note, "poznámka", 200, false);
+  await db
+    .prepare(
+      `INSERT INTO codes (code, type, value, min_total, max_uses, valid_from, valid_to, active, note, created)
+       VALUES (?,?,?,?,?,?,?,?,?,?)
+       ON CONFLICT(code) DO UPDATE SET type=excluded.type, value=excluded.value, min_total=excluded.min_total,
+         max_uses=excluded.max_uses, valid_from=excluded.valid_from, valid_to=excluded.valid_to,
+         active=excluded.active, note=excluded.note`,
+    )
+    .bind(
+      code,
+      data.type,
+      value,
+      minTotal,
+      maxUses,
+      validFrom,
+      validTo,
+      data.active === false ? 0 : 1,
+      note,
+      now(),
+    )
+    .run()
+    .catch((error) => {
+      if (/CHECK/i.test(String(error?.message)))
+        fail(400, "Limit použití je nižší než počet už uplatněných použití.");
+      throw error;
+    });
+  return json({ ok: true });
+}
+
+export async function deleteCode(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 512);
+  await db
+    .prepare("DELETE FROM codes WHERE code=?")
+    .bind(text(data.code, "kód", 40))
+    .run();
+  return json({ ok: true });
+}
+
+export async function overview(db) {
+  const row = await db
+    .prepare(
+      `SELECT
+        (SELECT COUNT(*) FROM orders WHERE status='nova') AS awaiting_payment,
+        (SELECT COUNT(*) FROM orders WHERE status='zaplacena') AS to_ship,
+        (SELECT COUNT(*) FROM orders) AS orders,
+        (SELECT COALESCE(SUM(total),0) FROM orders WHERE status NOT IN ('zrusena','nova') AND test=0) AS revenue,
+        (SELECT COUNT(*) FROM customers) AS customers,
+        (SELECT COUNT(*) FROM stock WHERE quantity <= 2) AS low_stock`,
+    )
+    .first();
+  return json({ ...row, revenue_label: czk(row.revenue) });
+}
