@@ -2471,7 +2471,7 @@ tr.muted td {
 @media print {
   .workshop-head #logout,
   .workshop .workshop-actions,
-  .workshop .panel:not(#result) {
+  .workshop .panel:not(#result):not(#procedure) {
     display: none;
   }
   body.workshop-body {
@@ -2757,4 +2757,12 @@ details.safety p {
 }
 .safety-table td:first-child {
   white-space: nowrap;
+}
+
+.steps {
+  padding-left: 22px;
+}
+.steps li {
+  margin: 0 0 12px;
+  line-height: 1.6;
 }

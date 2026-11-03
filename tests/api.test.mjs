@@ -494,3 +494,40 @@ test("order tracking: status timeline, manual tracking number and notes reach th
   assert.match(mail.body.html, /vzorek &lt;vosku&gt;/);
   assert.match(mail.body.html, new RegExp(`objednavka\\?t=${token}`));
 });
+
+test("Dílnička: wax profiles are seeded, editable and stored with a batch", async () => {
+  const a = await admin();
+  const ws = (await a("/api/admin/workshop")).body;
+  const golden = ws.waxes.find((w) => /464/.test(w.name));
+  assert.equal(golden.add_oil_at, 70);
+  assert.equal(golden.heat_to, 85);
+  assert.ok(ws.waxes.some((w) => /C-3/.test(w.name) && w.pour_from === 55));
+  const c3 = ws.waxes.find((w) => /C-3/.test(w.name));
+  assert.equal(
+    (await a("/api/admin/workshop/wax", { ...c3, heat_to: 82, add_oil_at: 75 }))
+      .status,
+    200,
+  );
+  assert.equal(
+    (await a("/api/admin/workshop/wax", { ...c3, heat_to: 500 })).status,
+    400,
+  );
+  await a("/api/admin/workshop/settings", {
+    load_percent: 8,
+    loss_percent: 5,
+    no_ufi: 1,
+    wax_id: c3.id,
+  });
+  const after = (await a("/api/admin/workshop")).body;
+  assert.equal(after.wax_id, c3.id);
+  assert.equal(after.waxes.find((w) => w.id === c3.id).add_oil_at, 75);
+  const jar = after.jars[0];
+  await a("/api/admin/workshop/batch", {
+    items: [{ product_id: "pomeranc-vanilka", jar_id: jar.id, count: 2 }],
+    load_percent: 8,
+    loss_percent: 5,
+    wax_id: c3.id,
+  });
+  const batch = (await a("/api/admin/workshop")).body.batches[0];
+  assert.equal(batch.result.wax.name, c3.name);
+});

@@ -81,6 +81,20 @@ const SCHEMA = [
     pictogram INTEGER NOT NULL DEFAULT 0,
     source TEXT NOT NULL DEFAULT ''
   )`,
+  `CREATE TABLE IF NOT EXISTS workshop_waxes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    melt TEXT NOT NULL DEFAULT '',
+    heat_to INTEGER,
+    add_oil_at INTEGER,
+    pour_from INTEGER,
+    pour_to INTEGER,
+    max_load TEXT NOT NULL DEFAULT '',
+    cure_min INTEGER,
+    cure_max INTEGER,
+    note TEXT NOT NULL DEFAULT '',
+    active INTEGER NOT NULL DEFAULT 1
+  )`,
   `CREATE TABLE IF NOT EXISTS workshop_batches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,
