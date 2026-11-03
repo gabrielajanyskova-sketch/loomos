@@ -2,11 +2,13 @@
 import products from "../../data/products.json";
 import { validateCatalog } from "../../assets/js/catalog.mjs";
 import { withSafety } from "../../assets/js/safety.mjs";
+import labels from "../../data/labels.json";
 import { fail } from "./http.js";
 import { MAX_QTY } from "../../assets/js/pricing.mjs";
 
 export const catalog = withSafety(
   validateCatalog(products).filter((p) => p.active),
+  labels,
 );
 const byId = new Map(catalog.map((p) => [p.id, p]));
 

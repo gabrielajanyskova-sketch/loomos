@@ -43,6 +43,7 @@ const products = withSafety(
       await fs.readFile(path.join(root, "data/products.json"), "utf8"),
     ),
   ).filter((p) => p.active),
+  JSON.parse(await fs.readFile(path.join(root, "data/labels.json"), "utf8")),
 );
 
 async function write(file, content) {
