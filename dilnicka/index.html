@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dílnička — LOOMOS</title>
+    <link rel="stylesheet" href="/assets/css/store.css" />
+    <script type="module" src="/assets/js/workshop.js"></script>
+  </head>
+  <body class="admin-body workshop-body">
+    <main class="workshop container">
+      <header class="workshop-head">
+        <a class="brand brand-logo" href="/" aria-label="Loomos — e-shop"
+          ><img
+            src="/assets/img/logo-192.webp"
+            alt="Loomos"
+            width="90"
+            height="80"
+        /></a>
+        <div>
+          <div class="eyebrow">LOOMOS / DÍLNIČKA</div>
+          <h1>Kolik toho <em>uvaříme?</em></h1>
+        </div>
+        <button id="logout" class="inline-button" hidden>Odhlásit se</button>
+      </header>
+      <div id="status" role="status" hidden></div>
+      <section id="login-panel" class="panel" hidden>
+        <h2>Přihlášení</h2>
+        <p>Stejné heslo jako do administrace e-shopu.</p>
+        <form id="login-form">
+          <label
+            >Heslo<input
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required /></label
+          ><button class="button">Přihlásit se →</button>
+        </form>
+      </section>
+      <div id="workshop" hidden></div>
+    </main>
+  </body>
+</html>

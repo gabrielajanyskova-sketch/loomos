@@ -1,4 +1,4 @@
-import { brand, faqs } from "../assets/js/site.mjs";
+import { brand, faqs, seller } from "../assets/js/site.mjs";
 import { esc } from "../assets/js/ui.mjs";
 
 export const ogImage = {
@@ -7,16 +7,51 @@ export const ogImage = {
   height: 630,
   alt: "Ilustrační sójová svíčka LOOMOS v čirém skle s dřevěným knotem",
 };
-const privatePages = new Set(["cart", "checkout", "admin", "notfound"]);
+const privatePages = new Set([
+  "cart",
+  "checkout",
+  "admin",
+  "notfound",
+  "account",
+  "reset",
+  "order",
+  "workshop",
+]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
-  shop: "Sójové svíčky — šest vůní, dvě velikosti | LOOMOS",
+  shop: "Sójové svíčky — čtyři vůně, dvě velikosti | LOOMOS",
   wholesale: "Spolupráce a zakázková tvorba | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
   admin: "Administrace | LOOMOS",
   notfound: "Stránka nenalezena | LOOMOS",
+  account: "Můj účet | LOOMOS",
+  reset: "Obnovení hesla | LOOMOS",
+  order: "Vaše objednávka | LOOMOS",
+  workshop: "Dílnička | LOOMOS",
+  terms: "Obchodní podmínky | LOOMOS",
+  privacy: "Ochrana osobních údajů a cookies | LOOMOS",
 };
+const descriptions = {
+  shop: "Vyberte si ze čtyř vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
+  wholesale:
+    "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište nám a domluvíme se osobně.",
+  terms:
+    "Obchodní podmínky e-shopu LOOMOS: objednávka, platba převodem s QR kódem, doprava Zásilkovnou, odstoupení od smlouvy a reklamace.",
+  privacy:
+    "Jak LOOMOS zpracovává osobní údaje zákazníků, jaké používá cookies a jak můžete uplatnit svá práva podle GDPR.",
+};
+const crumbs = {
+  shop: "Svíčky",
+  wholesale: "Spolupráce",
+  terms: "Obchodní podmínky",
+  privacy: "Ochrana osobních údajů",
+};
+const shorten = (text, max) =>
+  text.length <= max
+    ? text
+    : text.slice(0, text.lastIndexOf(" ", max - 1)).replace(/[,.;:]$/, "") +
+      "…";
 export const publicPath = (file) =>
   file === "index.html" ? "/" : file.replace(/\.html$/, "");
 export function metadata({
@@ -33,12 +68,8 @@ export function metadata({
     ? `${product.name} — sójová svíčka | LOOMOS`
     : titles[page];
   const description = product
-    ? product.description
-    : page === "shop"
-      ? "Vyberte si ze šesti vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. E-shop připravujeme."
-      : page === "wholesale"
-        ? "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište nám a domluvíme se osobně."
-        : brand.description;
+    ? shorten(product.description, 158)
+    : descriptions[page] || brand.description;
   const robots =
     indexable && !privatePages.has(page)
       ? "index,follow,max-image-preview:large"
@@ -54,6 +85,15 @@ export function metadata({
     },
     email: brand.email,
     description: brand.description,
+    legalName: seller.name,
+    identifier: { "@type": "PropertyValue", name: "IČO", value: seller.ico },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: seller.street,
+      postalCode: seller.zip,
+      addressLocality: seller.city,
+      addressCountry: "CZ",
+    },
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
@@ -135,10 +175,25 @@ export function metadata({
           "@type": "PropertyValue",
           name: "Velikosti",
           value: product.variants?.length
-            ? product.variants.map((v) => v.name).join(", ")
+            ? product.variants
+                .map((v) => (v.detail ? `${v.name} (${v.detail})` : v.name))
+                .join(", ")
             : "Malá, velká",
         },
         { "@type": "PropertyValue", name: "Vonné tóny", value: product.notes },
+        ...(product.pyramid
+          ? Object.entries({
+              "Hlava vůně": product.pyramid.top,
+              "Srdce vůně": product.pyramid.heart,
+              "Základ vůně": product.pyramid.base,
+            })
+              .filter(([, value]) => value)
+              .map(([name, value]) => ({
+                "@type": "PropertyValue",
+                name,
+                value,
+              }))
+          : []),
       ],
     });
     webPage.mainEntity = { "@id": canonical + "#product" };
@@ -147,7 +202,7 @@ export function metadata({
     const items = [{ name: "Domů", item: siteUrl + "/" }];
     if (product) items.push({ name: "Svíčky", item: siteUrl + "/obchod" });
     items.push({
-      name: product?.name || (page === "shop" ? "Svíčky" : "Spolupráce"),
+      name: product?.name || crumbs[page] || title,
       item: canonical,
     });
     graph.push({
@@ -173,14 +228,15 @@ export function renderHead({
   page,
   script,
   stylesheet,
-  runtime = "static",
+  live = false,
+  gaId = "",
 }) {
   const privatePage = privatePages.has(page);
   const image = new URL(ogImage.path, meta.canonical).href;
   return `<head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(meta.title)}</title><meta name="description" content="${esc(meta.description)}">
-<meta name="robots" content="${meta.robots}"><meta name="author" content="LOOMOS"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#171614"><meta name="color-scheme" content="dark"><meta name="loomos-runtime" content="${runtime}">
+<meta name="robots" content="${meta.robots}"><meta name="author" content="LOOMOS"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#171614"><meta name="color-scheme" content="dark"><meta name="shop-live" content="${live ? "1" : "0"}">${gaId ? `<meta name="ga-id" content="${esc(gaId)}">` : ""}
 <link rel="canonical" href="${esc(meta.canonical)}">
 <meta property="og:locale" content="cs_CZ"><meta property="og:site_name" content="LOOMOS"><meta property="og:type" content="${page === "product" ? "product" : "website"}"><meta property="og:title" content="${esc(meta.title)}"><meta property="og:description" content="${esc(meta.description)}"><meta property="og:url" content="${esc(meta.canonical)}"><meta property="og:image" content="${image}"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:alt" content="${ogImage.alt}"><meta property="og:image:width" content="${ogImage.width}"><meta property="og:image:height" content="${ogImage.height}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(meta.title)}"><meta name="twitter:description" content="${esc(meta.description)}"><meta name="twitter:image" content="${image}"><meta name="twitter:image:alt" content="${ogImage.alt}">

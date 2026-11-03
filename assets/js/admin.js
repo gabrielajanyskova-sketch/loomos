@@ -1,258 +1,385 @@
-"use strict";
-(() => {
-  const $ = (s) => document.querySelector(s);
-  const esc = (s) =>
-    String(s).replace(
-      /[&<>"']/g,
-      (c) =>
-        ({
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;",
-          "'": "&#39;",
-        })[c],
-    );
-  const money = (n) =>
-    n == null
-      ? "Cena chybí"
-      : new Intl.NumberFormat("cs-CZ", {
-          style: "currency",
-          currency: "CZK",
-          maximumFractionDigits: 0,
-        }).format(n);
-  const labels = {
-    nova: "Nová",
-    "vyrizuje-se": "Vyřizuje se",
-    dokoncena: "Dokončená",
-    zrusena: "Zrušená",
-  };
-  let products = [],
-    orders = [],
-    packetaReady = false,
-    tab = "overview";
-  async function api(path, data) {
-    const r = await fetch(
-      "/api/admin/" + path,
-      data
-        ? {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          }
-        : {},
-    );
-    let result;
-    try {
-      result = await r.json();
-    } catch {
-      throw Error("Spusťte aplikační server příkazem npm run serve.");
-    }
-    if (!r.ok) {
-      if (r.status === 401) {
-        $("#login-panel").hidden = false;
-        $("#admin-content").hidden = true;
-        $("#logout").hidden = true;
-      }
-      throw Error(result.error || "Požadavek se nepodařilo dokončit.");
-    }
-    return result;
+import { ORDER_STATUS } from "./orders.mjs";
+import { SHIPPING } from "./pricing.mjs";
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) =>
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+const money = (n) =>
+  new Intl.NumberFormat("cs-CZ", {
+    style: "currency",
+    currency: "CZK",
+    maximumFractionDigits: 0,
+  }).format(n || 0);
+const date = (t, time = true) =>
+  t
+    ? new Date(t * 1000).toLocaleString("cs-CZ", {
+        timeZone: "Europe/Prague",
+        ...(time
+          ? {}
+          : { hour: undefined, minute: undefined, second: undefined }),
+      })
+    : "";
+const dayToUnix = (value, end = false) =>
+  value
+    ? Math.floor(
+        new Date(`${value}T${end ? "23:59:59" : "00:00:00"}`).getTime() / 1000,
+      )
+    : null;
+const unixToDay = (t) =>
+  t
+    ? new Date(t * 1000).toLocaleDateString("sv-SE", {
+        timeZone: "Europe/Prague",
+      })
+    : "";
+
+let tab = "overview";
+let config = {};
+let orders = [];
+let filter = "aktivni";
+
+async function api(path, data) {
+  const response = await fetch("/api/admin/" + path, {
+    method: data ? "POST" : "GET",
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
+  });
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    throw Error("Server e-shopu neodpovídá. Je nasazený na Cloudflare?");
   }
-  function status(msg, error = false) {
-    $("#admin-status").textContent = msg;
-    $("#admin-status").className = error ? "notice error" : "muted";
+  if (!response.ok) {
+    if (response.status === 401) showLogin();
+    throw Error(result.error || "Požadavek se nepodařilo dokončit.");
   }
-  const orderTable = (items) =>
-    `<div class="table-wrap"><table><thead><tr><th>Objednávka</th><th>Zákazník</th><th>Celkem</th><th>Stav</th><th>Detail</th></tr></thead><tbody>${items.map((o) => `<tr><td>${esc(o.number)}<br><small>${new Date(o.created * 1000).toLocaleString("cs-CZ", { timeZone: "Europe/Prague" })}</small></td><td>${esc(o.customer.name)}</td><td>${money(o.total)}</td><td><span class="status-label">${labels[o.status]}</span></td><td><button class="inline-button" data-order="${esc(o.number)}">Zobrazit →</button></td></tr>`).join("")}</tbody></table></div>`;
-  function render() {
-    const el = $("#admin-content");
-    document
-      .querySelectorAll("[data-tab]")
-      .forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
-    if (tab === "overview")
-      el.innerHTML = `<div class="stats"><div class="stat">Viditelné produkty<strong>${products.filter((p) => p.active).length}</strong></div><div class="stat">Zkušební objednávky<strong>${orders.length}</strong></div><div class="stat">Nové objednávky<strong>${orders.filter((o) => o.status === "nova").length}</strong></div></div><div class="notice">Zkušební provoz. Objednávky nejsou placené ani expedované. Produkty a změny cen se ukládají do databáze a zobrazují v obchodě.</div><div class="admin-toolbar"><h2>Poslední objednávky</h2></div>${orders.length ? orderTable(orders.slice(0, 5)) : '<div class="panel"><p>První objednávky najdete právě tady.</p><a href="/obchod.html" class="text-link">Vyzkoušet nákup →</a></div>'}`;
-    if (tab === "products")
-      el.innerHTML = `<div class="admin-toolbar"><h2>Vaše produkty</h2><button class="button" id="new-product">＋ Přidat svíčku</button></div><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Cena</th><th>Viditelnost</th><th></th></tr></thead><tbody>${products.map((p) => `<tr><td>${esc(p.name)}<br><small class="muted">${esc(p.id)}</small></td><td>${money(p.price)}</td><td>${p.active ? "V nabídce" : "Skryto"}</td><td><button class="inline-button" data-edit="${esc(p.id)}">Upravit →</button></td></tr>`).join("")}</tbody></table></div><div id="product-editor"></div>`;
-    if (tab === "orders")
-      el.innerHTML = `<div class="admin-toolbar"><h2>Objednávky</h2><button class="inline-button" id="refresh">Obnovit</button></div>${orders.length ? orderTable(orders) : '<div class="panel">Zatím tu nejsou žádné zkušební objednávky.</div>'}`;
+  return result;
+}
+function status(msg, error = false) {
+  const el = $("#admin-status");
+  el.textContent = msg;
+  el.className = error ? "notice error" : "notice";
+  el.hidden = !msg;
+}
+function showLogin() {
+  $("#login-panel").hidden = false;
+  $("#admin-content").hidden = true;
+  $("#logout").hidden = true;
+}
+async function guard(fn) {
+  try {
+    await fn();
+  } catch (err) {
+    status(err.message, true);
   }
-  async function load() {
-    [products, orders] = await Promise.all([api("products"), api("orders")]);
-    $("#login-panel").hidden = true;
-    $("#admin-content").hidden = false;
-    $("#logout").hidden = false;
-    render();
-  }
-  function editor(id) {
-    const p = products.find((p) => p.id === id) || {
-      id: "",
-      name: "",
-      subtitle: "",
-      price: null,
-      notes: "",
-      description: "",
-      active: false,
-    };
-    $("#product-editor").innerHTML =
-      `<section class="panel"><h2>${id ? "Upravit produkt" : "Nová svíčka"}</h2><form id="product-form"><label>ID pro adresu produktu<input name="id" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="70" value="${esc(p.id)}" ${id ? "readonly" : ""} required placeholder="napriklad-vanilka"></label><label>Název<input name="name" value="${esc(p.name)}" maxlength="120" required></label><label>Krátký podtitul<input name="subtitle" value="${esc(p.subtitle)}" maxlength="200"></label>${p.variants?.length ? `<label>Cena malé v Kč<input name="small_price" type="number" min="1" max="100000" value="${p.variants[0].price}" required></label><label>Cena velké v Kč<input name="large_price" type="number" min="1" max="100000" value="${p.variants[1].price}" required></label><label class="check"><input type="checkbox" name="price_provisional" ${p.price_provisional ? "checked" : ""}>Pracovní ceny</label>` : ""}<label ${p.variants?.length ? "hidden" : ""}>Cena v Kč<input name="price" type="number" min="1" max="100000" step="1" value="${p.price ?? ""}" placeholder="Zatím nestanovena"></label><label>Vonné tóny<input name="notes" value="${esc(p.notes)}" maxlength="200"></label><label>Popis<textarea name="description" rows="4" maxlength="3000">${esc(p.description)}</textarea></label><label class="check"><input name="active" type="checkbox" ${p.active ? "checked" : ""}>Zobrazit produkt v e-shopu</label><p class="muted">Fotografie jsou zatím společné ilustrační. Vlastní fotografie zapojíme v další fázi.</p><button class="button">Uložit produkt →</button><p id="editor-status" role="status"></p></form></section>`;
-    $("#product-editor").scrollIntoView({ behavior: "smooth", block: "start" });
-    $("#product-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const f = e.currentTarget;
-      const button = f.querySelector("button");
-      button.disabled = true;
-      try {
-        const fields = Object.fromEntries(new FormData(f));
-        await api("products", {
-          ...fields,
-          price: fields.price.trim() === "" ? null : Number(fields.price),
-          active: f.elements.active.checked,
-          ...(f.elements.small_price
-            ? {
-                variants: [
-                  { id: "mala", price: Number(f.elements.small_price.value) },
-                  { id: "velka", price: Number(f.elements.large_price.value) },
-                ],
-                price_provisional: f.elements.price_provisional.checked,
-              }
-            : {}),
-        });
-        await load();
-        status("Produkt je uložený a nabídka aktualizovaná.");
-      } catch (err) {
-        $("#editor-status").textContent = err.message;
-        button.disabled = false;
-      }
+}
+
+/* ---------- overview ---------- */
+async function renderOverview(el) {
+  const o = await api("overview");
+  const warnings = [
+    !config.mail &&
+      "E-maily se neposílají: v Cloudflare chybí tajná proměnná RESEND_API_KEY.",
+    !config.live &&
+      "Zkušební provoz: objednávky jsou označené jako zkušební. Ostrý prodej zapnete proměnnou SHOP_LIVE=1.",
+  ].filter(Boolean);
+  el.innerHTML = `<div class="stats"><div class="stat">Čeká na platbu<strong>${o.awaiting_payment}</strong></div><div class="stat">Zaplaceno, k odeslání<strong>${o.to_ship}</strong></div><div class="stat">Tržby (zaplacené, ostré)<strong>${esc(o.revenue_label)}</strong></div><div class="stat">Objednávek celkem<strong>${o.orders}</strong></div><div class="stat">Registrovaných zákazníků<strong>${o.customers}</strong></div><div class="stat">Docházející zboží (≤ 2 ks)<strong>${o.low_stock}</strong></div></div>${warnings.map((w) => `<p class="notice">${esc(w)}</p>`).join("")}`;
+}
+
+/* ---------- orders ---------- */
+const filters = {
+  aktivni: [
+    "Rozpracované",
+    (o) => !["dokoncena", "zrusena"].includes(o.status),
+  ],
+  nova: ["Čeká na platbu", (o) => o.status === "nova"],
+  zaplacena: ["K odeslání", (o) => o.status === "zaplacena"],
+  vse: ["Všechny", () => true],
+};
+async function renderOrders(el) {
+  orders = await api("orders");
+  const list = orders.filter(filters[filter][1]);
+  el.innerHTML = `<div class="admin-toolbar"><h2>Objednávky</h2><div class="chips">${Object.entries(
+    filters,
+  )
+    .map(
+      ([k, [label]]) =>
+        `<button class="chip ${k === filter ? "active" : ""}" data-filter="${k}">${label}</button>`,
+    )
+    .join("")}</div></div>${
+    list.length
+      ? `<div class="table-wrap"><table><thead><tr><th>Číslo</th><th>Zákazník</th><th>Doprava</th><th>Celkem</th><th>Stav</th><th></th></tr></thead><tbody>${list
+          .map(
+            (o) =>
+              `<tr><td><strong>${esc(o.number)}</strong>${o.test ? ' <small class="muted">test</small>' : ""}<br><small>${date(o.created)}</small></td><td>${esc(o.customer.name)}${o.registered ? ' <small class="muted">· účet</small>' : ""}<br><small>${esc(o.customer.email)}</small></td><td>${o.shipping === "zasilkovna" ? "Zásilkovna" : "Osobně"}</td><td>${money(o.pricing.total)}</td><td><span class="status-label">${esc(ORDER_STATUS[o.status])}</span></td><td><button class="inline-button" data-order="${esc(o.number)}">Detail →</button></td></tr>`,
+          )
+          .join("")}</tbody></table></div>`
+      : '<div class="panel">Žádné objednávky v tomto výběru.</div>'
+  }`;
+}
+function orderDetail(number) {
+  const o = orders.find((o) => o.number === number);
+  if (!o) return;
+  const p = o.pricing;
+  const packeta =
+    o.shipping !== "zasilkovna"
+      ? ""
+      : o.packeta?.barcode
+        ? `<p class="notice">Zásilka: <strong>${esc(o.packeta.barcode)}</strong> · <a href="https://tracking.packeta.com/cs/?id=${encodeURIComponent(o.packeta.barcode.replace(/\s/g, ""))}" target="_blank" rel="noopener">sledovat</a> · štítek vytisknete v klientské sekci Zásilkovny.</p>`
+        : !o.packeta_point_id
+          ? '<p class="notice">Zákazník nevybral místo na mapě — zásilku založte ručně v klientské sekci Zásilkovny.</p>'
+          : !config.packeta
+            ? '<p class="notice">Pro automatické zakládání zásilek nastavte v Cloudflare PACKETA_API_PASSWORD.</p>'
+            : '<form id="packet-form" class="inline-form"><label>Hmotnost (kg)<input name="weight" type="number" min="0.01" max="15" step="0.01" required></label><button class="button">Vytvořit zásilku v Zásilkovně</button></form>';
+  $("#admin-content").innerHTML =
+    `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="notice">Zkušební objednávka.</p>' : ""}<div class="detail-columns"><div><h3>Zákazník</h3><p>${esc(o.customer.name)}${o.registered ? " (registrovaný)" : ""}<br><a href="mailto:${esc(o.customer.email)}">${esc(o.customer.email)}</a><br>${esc(o.customer.phone)}</p><h3>Doprava</h3><p>${o.shipping === "zasilkovna" ? `Zásilkovna — ${esc(o.pickup_point)}${o.packeta_point_id ? ` <small>(ID ${esc(o.packeta_point_id)})</small>` : ""}` : esc(SHIPPING.pickup.label)}</p><h3>Poznámka</h3><p>${esc(o.note || "—")}</p></div><div><h3>Položky</h3><div class="table-wrap"><table><tbody>${o.items.map((i) => `<tr><td>${i.qty}× ${esc(i.name)}</td><td>${money(i.total)}</td></tr>`).join("")}${p.memberSavings ? `<tr><td>Sleva s účtem 5 %</td><td>−${money(p.memberSavings)}</td></tr>` : ""}${p.codeDiscount ? `<tr><td>Kód ${esc(p.code)}</td><td>−${money(p.codeDiscount)}</td></tr>` : ""}<tr><td>Doprava</td><td>${money(p.shippingPrice)}</td></tr><tr><td><strong>Celkem (VS ${esc(o.number)})</strong></td><td><strong>${money(p.total)}</strong></td></tr></tbody></table></div><p class="muted">Vytvořeno ${date(o.created)} · <a href="/objednavka.html?t=${esc(o.token)}" target="_blank" rel="noopener">stránka pro zákazníka</a></p></div></div>${packeta}<form id="status-form" class="inline-form"><label>Stav objednávky<select name="status" ${o.status === "zrusena" ? "disabled" : ""}>${Object.entries(
+      ORDER_STATUS,
+    )
+      .map(
+        ([k, v]) =>
+          `<option value="${k}" ${o.status === k ? "selected" : ""}>${v}</option>`,
+      )
+      .join(
+        "",
+      )}</select></label><label>Sledovací číslo zásilky<input name="tracking" maxlength="40" value="${esc(o.tracking || "")}" placeholder="${esc(o.packeta?.barcode || "např. Z 123 456 7890")}"></label><label class="wide">Vzkaz pro zákazníka (nepovinné, uvidí ho v e-mailu i u objednávky)<textarea name="note" rows="2" maxlength="500" placeholder="např. Svíčky jsme zabalili s malým dárkem."></textarea></label><label class="check"><input type="checkbox" name="notify" checked>Poslat zákazníkovi e-mail</label><button class="button" ${o.status === "zrusena" ? "disabled" : ""}>Uložit stav</button></form><p class="muted">Zrušení vrátí zboží zpět na sklad. Při změně na „Zaplaceno“ dostane zákazník potvrzení o přijetí platby.</p>${o.history?.length ? `<h3>Historie</h3><ul class="history">${o.history.map((h) => `<li>${date(h.at)} — ${esc(ORDER_STATUS[h.status] || h.status)}${h.note ? `<br><small>Vzkaz: ${esc(h.note)}</small>` : ""}</li>`).join("")}</ul>` : ""}</section>`;
+  $("#back").onclick = () => show("orders");
+  $("#status-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.currentTarget;
+    if (
+      f.elements.status.value === "zrusena" &&
+      !confirm("Opravdu objednávku zrušit? Zboží se vrátí na sklad.")
+    )
+      return;
+    guard(async () => {
+      await api("order-status", {
+        number,
+        status: f.elements.status.value,
+        tracking: f.elements.tracking.value,
+        note: f.elements.note.value,
+        notify: f.elements.notify.checked,
+      });
+      orders = await api("orders");
+      orderDetail(number);
+      status("Stav objednávky je uložený.");
     });
-  }
-  function packetaPanel(o) {
-    if (o.shipping !== "zasilkovna") return "";
-    if (o.packeta)
-      return `<p class="notice">Zásilka v Zásilkovně: <strong>${esc(o.packeta.barcode || o.packeta.id)}</strong>. Štítek vytisknete v klientské sekci Zásilkovny.</p>`;
-    if (!o.packeta_point_id)
-      return '<p class="notice">Zákazník nevybral výdejní místo na mapě, zásilku je nutné založit ručně v klientské sekci Zásilkovny.</p>';
-    if (!packetaReady)
-      return '<p class="notice">Pro zakládání zásilek nastavte na serveru PACKETA_API_PASSWORD.</p>';
-    return '<form id="packet-form" class="spaced-top"><label>Hmotnost zásilky (kg)<input name="weight" type="number" min="0.01" max="15" step="0.01" required></label><button class="button">Vytvořit zásilku v Zásilkovně →</button></form>';
-  }
-  function showOrder(number) {
-    const o = orders.find((o) => o.number === number);
-    if (!o) return;
-    $("#admin-content").innerHTML =
-      `<button id="back" class="text-link">← Zpět na objednávky</button><section class="panel"><h2>${esc(o.number)}</h2><p class="notice">Zkušební objednávka. Žádná platba neproběhla.</p><p>${esc(o.customer.name)}<br>${esc(o.customer.email)}<br>${esc(o.customer.phone)}</p><p>Doprava: ${o.shipping === "pickup" ? "Osobní odběr" : "Zásilkovna"}<br>${esc(o.pickup_point)}${o.packeta_point_id ? ` <small>(ID ${esc(o.packeta_point_id)})</small>` : ""}</p>${packetaPanel(o)}<div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Kusy</th><th>Cena za kus</th></tr></thead><tbody>${o.items.map((i) => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td></tr>`).join("")}</tbody></table></div><p class="spaced-top">Doprava: ${money(o.shipping_price)} · Celkem: <strong>${money(o.total)}</strong></p><p>Poznámka: ${esc(o.note || "—")}</p><form id="status-form"><label>Stav objednávky<select name="status">${Object.entries(
-        labels,
-      )
-        .map(
-          ([k, v]) =>
-            `<option value="${k}" ${o.status === k ? "selected" : ""}>${v}</option>`,
-        )
-        .join(
-          "",
-        )}</select></label><button class="button">Uložit stav →</button></form></section>`;
-    $("#back").onclick = () => {
-      tab = "orders";
-      render();
-    };
-    $("#packet-form")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const f = e.currentTarget;
-      if (
-        !confirm(
-          "Vytvořit skutečnou zásilku v Zásilkovně? Objednávka je zatím zkušební.",
-        )
-      )
-        return;
-      f.querySelector("button").disabled = true;
+  });
+  $("#packet-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.currentTarget;
+    if (!confirm("Vytvořit skutečnou zásilku v Zásilkovně?")) return;
+    f.querySelector("button").disabled = true;
+    guard(async () => {
       try {
         const packet = await api("packeta-packet", {
           number,
           weight: Number(f.elements.weight.value),
         });
-        await load();
-        showOrder(number);
+        orders = await api("orders");
+        orderDetail(number);
         status("Zásilka vytvořena: " + (packet.barcode || packet.id));
-      } catch (err) {
-        status(err.message, true);
+      } finally {
         f.querySelector("button").disabled = false;
       }
     });
-    $("#status-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      try {
-        await api("order-status", {
-          number,
-          status: e.currentTarget.elements.status.value,
-        });
-        await load();
-        status("Stav objednávky byl uložen.");
-      } catch (err) {
-        status(err.message, true);
-      }
-    });
-  }
-  document.querySelectorAll("[data-tab]").forEach((b) =>
-    b.addEventListener("click", () => {
-      tab = b.dataset.tab;
-      if (!$("#admin-content").hidden) render();
-    }),
-  );
-  $("#admin-content").addEventListener("click", (e) => {
-    const edit = e.target.closest("[data-edit]");
-    const order = e.target.closest("[data-order]");
-    if (edit) editor(edit.dataset.edit);
-    if (order) showOrder(order.dataset.order);
-    if (e.target.id === "new-product") editor();
-    if (e.target.id === "refresh")
-      load().catch((err) => status(err.message, true));
   });
-  $("#login-form").addEventListener("submit", async (e) => {
+}
+
+/* ---------- stock ---------- */
+async function renderStock(el) {
+  const rows = await api("stock");
+  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad</h2></div><p class="muted">Prázdné pole = sklad se nehlídá (zboží lze vždy objednat). Při 0 se v e-shopu zobrazí „Vyprodáno“. Objednávka sklad automaticky odečte, zrušení ho vrátí.</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Cena</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows
+    .map(
+      (r) =>
+        `<tr class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}</td><td>${money(r.price)}</td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`,
+    )
+    .join("")}</tbody></table></div>`;
+}
+async function saveStock(row) {
+  const input = $(".stock-input", row);
+  const value = input.value.trim();
+  await api("stock", {
+    product_id: input.dataset.product,
+    variant_id: input.dataset.variant,
+    quantity: value === "" ? null : Number(value),
+  });
+  status("Sklad je uložený.");
+  await show("stock");
+}
+
+/* ---------- customers ---------- */
+async function renderCustomers(el) {
+  const list = await api("customers");
+  el.innerHTML = `<div class="admin-toolbar"><h2>Registrovaní zákazníci</h2><span class="muted">${list.length} celkem</span></div>${
+    list.length
+      ? `<div class="table-wrap"><table><thead><tr><th>Zákazník</th><th>Registrace</th><th>Objednávky</th><th>Utraceno</th><th>Stav</th><th></th></tr></thead><tbody>${list
+          .map(
+            (c) =>
+              `<tr><td>${esc(c.name)}<br><small><a href="mailto:${esc(c.email)}">${esc(c.email)}</a>${c.phone ? " · " + esc(c.phone) : ""}</small></td><td>${unixToDay(c.created)}</td><td>${c.orders}</td><td>${money(c.spent)}</td><td>${c.blocked ? '<span class="status-label">Zablokovaný</span>' : "Aktivní"}</td><td><button class="inline-button" data-customer="${c.id}" data-action="${c.blocked ? "unblock" : "block"}">${c.blocked ? "Odblokovat" : "Zablokovat"}</button> <button class="inline-button danger" data-customer="${c.id}" data-action="delete">Smazat</button></td></tr>`,
+          )
+          .join("")}</tbody></table></div>`
+      : '<div class="panel">Zatím se nikdo nezaregistroval.</div>'
+  }<p class="muted">Hesla nevidíte ani vy — zákazník si je obnoví sám přes „Zapomněli jste heslo?“. Smazáním účtu objednávky zůstanou kvůli účetnictví.</p>`;
+}
+
+/* ---------- discount codes ---------- */
+async function renderCodes(el) {
+  const list = await api("codes");
+  el.innerHTML = `<div class="admin-toolbar"><h2>Slevové kódy</h2></div><section class="panel"><h3>Nový kód / úprava</h3><form id="code-form" class="code-admin"><label>Kód<input name="code" required maxlength="40" pattern="[A-Za-z0-9_\-]{3,40}" placeholder="např. VANOCE10"></label><label>Typ<select name="type"><option value="percent">Procenta (%)</option><option value="fixed">Částka (Kč)</option></select></label><label>Hodnota<input name="value" type="number" min="1" max="100000" required></label><label>Minimální nákup (Kč)<input name="min_total" type="number" min="0" placeholder="bez limitu"></label><label>Max. počet použití<input name="max_uses" type="number" min="1" placeholder="neomezeně"></label><label>Platí od<input name="valid_from" type="date"></label><label>Platí do<input name="valid_to" type="date"></label><label>Poznámka<input name="note" maxlength="200"></label><label class="check"><input type="checkbox" name="active" checked>Aktivní</label><button class="button">Uložit kód</button></form><p class="muted">Kód se počítá ze zboží po slevě 5 % pro registrované; na dopravu se nevztahuje.</p></section>${
+    list.length
+      ? `<div class="table-wrap"><table><thead><tr><th>Kód</th><th>Sleva</th><th>Podmínky</th><th>Použito</th><th>Stav</th><th></th></tr></thead><tbody>${list
+          .map(
+            (c) =>
+              `<tr><td><strong>${esc(c.code)}</strong>${c.note ? `<br><small>${esc(c.note)}</small>` : ""}</td><td>${c.type === "percent" ? c.value + " %" : money(c.value)}</td><td>${[c.min_total ? `od ${money(c.min_total)}` : "", c.valid_from ? `od ${unixToDay(c.valid_from)}` : "", c.valid_to ? `do ${unixToDay(c.valid_to)}` : ""].filter(Boolean).join(", ") || "—"}</td><td>${c.uses}${c.max_uses ? " / " + c.max_uses : ""}</td><td>${c.active ? "Aktivní" : "Vypnutý"}</td><td><button class="inline-button" data-edit-code="${esc(c.code)}">Upravit</button> <button class="inline-button danger" data-delete-code="${esc(c.code)}">Smazat</button></td></tr>`,
+          )
+          .join("")}</tbody></table></div>`
+      : ""
+  }`;
+  const form = $("#code-form");
+  el.addEventListener("click", (e) => {
+    const edit = e.target.closest("[data-edit-code]");
+    if (!edit) return;
+    const c = list.find((c) => c.code === edit.dataset.editCode);
+    form.elements.code.value = c.code;
+    form.elements.type.value = c.type;
+    form.elements.value.value = c.value;
+    form.elements.min_total.value = c.min_total || "";
+    form.elements.max_uses.value = c.max_uses ?? "";
+    form.elements.valid_from.value = unixToDay(c.valid_from);
+    form.elements.valid_to.value = unixToDay(c.valid_to);
+    form.elements.note.value = c.note;
+    form.elements.active.checked = c.active;
+    form.scrollIntoView({ behavior: "smooth" });
+  });
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const f = e.currentTarget;
-    const b = f.querySelector("button");
-    b.disabled = true;
+    const num = (v) => (v === "" ? null : Number(v));
+    guard(async () => {
+      await api("codes", {
+        code: form.elements.code.value,
+        type: form.elements.type.value,
+        value: num(form.elements.value.value),
+        min_total: num(form.elements.min_total.value),
+        max_uses: num(form.elements.max_uses.value),
+        valid_from: dayToUnix(form.elements.valid_from.value),
+        valid_to: dayToUnix(form.elements.valid_to.value, true),
+        note: form.elements.note.value,
+        active: form.elements.active.checked,
+      });
+      status("Slevový kód je uložený.");
+      await show("codes");
+    });
+  });
+}
+
+/* ---------- navigation ---------- */
+const views = {
+  overview: renderOverview,
+  orders: renderOrders,
+  stock: renderStock,
+  customers: renderCustomers,
+  codes: renderCodes,
+};
+async function show(next) {
+  tab = next;
+  document
+    .querySelectorAll("[data-tab]")
+    .forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+  const el = $("#admin-content");
+  el.hidden = false;
+  $("#login-panel").hidden = true;
+  $("#logout").hidden = false;
+  el.replaceWith(el.cloneNode(false));
+  const fresh = $("#admin-content");
+  fresh.innerHTML = '<p class="muted">Načítám…</p>';
+  await guard(() => views[tab](fresh));
+}
+
+document.querySelectorAll("[data-tab]").forEach((b) =>
+  b.addEventListener("click", () => {
+    status("");
+    show(b.dataset.tab);
+  }),
+);
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#admin-content")) return;
+  const order = e.target.closest("[data-order]");
+  if (order) orderDetail(order.dataset.order);
+  const chip = e.target.closest("[data-filter]");
+  if (chip) {
+    filter = chip.dataset.filter;
+    show("orders");
+  }
+  if (e.target.closest("[data-save-stock]"))
+    guard(() => saveStock(e.target.closest("tr")));
+  const customer = e.target.closest("[data-customer]");
+  if (customer) {
+    const action = customer.dataset.action;
+    const question = {
+      block: "Zablokovat zákazníka? Nebude se moci přihlásit.",
+      unblock: "Odblokovat zákazníka?",
+      delete: "Trvale smazat účet zákazníka? Objednávky zůstanou.",
+    }[action];
+    if (confirm(question))
+      guard(async () => {
+        await api("customer", {
+          id: Number(customer.dataset.customer),
+          action,
+        });
+        status("Hotovo.");
+        await show("customers");
+      });
+  }
+  const del = e.target.closest("[data-delete-code]");
+  if (del && confirm(`Smazat kód ${del.dataset.deleteCode}?`))
+    guard(async () => {
+      await api("codes/delete", { code: del.dataset.deleteCode });
+      await show("codes");
+    });
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.matches(".stock-input")) {
+    e.preventDefault();
+    guard(() => saveStock(e.target.closest("tr")));
+  }
+});
+$("#login-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = e.currentTarget;
+  const b = f.querySelector("button");
+  b.disabled = true;
+  guard(async () => {
     try {
       await api("login", { password: f.elements.password.value });
       f.reset();
-      await load();
-      status("Přihlášeno. Vítejte v administraci.");
-    } catch (err) {
-      status(err.message, true);
+      status("");
+      await show("overview");
     } finally {
       b.disabled = false;
     }
   });
-  $("#logout").addEventListener("click", async () => {
-    try {
-      await api("logout", {});
-      products = [];
-      orders = [];
-      $("#admin-content").innerHTML = "";
-      $("#admin-content").hidden = true;
-      $("#login-panel").hidden = false;
-      $("#logout").hidden = true;
-      status("Jste odhlášeni.");
-    } catch (err) {
-      status(err.message, true);
-    }
-  });
-  if (
-    document.querySelector('meta[name="loomos-runtime"]')?.content === "static"
-  ) {
-    $("#login-panel").hidden = true;
+});
+$("#logout").addEventListener("click", () =>
+  guard(async () => {
+    await api("logout", {});
+    $("#admin-content").innerHTML = "";
+    showLogin();
+    status("Jste odhlášeni.");
+  }),
+);
+guard(async () => {
+  config = await api("session");
+  if (config.authenticated) return show("overview");
+  showLogin();
+  if (!config.configured)
     status(
-      "Administrace zatím není na tomto hostingu připojená. Zde vidíte pouze veřejnou ukázku e-shopu.",
+      "Administrace ještě nemá heslo. V Cloudflare nastavte tajnou proměnnou ADMIN_PASSWORD (alespoň 12 znaků) a web znovu nasaďte.",
+      true,
     );
-    return;
-  }
-  api("session")
-    .then((s) => {
-      packetaReady = s.packeta;
-      if (s.authenticated) return load();
-      if (!s.configured)
-        status(
-          "Pro přihlášení nastavte na serveru proměnnou LOOMOS_ADMIN_PASSWORD a server restartujte. Heslo nepatří do zdrojového kódu.",
-          true,
-        );
-    })
-    .catch((err) => status(err.message, true));
-})();
+});

@@ -1,5 +1,13 @@
 {
+  // Cloudflare Pages: publish only the built site, never the repository root.
   "name": "loomos",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-11-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "loomos",
+      "database_id": "c44357d9-7a1f-4724-9563-18160f74ad79",
+    },
+  ],
 }

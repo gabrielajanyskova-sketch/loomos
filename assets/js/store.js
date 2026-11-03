@@ -9,370 +9,697 @@ import {
   renderFAQ,
 } from "./ui.mjs";
 import { validateCatalog, readCart } from "./catalog.mjs";
-("use strict");
-(() => {
-  const $ = (s, el = document) => el.querySelector(s);
-  const page = document.body.dataset.page;
-  const storageKey = "loomos_cart_v3";
-  let cart = [];
+import {
+  memberPrice,
+  priceCart,
+  SHIPPING,
+  PAYMENT,
+  MAX_QTY,
+} from "./pricing.mjs";
+import { qrSvg } from "./payment.mjs";
+import { ORDER_STATUS, orderSteps } from "./orders.mjs";
+import { initAnalytics, track } from "./analytics.mjs";
+
+const $ = (s, el = document) => el.querySelector(s);
+const page = document.body.dataset.page;
+const live = document.querySelector('meta[name="shop-live"]')?.content === "1";
+const storageKey = "loomos_cart_v3";
+const codeKey = "loomos_code";
+const store = {
+  get(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set(key, value) {
+    try {
+      if (value == null) localStorage.removeItem(key);
+      else localStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+};
+let cart = [];
+try {
+  cart = readCart(store.get(storageKey) || store.get("loomos_cart_v2"));
+} catch {
+  cart = [];
+}
+let products = [];
+let member = null;
+let code = null;
+try {
+  code = JSON.parse(store.get(codeKey) || "null");
+} catch {
+  code = null;
+}
+let toastTimer;
+
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3500);
+}
+async function api(path, data, method = data ? "POST" : "GET") {
+  const response = await fetch("/api/" + path, {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
+    credentials: "same-origin",
+  });
+  let result;
   try {
-    cart = readCart(
-      localStorage.getItem(storageKey) ||
-        localStorage.getItem("loomos_cart_v2"),
-    );
+    result = await response.json();
   } catch {
-    /* Storage can be disabled. */
+    throw Error("Služba e-shopu teď není dostupná. Zkuste to prosím později.");
   }
-  const staticSite =
-    document.querySelector('meta[name="loomos-runtime"]')?.content === "static";
-  let products = [];
-  let toastTimer;
-  const toast = (msg) => {
-    const el = $("#toast");
-    el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove("show"), 3500);
-  };
-  const persist = () => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(cart));
-    } catch {
-      toast("Prohlížeč nepovoluje uložení košíku.");
-    }
-    updateCount();
-  };
-  const updateCount = () =>
-    document.querySelectorAll(".cart-count").forEach((el) => {
-      el.textContent = cart.reduce((s, i) => s + i.qty, 0);
-    });
-  const lineKey = (i) => i.id + "::" + (i.variant || "mala");
-  const lines = () =>
-    cart
-      .map((i) => {
-        const p = products.find((p) => p.id === i.id);
-        if (!p) return { ...i, product: null };
-        const v = p.variants?.find((v) => v.id === (i.variant || "mala"));
-        return {
-          ...i,
-          variant: v?.id || "",
-          product: {
-            ...p,
-            name: p.name + (v ? " — " + v.name : ""),
-            price: v?.price ?? p.price,
-          },
-        };
-      })
-      .filter((i) => i.product);
-  const subtotal = () =>
-    lines().reduce((s, i) => s + i.qty * i.product.price, 0);
-  if (!$("#site-header").children.length)
-    $("#site-header").innerHTML = renderHeader(page);
-  if (!$("#site-footer").children.length)
-    $("#site-footer").innerHTML = renderFooter();
-  if ($("#otazky") && !$("#otazky").children.length)
-    $("#otazky").innerHTML = renderFAQ(faqs);
-  updateCount();
-  $(".menu-toggle").addEventListener("click", (e) => {
-    const open = e.currentTarget.getAttribute("aria-expanded") !== "true";
-    e.currentTarget.setAttribute("aria-expanded", String(open));
-    $("#navigation").classList.toggle("open", open);
-  });
-  $("#navigation").addEventListener("click", (e) => {
-    if (e.target.closest("a")) {
-      $("#navigation").classList.remove("open");
-      $(".menu-toggle").setAttribute("aria-expanded", "false");
-    }
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      $("#navigation").classList.remove("open");
-      $(".menu-toggle").setAttribute("aria-expanded", "false");
-    }
-  });
-  const add = (id, qty = 1, variant = "mala") => {
-    const product = products.find((p) => p.id === id);
-    if (
-      !product ||
-      !Number.isInteger(product.price) ||
-      (product.variants?.length &&
-        !product.variants.some((v) => v.id === variant))
-    )
-      return;
-    const item = cart.find(
-      (i) => i.id === id && (i.variant || "mala") === variant,
+  if (!response.ok)
+    throw Object.assign(
+      Error(result.error || "Požadavek se nepodařilo dokončit."),
+      { status: response.status },
     );
-    if (item) item.qty = Math.min(20, item.qty + qty);
-    else cart.push({ id, variant, qty: Math.min(20, qty) });
-    persist();
-    toast("Máte přidáno. Vaše vůně čeká v košíku.");
-  };
-  document.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-add]");
-    if (b)
-      add(
-        b.dataset.add,
-        Number($("#detail-quantity")?.textContent || 1),
-        b.closest(".product-card")?.querySelector("[data-card-size]")?.value ||
-          $("#size-choice")?.value ||
-          "mala",
-      );
-    const q = e.target.closest("[data-detail-qty]");
-    if (q) {
-      const output = $("#detail-quantity");
-      output.textContent = Math.max(
+  return result;
+}
+const persist = () => {
+  if (!store.set(storageKey, JSON.stringify(cart)))
+    toast("Prohlížeč nepovoluje uložení košíku.");
+  updateCount();
+};
+const updateCount = () =>
+  document.querySelectorAll(".cart-count").forEach((el) => {
+    el.textContent = cart.reduce((s, i) => s + i.qty, 0);
+  });
+const lineKey = (i) => i.id + "::" + (i.variant || "mala");
+const variantOf = (p, id) =>
+  p.variants?.find((v) => v.id === (id || "mala")) || null;
+const stockOf = (p, variantId) => {
+  const value = p.stock?.[variantId ?? ""];
+  return value === undefined ? null : value;
+};
+function lines() {
+  return cart
+    .map((i) => {
+      const p = products.find((p) => p.id === i.id);
+      if (!p) return null;
+      const v = variantOf(p, i.variant);
+      return {
+        key: lineKey(i),
+        id: i.id,
+        variant: v?.id || "",
+        name: p.name + (v ? " — " + v.name : ""),
+        price: v?.price ?? p.price,
+        qty: i.qty,
+      };
+    })
+    .filter(Boolean);
+}
+const pricing = (shipping = null) =>
+  priceCart({ lines: lines(), member: Boolean(member), code, shipping });
+
+/* ---------- layout ---------- */
+if (!$("#site-header").children.length)
+  $("#site-header").innerHTML = renderHeader(page, { live });
+if (!$("#site-footer").children.length)
+  $("#site-footer").innerHTML = renderFooter();
+if ($("#otazky") && !$("#otazky").children.length)
+  $("#otazky").innerHTML = renderFAQ(faqs);
+updateCount();
+const closeMenu = () => {
+  $("#navigation").classList.remove("open");
+  $(".menu-toggle").setAttribute("aria-expanded", "false");
+};
+$(".menu-toggle").addEventListener("click", (e) => {
+  const open = e.currentTarget.getAttribute("aria-expanded") !== "true";
+  e.currentTarget.setAttribute("aria-expanded", String(open));
+  $("#navigation").classList.toggle("open", open);
+});
+$("#navigation").addEventListener("click", (e) => {
+  if (e.target.closest("a")) closeMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeMenu();
+});
+initAnalytics();
+
+/* ---------- catalog ---------- */
+function add(id, qty = 1, variantId = "mala") {
+  const product = products.find((p) => p.id === id);
+  const variant = variantOf(product || {}, variantId);
+  if (!product || (product.variants?.length && !variant)) return;
+  const stock = stockOf(product, variant?.id ?? "");
+  const item = cart.find(
+    (i) => i.id === id && lineKey(i) === `${id}::${variantId}`,
+  );
+  const wanted = Math.min(MAX_QTY, (item?.qty || 0) + qty);
+  if (stock !== null && wanted > stock) {
+    toast(
+      stock
+        ? `Skladem jsou jen ${stock} ks této velikosti.`
+        : "Tahle velikost je bohužel vyprodaná.",
+    );
+    return;
+  }
+  if (item) item.qty = wanted;
+  else cart.push({ id, variant: variantId, qty: wanted });
+  persist();
+  toast("Máte přidáno. Vaše vůně čeká v košíku.");
+  track("add_to_cart", product, variant, qty);
+}
+function availability(button, product, variantId) {
+  if (!button || !product) return;
+  const stock = stockOf(product, variantId);
+  const soldOut = stock === 0;
+  button.disabled = soldOut || product.price == null;
+  button.dataset.soldOut = soldOut ? "1" : "";
+  const label = button.querySelector(".add-label") || button;
+  const plus = button.querySelector(".add-label + span");
+  if (plus) plus.hidden = soldOut;
+  if (soldOut) label.textContent = "Vyprodáno";
+  else if (button.dataset.label) label.textContent = button.dataset.label;
+  const note = button
+    .closest(".product-meta, .detail-copy")
+    ?.querySelector(".stock-note");
+  if (note)
+    note.textContent =
+      stock !== null && stock > 0 && stock <= 3
+        ? `Poslední ${stock} ks skladem`
+        : "";
+}
+function refreshCards(root = document) {
+  root.querySelectorAll(".product-card").forEach((card) => {
+    const button = $("[data-add]", card);
+    const product = products.find((p) => p.id === button?.dataset.add);
+    if (!product) return;
+    const select = $("[data-card-size]", card);
+    const variant = variantOf(product, select?.value);
+    const price = variant?.price ?? product.price;
+    $("[data-card-price]", card).textContent = money(price);
+    const memberEl = $("[data-card-member]", card);
+    if (memberEl && price != null)
+      memberEl.innerHTML = member
+        ? `Vaše cena s účtem: <strong>${money(memberPrice(price))}</strong>`
+        : `S účtem o 5 % levněji: <strong>${money(memberPrice(price))}</strong>`;
+    button.dataset.label ||= button.firstChild?.textContent?.trim() || "";
+    availability(button, product, variant?.id ?? "");
+  });
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-add]");
+  if (b && !b.disabled)
+    add(
+      b.dataset.add,
+      Number($("#detail-quantity")?.textContent || 1),
+      b.closest(".product-card")?.querySelector("[data-card-size]")?.value ||
+        $("#size-choice")?.value ||
+        "mala",
+    );
+  const q = e.target.closest("[data-detail-qty]");
+  if (q) {
+    const output = $("#detail-quantity");
+    output.textContent = Math.max(
+      1,
+      Math.min(
+        MAX_QTY,
+        Number(output.textContent) + Number(q.dataset.detailQty),
+      ),
+    );
+  }
+});
+document.addEventListener("change", (e) => {
+  if (e.target.matches("[data-card-size]"))
+    refreshCards(e.target.closest(".product-card").parentElement);
+  if (e.target.id === "size-choice") updateDetail();
+});
+function updateDetail() {
+  const p = products.find((p) => p.id === document.body.dataset.product);
+  if (!p) return;
+  const v = variantOf(p, $("#size-choice")?.value);
+  const price = v?.price ?? p.price;
+  $("#detail-price").textContent = money(price);
+  const memberEl = $("#detail-member-price");
+  if (memberEl) memberEl.textContent = money(memberPrice(price));
+  const button = $(".detail-copy [data-add]");
+  if (button) {
+    button.dataset.label ||= "Přidat do košíku ＋";
+    availability(button, p, v?.id ?? "");
+  }
+}
+function renderProduct() {
+  const id = document.body.dataset.product;
+  const p = products.find((p) => p.id === id);
+  if (!p) {
+    $("#product-detail").innerHTML =
+      '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
+    return;
+  }
+  document.title = p.name + " — sójová svíčka | LOOMOS";
+  $("#product-breadcrumb").textContent = p.name;
+  $("#product-detail").innerHTML = renderProductDetail(p);
+  const size = new URLSearchParams(location.search).get("velikost");
+  if (size && p.variants?.some((v) => v.id === size))
+    $("#size-choice").value = size;
+  updateDetail();
+  track("view_item", p, variantOf(p, $("#size-choice")?.value), 1);
+}
+
+/* ---------- cart ---------- */
+function summary({ checkout = false, shipping = null } = {}) {
+  const t = pricing(shipping);
+  const memberRow = member
+    ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(t.memberSavings)}</span></div>`
+    : `<p class="member-hint"><a href="/ucet.html?navrat=${checkout ? "pokladna" : "kosik"}">Přihlaste se nebo se zaregistrujte</a> a ušetříte ${money(t.itemsOriginal - priceCart({ lines: lines(), member: true }).items)} (5 % na vše).</p>`;
+  const codeRow = t.code
+    ? `<div class="summary-row saving"><span>Kód ${esc(t.code)} <button type="button" class="link-button" data-remove-code>odebrat</button></span><span>−${money(t.codeDiscount)}</span></div>`
+    : "";
+  const codeForm = code
+    ? t.codeError
+      ? `<p class="error">${esc(t.codeError)} <button type="button" class="link-button" data-remove-code>Odebrat kód</button></p>`
+      : ""
+    : `<form class="code-form" id="code-form"><label>Slevový kód<span class="code-row"><input name="code" maxlength="40" autocomplete="off" required><button class="inline-button">Uplatnit</button></span></label><p class="error" id="code-error" role="alert"></p></form>`;
+  return `<aside class="summary"><h2>Vaše objednávka</h2>${
+    checkout
+      ? t.lines
+          .map(
+            (l) =>
+              `<div class="summary-row"><span>${esc(l.name)} × ${l.qty}</span><span>${money(l.total)}</span></div>`,
+          )
+          .join("")
+      : ""
+  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal)}</span></div>${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
+}
+async function applyCode(form, rerender) {
+  const error = $("#code-error");
+  error.textContent = "";
+  try {
+    code = await api("codes/check", { code: form.elements.code.value });
+    store.set(codeKey, JSON.stringify(code));
+    rerender();
+    toast("Slevový kód je uplatněný.");
+  } catch (err) {
+    error.textContent = err.message;
+  }
+}
+function bindSummary(container, rerender) {
+  container.addEventListener("submit", (e) => {
+    if (e.target.id !== "code-form") return;
+    e.preventDefault();
+    applyCode(e.target, rerender);
+  });
+  container.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-remove-code]")) return;
+    code = null;
+    store.set(codeKey, null);
+    rerender();
+  });
+}
+function renderCart() {
+  const el = $("#cart-content");
+  if (!lines().length) {
+    el.innerHTML =
+      '<div class="empty-state"><span class="tiny-star">✧</span><h2>Vaše chvíle teprve čeká.</h2><p>Košík je zatím prázdný. Najděte si vůni, která vám sedne.</p><a class="button" href="/obchod.html">Prohlédnout svíčky →</a></div>';
+    return;
+  }
+  const t = pricing();
+  el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${t.lines
+    .map(
+      (l) =>
+        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.originalUnit ? ` <s>${money(l.originalUnit)}</s>` : ""}</p><div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.originalTotal ? `<s class="old-price">${money(l.originalTotal)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
+    )
+    .join(
+      "",
+    )}<a class="text-link spaced-top" href="/obchod.html">← Zpět ke svíčkám</a></section>${summary()}</div>`;
+}
+$("#cart-content")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-qty],[data-remove]");
+  if (!b) return;
+  if (b.dataset.remove)
+    cart = cart.filter((i) => lineKey(i) !== b.dataset.remove);
+  else {
+    const i = cart.find((i) => lineKey(i) === b.dataset.qty);
+    const p = products.find((p) => p.id === i?.id);
+    const stock = p ? stockOf(p, variantOf(p, i.variant)?.id ?? "") : null;
+    if (i) {
+      const next = Math.max(
         1,
-        Math.min(20, Number(output.textContent) + Number(q.dataset.detailQty)),
+        Math.min(MAX_QTY, i.qty + Number(b.dataset.delta)),
       );
-    }
-  });
-  const summary = (checkout = false) =>
-    `<aside class="summary"><h2>Vaše objednávka</h2>${
-      checkout
-        ? lines()
-            .map(
-              (i) =>
-                `<div class="summary-row"><span>${esc(i.product.name)} × ${i.qty}</span><span>${money(i.product.price * i.qty)}</span></div>`,
-            )
-            .join("")
-        : ""
-    }<div class="summary-row"><span>Produkty</span><span>${money(subtotal())}</span></div><div class="summary-row"><span>Doprava</span><span id="shipping-price">${checkout ? "Zdarma" : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(subtotal())}</span></div>${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu si vyberete v dalším kroku. E-shop je ve zkušebním režimu.</p>`}</aside>`;
-  function renderCart() {
-    const el = $("#cart-content");
-    if (!lines().length) {
-      el.innerHTML =
-        '<div class="empty-state"><span class="tiny-star">✧</span><h2>Vaše chvíle teprve čeká.</h2><p>Košík je zatím prázdný. Najděte si vůni, která vám sedne.</p><a class="button" href="/obchod.html">Prohlédnout svíčky →</a></div>';
-      return;
-    }
-    el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${lines()
-      .map(
-        (i) =>
-          `<article class="cart-item"><a href="/produkty/${encodeURIComponent(i.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(i.product.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(i.id)}.html">${esc(i.product.name)}</a></h3><p>Sójová svíčka · dřevěný knot</p><div class="quantity"><button data-qty="${esc(lineKey(i))}" data-delta="-1" aria-label="Ubrat ${esc(i.product.name)}" ${i.qty === 1 ? "disabled" : ""}>−</button><output>${i.qty}</output><button data-qty="${esc(lineKey(i))}" data-delta="1" aria-label="Přidat ${esc(i.product.name)}" ${i.qty === 20 ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(i.qty * i.product.price)}</span><button class="remove" data-remove="${esc(lineKey(i))}" aria-label="Odebrat ${esc(i.product.name)}">Odebrat</button></div></article>`,
-      )
-      .join(
-        "",
-      )}<a class="text-link spaced-top" href="/obchod.html">← Zpět ke svíčkám</a></section>${summary()}</div>`;
-  }
-  $("#cart-content")?.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-qty],[data-remove]");
-    if (!b) return;
-    if (b.dataset.remove)
-      cart = cart.filter((i) => lineKey(i) !== b.dataset.remove);
-    else {
-      const i = cart.find((i) => lineKey(i) === b.dataset.qty);
-      if (i) i.qty = Math.max(1, Math.min(20, i.qty + Number(b.dataset.delta)));
-    }
-    persist();
-    renderCart();
-  });
-  function renderProduct() {
-    const id = document.body.dataset.product;
-    const p = products.find((p) => p.id === id);
-    if (!p) {
-      $("#product-detail").innerHTML =
-        '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
-      return;
-    }
-    document.title = p.name + " — LOOMOS";
-    $("#product-breadcrumb").textContent = p.name;
-    $("#product-detail").innerHTML = renderProductDetail(p);
-    const size = new URLSearchParams(location.search).get("velikost");
-    if (size && p.variants?.some((v) => v.id === size)) {
-      $("#size-choice").value = size;
-      $("#detail-price").textContent = money(
-        p.variants.find((v) => v.id === size).price,
-      );
+      if (stock !== null && next > stock)
+        toast(`Skladem jsou jen ${stock} ks.`);
+      else i.qty = next;
     }
   }
-  document.addEventListener("change", (e) => {
-    if (e.target.matches("[data-card-size]")) {
-      const p = products.find((p) => p.id === e.target.dataset.cardSize);
-      const v = p?.variants?.find((v) => v.id === e.target.value);
-      if (v)
-        e.target
-          .closest(".product-card")
-          .querySelector("[data-card-price]").textContent = money(v.price);
-    }
-    if (e.target.id === "size-choice") {
-      const p = products.find((p) => p.id === document.body.dataset.product);
-      const v = p?.variants?.find((v) => v.id === e.target.value);
-      if (v) $("#detail-price").textContent = money(v.price);
-    }
-  });
-  function renderCheckout() {
-    const el = $("#checkout-content");
-    if (!lines().length) {
-      el.innerHTML =
-        '<div class="empty-state"><h2>Nejdřív si vyberte svou vůni.</h2><a class="button" href="/obchod.html">Do obchodu →</a></div>';
-      return;
-    }
-    if (staticSite) {
-      el.innerHTML = `<div class="checkout-layout"><section class="panel"><h2>Objednávky zatím připravujeme.</h2><p>Košík si můžete vyzkoušet. Platby a odesílání objednávek spustíme po dokončení e-shopu.</p><a class="button" href="mailto:info@loomos.cz">Máte dotaz? Napište nám →</a></section>${summary(true)}</div>`;
-      return;
-    }
-    el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form"><h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="40"></label></div><h2>02 / Doprava</h2><label class="radio"><input type="radio" name="shipping" value="pickup" checked>Osobní odběr<span>Zdarma</span></label><label class="radio"><input type="radio" name="shipping" value="zasilkovna">Zásilkovna — výdejní místo<span>${money(79)}</span></label><div id="pickup-address" class="notice">Přesné místo a čas osobního odběru domluvíme individuálně.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat výdejní místo na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><label class="full">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><h2>03 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><p class="notice">Platební bránu připravujeme. Tímto krokem uložíte pouze zkušební objednávku, bez platby a expedice.</p><label class="check"><input type="checkbox" name="test_ack" required>Rozumím, že jde o zkušební objednávku bez platby a doručení.</label><p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Uložit zkušební objednávku →</button></form>${summary(true)}</div>`;
-    const form = $("#checkout-form");
-    form.addEventListener("change", () => {
-      const shipping = form.elements.shipping.value;
-      $("#shipping-price").textContent =
-        shipping === "pickup" ? "Zdarma" : money(79);
-      $("#order-total").textContent = money(
-        subtotal() + (shipping === "pickup" ? 0 : 79),
-      );
-      $("#delivery-fields").hidden = shipping !== "zasilkovna";
-      $("#pickup-address").hidden = shipping !== "pickup";
-      form.elements.pickup_point.required = shipping === "zasilkovna";
-    });
-    let packetaLoad;
-    const loadPacketa = () =>
-      (packetaLoad ||= new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = packeta.library;
-        script.onload = () =>
-          window.Packeta?.Widget ? resolve(window.Packeta) : reject();
-        script.onerror = () => {
-          packetaLoad = null;
-          reject();
-        };
-        document.head.append(script);
-      }));
-    $("#packeta-pick").addEventListener("click", async () => {
-      try {
-        const Packeta = await loadPacketa();
-        Packeta.Widget.pick(
-          packeta.apiKey,
-          (point) => {
-            if (!point || !/^\d{1,10}$/.test(String(point.id))) return;
-            const label = String(
-              point.formatedValue || point.name || point.place || "",
-            ).slice(0, 200);
-            form.elements.packeta_point_id.value = String(point.id);
-            form.elements.pickup_point.value = label;
-            $("#packeta-selected").textContent = "Vybráno: " + label;
-          },
-          { country: "cz", language: "cs" },
-        );
-      } catch {
-        $("#packeta-selected").textContent =
-          "Mapu výdejních míst se nepodařilo načíst. Napište prosím název výdejního místa.";
-      }
-    });
-    form.elements.pickup_point.addEventListener("input", () => {
-      form.elements.packeta_point_id.value = "";
-      $("#packeta-selected").textContent = "";
-    });
-    let key = crypto.randomUUID();
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!form.reportValidity()) return;
-      const btn = $("#place-order");
-      btn.disabled = true;
-      $("#checkout-error").textContent = "";
-      try {
-        const f = Object.fromEntries(new FormData(form));
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...f,
-            items: lines().map((i) => ({
-              id: i.id,
-              variant: i.variant,
-              qty: i.qty,
-            })),
-            request_id: key,
-          }),
-        });
-        const result = await res.json();
-        if (!res.ok)
-          throw Error(result.error || "Objednávku se nepodařilo uložit.");
-        cart = [];
-        persist();
-        el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Zkušební objednávka je uložená.</h2><p>Číslo objednávky: <strong>${esc(result.number)}</strong></p><p>Najdete ji v administraci. Neproběhla platba ani odeslání potvrzovacího e-mailu.</p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
-        el.scrollIntoView({ behavior: "smooth" });
-      } catch (err) {
-        $("#checkout-error").textContent =
-          err instanceof SyntaxError
-            ? "Objednávky nyní nelze odeslat. Zkuste to prosím později."
-            : err.message;
-        btn.disabled = false;
-      }
-    });
+  persist();
+  renderCart();
+});
+if ($("#cart-content")) bindSummary($("#cart-content"), renderCart);
+
+/* ---------- checkout ---------- */
+let packetaLoad;
+const loadPacketa = () =>
+  (packetaLoad ||= new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = packeta.library;
+    script.onload = () =>
+      window.Packeta?.Widget ? resolve(window.Packeta) : reject();
+    script.onerror = () => {
+      packetaLoad = null;
+      reject();
+    };
+    document.head.append(script);
+  }));
+
+function paymentBlock(payment, testOrder) {
+  if (!payment)
+    return '<p class="notice">Platební údaje vám pošleme e-mailem.</p>';
+  return `<div class="payment-box"><div class="qr">${qrSvg(payment.spayd)}</div><div><h3>Platba převodem</h3>${testOrder ? '<p class="notice">Zkušební objednávka — nic neplaťte.</p>' : ""}<p>Naskenujte QR kód v bankovní aplikaci, nebo zadejte údaje ručně. Zaplaťte prosím do ${payment.due_days} dnů.</p><dl class="payment-details"><dt>Číslo účtu</dt><dd>${esc(payment.account)}</dd><dt>IBAN</dt><dd>${esc(payment.iban)}</dd><dt>Variabilní symbol</dt><dd><strong>${esc(payment.vs)}</strong></dd><dt>Částka</dt><dd><strong>${money(payment.amount)}</strong></dd></dl></div></div>`;
+}
+
+function renderCheckout() {
+  const el = $("#checkout-content");
+  if (!lines().length) {
+    el.innerHTML =
+      '<div class="empty-state"><h2>Nejdřív si vyberte svou vůni.</h2><a class="button" href="/obchod.html">Do obchodu →</a></div>';
+    return;
   }
-  async function init() {
+  const shippingOptions = Object.entries(SHIPPING)
+    .map(
+      ([id, s], i) =>
+        `<label class="radio"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}>${esc(s.label)}<span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
+    )
+    .join("");
+  const paymentOptions = Object.entries(PAYMENT)
+    .map(
+      ([id, p]) =>
+        `<label class="radio ${p.available ? "" : "disabled"}"><input type="radio" name="payment" value="${id}" ${p.available ? (id === "transfer" ? "checked" : "") : "disabled"}>${esc(p.label)}<span>${p.available ? "Zdarma" : "Připravujeme"}</span></label>`,
+    )
+    .join("");
+  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvíme po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat výdejní místo na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><label class="full">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesíláme po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
+  const form = $("#checkout-form");
+  const renderSummary = () => {
+    $("#checkout-summary").innerHTML = summary({
+      checkout: true,
+      shipping: form.elements.shipping.value,
+    });
+  };
+  renderSummary();
+  bindSummary($("#checkout-summary"), renderSummary);
+  track("begin_checkout");
+  form.addEventListener("change", (e) => {
+    if (e.target.name !== "shipping") return;
+    const shipping = form.elements.shipping.value;
+    $("#delivery-fields").hidden = shipping !== "zasilkovna";
+    $("#pickup-address").hidden = shipping !== "pickup";
+    form.elements.pickup_point.required = shipping === "zasilkovna";
+    renderSummary();
+  });
+  $("#packeta-pick").addEventListener("click", async () => {
     try {
-      let res = await fetch(
-        staticSite ? "/data/products.json" : "/api/products",
+      const Packeta = await loadPacketa();
+      Packeta.Widget.pick(
+        packeta.apiKey,
+        (point) => {
+          if (!point || !/^\d{1,10}$/.test(String(point.id))) return;
+          const label = String(
+            point.formatedValue || point.name || point.place || "",
+          ).slice(0, 200);
+          form.elements.packeta_point_id.value = String(point.id);
+          form.elements.pickup_point.value = label;
+          $("#packeta-selected").textContent = "Vybráno: " + label;
+        },
+        { country: "cz", language: "cs" },
       );
-      if (!staticSite && res.status === 404)
-        res = await fetch("/data/products.json");
-      if (
-        !res.ok ||
-        !(res.headers.get("content-type") || "").includes("application/json")
-      )
-        throw Error("Nabídka není dostupná.");
-      products = validateCatalog(await res.json()).filter((p) => p.active);
-      const valid = new Set(
-        products.filter((p) => Number.isInteger(p.price)).map((p) => p.id),
-      );
-      if (
-        cart.some(
-          (i) =>
-            !valid.has(i.id) ||
-            (products.find((p) => p.id === i.id)?.variants?.length &&
-              !products
-                .find((p) => p.id === i.id)
-                .variants.some((v) => v.id === (i.variant || "mala"))),
-        )
-      ) {
-        cart = cart.filter((i) => {
-          const p = products.find((p) => p.id === i.id);
-          return (
-            valid.has(i.id) &&
-            (!p.variants?.length ||
-              p.variants.some((v) => v.id === (i.variant || "mala")))
-          );
-        });
-        persist();
-        toast("Košík byl aktualizován podle aktuální nabídky.");
-      }
-      if (page === "home")
-        $("#home-products").innerHTML = products.map(productCard).join("");
-      if (page === "shop") {
-        const render = () => {
-          let list = [...products];
-          const sort = $("#sort").value;
-          if (sort === "price-up")
-            list.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
-          if (sort === "price-down")
-            list.sort(
-              (a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity),
-            );
-          if (sort === "name")
-            list.sort((a, b) => a.name.localeCompare(b.name, "cs"));
-          $("#shop-products").innerHTML = list.length
-            ? list.map(productCard).join("")
-            : "<p>Nové vůně právě připravujeme.</p>";
-          $("#product-count").textContent =
-            `${list.length} vůně ve vaší nabídce`;
-        };
-        $("#sort").addEventListener("change", render);
-        render();
-      }
-      if (page === "product") renderProduct();
-      if (page === "cart") renderCart();
-      if (page === "checkout") renderCheckout();
     } catch {
-      const target =
-        $("#home-products") ||
-        $("#shop-products") ||
-        $("#product-detail") ||
-        $("#cart-content") ||
-        $("#checkout-content");
-      if (target)
-        target.innerHTML =
-          '<p class="notice">Nabídku se nepodařilo načíst. Zkuste stránku obnovit.</p>';
+      $("#packeta-selected").textContent =
+        "Mapu výdejních míst se nepodařilo načíst. Napište prosím název výdejního místa.";
     }
+  });
+  form.elements.pickup_point.addEventListener("input", () => {
+    form.elements.packeta_point_id.value = "";
+    $("#packeta-selected").textContent = "";
+  });
+  const requestId = crypto.randomUUID();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const btn = $("#place-order");
+    btn.disabled = true;
+    $("#checkout-error").textContent = "";
+    const f = Object.fromEntries(new FormData(form));
+    try {
+      const result = await api("orders", {
+        ...f,
+        terms: form.elements.terms.checked,
+        code: code?.code || "",
+        items: cart.map((i) => ({ id: i.id, variant: i.variant, qty: i.qty })),
+        request_id: requestId,
+      });
+      track("purchase", result);
+      cart = [];
+      code = null;
+      store.set(codeKey, null);
+      persist();
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkujeme, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsme poslali na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
+      const heading = $(".success-panel h2", el);
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+      el.scrollIntoView({ behavior: "smooth" });
+    } catch (err) {
+      $("#checkout-error").textContent = err.message;
+      btn.disabled = false;
+      if (err.status === 409) refreshCatalog();
+    }
+  });
+}
+
+/* ---------- order page ---------- */
+const day = (t) =>
+  new Date(t * 1000).toLocaleDateString("cs-CZ", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+function orderTimeline(o) {
+  const history = o.history || [];
+  const reachedAt = (status) =>
+    [...history].reverse().find((h) => h.status === status)?.at;
+  const steps = orderSteps(o.shipping);
+  const current = steps.findIndex(([id]) => id === o.status);
+  const notes = history.filter((h) => h.note);
+  const tracking = o.tracking
+    ? `<div class="tracking"><span>Sledovací číslo</span><strong>${esc(o.tracking.code)}</strong>${o.tracking.url ? `<a class="text-link" href="${esc(o.tracking.url)}" target="_blank" rel="noopener">Sledovat zásilku →</a>` : ""}</div>`
+    : "";
+  if (o.status === "zrusena")
+    return `<section class="panel timeline-panel"><p class="status-label">Objednávka byla zrušena${reachedAt("zrusena") ? " " + day(reachedAt("zrusena")) : ""}</p>${notes.map((n) => `<p class="shop-note"><span>${day(n.at)}</span>${esc(n.note)}</p>`).join("")}</section>`;
+  return `<section class="panel timeline-panel"><ol class="timeline">${steps
+    .map(([id, label], i) => {
+      const state = i < current ? "done" : i === current ? "current" : "";
+      const at = i <= current ? reachedAt(id) : null;
+      return `<li class="${state}"${state === "current" ? ' aria-current="step"' : ""}><span class="dot" aria-hidden="true"></span><strong>${esc(label)}</strong>${at ? `<small>${day(at)}</small>` : ""}</li>`;
+    })
+    .join(
+      "",
+    )}</ol><p class="timeline-status">${esc(ORDER_STATUS[o.status] || o.status)}</p>${tracking}${notes.length ? `<div class="shop-notes"><h3>Zprávy od nás</h3>${notes.map((n) => `<p class="shop-note"><span>${day(n.at)}</span>${esc(n.note)}</p>`).join("")}</div>` : ""}</section>`;
+}
+async function renderOrderPage() {
+  const el = $("#order-content");
+  const token = new URLSearchParams(location.search).get("t") || "";
+  try {
+    const o = await api("orders/view?t=" + encodeURIComponent(token));
+    const p = o.pricing;
+    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(o.shipping === "zasilkovna" ? "Zásilkovna — " + o.pickup_point : SHIPPING.pickup.label)}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}`;
+  } catch (err) {
+    el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }
-  init();
-})();
+}
+
+/* ---------- account ---------- */
+const formData = (form) => Object.fromEntries(new FormData(form));
+function returnTarget() {
+  const target = new URLSearchParams(location.search).get("navrat");
+  return { pokladna: "/pokladna.html", kosik: "/kosik.html" }[target] || null;
+}
+function bindForm(form, handler) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const error = $(".error", form);
+    const button = $("button[type=submit], button:not([type])", form);
+    error.textContent = "";
+    button.disabled = true;
+    try {
+      await handler(formData(form), form);
+    } catch (err) {
+      error.textContent = err.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+function renderAccount() {
+  const el = $("#account-content");
+  if (!member) {
+    el.innerHTML = `<div class="account-grid"><section class="panel"><h2>Přihlášení</h2><form id="login-form"><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><label>Heslo<input name="password" type="password" autocomplete="current-password" required></label><p class="error" role="alert"></p><button class="button">Přihlásit se →</button></form><button type="button" class="link-button spaced-top" id="show-forgot">Zapomněli jste heslo?</button><form id="forgot-form" hidden class="spaced-top"><p class="muted">Pošleme vám odkaz pro nastavení nového hesla.</p><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><p class="error" role="alert"></p><p class="success" role="status"></p><button class="inline-button">Poslat odkaz</button></form></section><section class="panel"><h2>Nový účet</h2><p>Registrovaní zákazníci mají <strong>automaticky 5 % slevu na všechno</strong> a přehled svých objednávek.</p><form id="register-form"><label>Jméno a příjmení<input name="name" autocomplete="name" required maxlength="120"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><label>Telefon (nepovinné)<input name="phone" type="tel" autocomplete="tel" maxlength="30"></label><label>Heslo (alespoň 8 znaků)<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><label class="check"><input type="checkbox" name="terms" required><span>Beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label><p class="error" role="alert"></p><button class="button">Vytvořit účet →</button></form></section></div>`;
+    const done = (result, message) => {
+      member = result.customer;
+      const target = returnTarget();
+      if (target) location.href = target;
+      else {
+        renderAccount();
+        toast(message);
+      }
+    };
+    bindForm($("#login-form"), async (f) =>
+      done(await api("account/login", f), "Vítejte zpět."),
+    );
+    bindForm($("#register-form"), async (f, form) =>
+      done(
+        await api("account/register", {
+          ...f,
+          terms: form.elements.terms.checked,
+        }),
+        "Účet je vytvořený. Sleva 5 % platí od teď.",
+      ),
+    );
+    $("#show-forgot").addEventListener("click", () => {
+      $("#forgot-form").hidden = false;
+      $("#forgot-form input").focus();
+    });
+    bindForm($("#forgot-form"), async (f, form) => {
+      const result = await api("account/forgot", f);
+      $(".success", form).textContent = result.message;
+    });
+    return;
+  }
+  el.innerHTML = `<div class="account-head"><div><h2>Dobrý den, ${esc(member.name)}.</h2><p>Vaše sleva 5 % se v košíku odečítá automaticky.</p></div><button type="button" class="inline-button" id="logout">Odhlásit se</button></div><div class="account-grid"><section class="panel"><h2>Moje objednávky</h2><div id="my-orders"><p class="muted">Načítám…</p></div></section><section class="panel"><h2>Osobní údaje</h2><form id="profile-form"><label>Jméno a příjmení<input name="name" autocomplete="name" required maxlength="120" value="${esc(member.name)}"></label><label>E-mail<input type="email" value="${esc(member.email)}" disabled></label><label>Telefon<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="${esc(member.phone || "")}"></label><p class="error" role="alert"></p><button class="inline-button">Uložit údaje</button></form><h2 class="spaced-top">Změna hesla</h2><form id="password-form"><label>Současné heslo<input name="current" type="password" autocomplete="current-password" required></label><label>Nové heslo<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><p class="error" role="alert"></p><button class="inline-button">Změnit heslo</button></form><details class="spaced-top"><summary>Smazat účet</summary><form id="delete-form"><p class="muted">Účet i přihlašovací údaje smažeme. Objednávky si musíme ponechat kvůli účetnictví, ale už nebudou propojené s účtem.</p><label>Pro potvrzení zadejte heslo<input name="password" type="password" autocomplete="current-password" required></label><p class="error" role="alert"></p><button class="inline-button danger">Trvale smazat účet</button></form></details></section></div>`;
+  $("#logout").addEventListener("click", async () => {
+    await api("account/logout", {}).catch(() => {});
+    member = null;
+    renderAccount();
+    toast("Jste odhlášeni.");
+  });
+  bindForm($("#profile-form"), async (f) => {
+    member = (await api("account/update", f)).customer;
+    toast("Údaje jsou uložené.");
+  });
+  bindForm($("#password-form"), async (f, form) => {
+    await api("account/password", f);
+    form.reset();
+    toast("Heslo je změněné.");
+  });
+  bindForm($("#delete-form"), async (f) => {
+    if (!confirm("Opravdu chcete účet trvale smazat?")) return;
+    await api("account/delete", f);
+    member = null;
+    renderAccount();
+    toast("Účet byl smazán.");
+  });
+  api("account/orders")
+    .then((orders) => {
+      $("#my-orders").innerHTML = orders.length
+        ? `<ul class="order-list">${orders.map((o) => `<li><a href="/objednavka.html?t=${encodeURIComponent(o.token)}"><strong>${esc(o.number)}</strong> · ${new Date(o.created * 1000).toLocaleDateString("cs-CZ")}</a><span>${esc(ORDER_STATUS[o.status] || o.status)}</span><span>${money(o.total)}</span></li>`).join("")}</ul>`
+        : '<p class="muted">Zatím tu nic není. <a href="/obchod.html">Vyberte si svou první vůni →</a></p>';
+    })
+    .catch((err) => {
+      $("#my-orders").textContent = err.message;
+    });
+}
+function renderReset() {
+  const el = $("#reset-content");
+  const token = new URLSearchParams(location.search).get("token") || "";
+  el.innerHTML = `<section class="panel narrow"><h2>Nové heslo</h2><form id="reset-form"><label>Nové heslo (alespoň 8 znaků)<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><label>Heslo znovu<input name="again" type="password" autocomplete="new-password" minlength="8" required></label><p class="error" role="alert"></p><button class="button">Uložit heslo →</button></form></section>`;
+  bindForm($("#reset-form"), async (f) => {
+    if (f.password !== f.again) throw Error("Hesla se neshodují.");
+    await api("account/reset", { token, password: f.password });
+    history.replaceState(null, "", "/obnova-hesla.html");
+    el.innerHTML =
+      '<div class="success-panel"><span class="tiny-star">✧</span><h2>Heslo je změněné.</h2><p>Jste přihlášeni.</p><a class="button" href="/ucet.html">Můj účet →</a></div>';
+  });
+}
+
+/* ---------- boot ---------- */
+async function loadProducts() {
+  let res = await fetch("/api/products").catch(() => null);
+  if (!res?.ok || !(res.headers.get("content-type") || "").includes("json"))
+    res = await fetch("/data/products.json");
+  if (!res.ok) throw Error("Nabídka není dostupná.");
+  return validateCatalog(await res.json()).filter((p) => p.active);
+}
+async function refreshCatalog() {
+  products = await loadProducts();
+  refreshCards();
+}
+async function init() {
+  const needsMember = [
+    "home",
+    "shop",
+    "product",
+    "cart",
+    "checkout",
+    "account",
+  ].includes(page);
+  const [loaded, me] = await Promise.all([
+    loadProducts().catch(() => null),
+    needsMember ? api("account/me").catch(() => ({ customer: null })) : null,
+  ]);
+  member = me?.customer || null;
+  document.body.classList.toggle("is-member", Boolean(member));
+  if (page === "account") return renderAccount();
+  if (page === "reset") return renderReset();
+  if (page === "order") return renderOrderPage();
+  if (!loaded) {
+    const target =
+      $("#home-products") ||
+      $("#shop-products") ||
+      $("#product-detail") ||
+      $("#cart-content") ||
+      $("#checkout-content");
+    if (target)
+      target.innerHTML =
+        '<p class="notice">Nabídku se nepodařilo načíst. Zkuste stránku obnovit.</p>';
+    return;
+  }
+  products = loaded;
+  const before = cart.length;
+  cart = cart.filter((i) => {
+    const p = products.find((p) => p.id === i.id);
+    return (
+      p &&
+      Number.isInteger(p.price) &&
+      (!p.variants?.length || variantOf(p, i.variant))
+    );
+  });
+  if (cart.length !== before) {
+    persist();
+    toast("Košík byl aktualizován podle aktuální nabídky.");
+  }
+  if (page === "home")
+    $("#home-products").innerHTML = products.map(productCard).join("");
+  if (page === "shop") {
+    const render = () => {
+      const list = [...products];
+      const sort = $("#sort").value;
+      if (sort === "price-up") list.sort((a, b) => a.price - b.price);
+      if (sort === "price-down") list.sort((a, b) => b.price - a.price);
+      if (sort === "name")
+        list.sort((a, b) => a.name.localeCompare(b.name, "cs"));
+      $("#shop-products").innerHTML = list.length
+        ? list.map(productCard).join("")
+        : "<p>Nové vůně právě připravujeme.</p>";
+      $("#product-count").textContent = `${list.length} vůní v nabídce`;
+      refreshCards();
+    };
+    $("#sort").addEventListener("change", render);
+    render();
+  }
+  refreshCards();
+  if (page === "product") renderProduct();
+  if (page === "cart") renderCart();
+  if (page === "checkout") renderCheckout();
+}
+init();

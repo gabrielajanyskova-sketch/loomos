@@ -1,0 +1,30 @@
+[
+  {
+    "product_id": "okurka-zazvor-mata",
+    "supplier": "Cucumber Ginger & Mint (R), CLP etiketa 10 %, šarže 00632-25, 17223-25, 28816-25, 46944-25, 66975-25, 17975-26, 29304-26",
+    "pictogram": true,
+    "extra": "Obsahuje: Geranyl acetate. Varování: Může vyvolat alergickou kožní reakci. Škodlivý pro vodní organismy, s dlouhodobými účinky. Je-li nutná lékařská pomoc, mějte po ruce obal nebo štítek výrobku. Uchovávejte mimo dosah dětí. Zamezte vdechování par. Zabraňte uvolnění do životního prostředí. Používejte ochranné rukavice/ochranné brýle/obličejový štít. PŘI STYKU S KŮŽÍ: Omyjte velkým množstvím vody a mýdla. Při podráždění kůže nebo vyrážce: Vyhledejte lékařskou pomoc/ošetření. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
+    "contains": "2,4-Dimethyl-3-cyclohexen-1-carboxaldehyde, Benzyl salicylate, Ethyl Linalool, Hexyl Cinnamal, Isohexenyl cyclohexenyl carboxaldehyde"
+  },
+  {
+    "product_id": "zazvor-zeleny-caj",
+    "supplier": "Fresh Ginger & Green Tea, CLP etiketa 10 %, šarže 46673-24, 52860-24, 33763-25, 67174-25, 15610-26, 47672-26",
+    "pictogram": true,
+    "extra": "Obsahuje: Citral. Varování: Může vyvolat alergickou kožní reakci. Škodlivý pro vodní organismy, s dlouhodobými účinky. Je-li nutná lékařská pomoc, mějte po ruce obal nebo štítek výrobku. Uchovávejte mimo dosah dětí. Zamezte vdechování par. Zabraňte uvolnění do životního prostředí. Používejte ochranné rukavice/ochranné brýle/obličejový štít. PŘI STYKU S KŮŽÍ: Omyjte velkým množstvím vody a mýdla. Při podráždění kůže nebo vyrážce: Vyhledejte lékařskou pomoc/ošetření. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
+    "contains": "2,4-Dimethyl-3-cyclohexen-1-carboxaldehyde, Eugenol, Geranial, Isoeugenol, Limonene, Linalool, Linalyl acetate, delta-Damascone"
+  },
+  {
+    "product_id": "morska-sul-paculi",
+    "supplier": "Arabian Nights, CLP etiketa 10 %, šarže 54319-24, 56921-24, 24599-25, 56398-25, 17981-26, 57489-26",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Odstraňte obsah/obal ve schváleném zařízení v souladu s místními předpisy.",
+    "contains": "Benzyl salicylate, Cedryl methyl ether, Coumarin, Formaldehyde cyclododecyl ethyl acetal, Hexyl salicylate, Limonene, Linalool, Linalyl acetate, Tetramethyl acetyloctahydronaphthalenes"
+  },
+  {
+    "product_id": "pomeranc-vanilka",
+    "supplier": "Orange & Vanilla, CLP etiketa 10 %, šarže 64522-24, 54736-25, 19277-26, 54571-26",
+    "pictogram": false,
+    "extra": "Na vyžádání je k dispozici bezpečnostní list.",
+    "contains": "Limonene, Linalool"
+  }
+]

@@ -5,8 +5,21 @@ export const brand = {
   language: "cs-CZ",
   email: "info@loomos.cz",
   description:
-    "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Velké Británie bez ftalátů.",
 };
+/** Seller identification required by Czech consumer law (public data from ARES). */
+export const seller = {
+  name: "Gabriela Janýšková",
+  ico: "19616295",
+  street: "Starojická Lhota 45",
+  city: "Starý Jičín",
+  zip: "741 01",
+  country: "Česká republika",
+  register: "Fyzická osoba podnikající dle živnostenského zákona",
+  email: "info@loomos.cz",
+  vatPayer: false,
+};
+export const sellerAddress = `${seller.street}, ${seller.zip} ${seller.city}`;
 /** Packeta (Zásilkovna) widget key. It is public by design; the API password never belongs here. */
 export const packeta = {
   apiKey: "bba87c051aab6fc0",
@@ -16,17 +29,17 @@ export const faqs = [
   {
     question: "Z čeho jsou svíčky LOOMOS vyrobené?",
     answer:
-      "Svíčky vyrábíme ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používáme vonné oleje dovážené z Anglie, které neobsahují ftaláty.",
+      "Svíčky vyrábíme ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používáme vonné oleje dovážené z Velké Británie, které neobsahují ftaláty.",
   },
   {
     question: "Jaké vůně si mohu vybrat?",
     answer:
-      "V nabídce je Okurka, zázvor a máta; Pomeranč a vanilka; Mořská sůl a pačuli; Sváteční duch; Zázvor a zelený čaj; Goji a červený pomeranč.",
+      "V nabídce je Okurka, zázvor a máta; Pomeranč a vanilka; Mořská sůl a pačuli; Zázvor a zelený čaj.",
   },
   {
     question: "Jaké velikosti svíček připravujete?",
     answer:
-      "Každou vůni připravujeme v malé a velké velikosti. Přesný objem a dobu hoření ještě doplníme. Uvedené ceny jsou zatím pracovní.",
+      "Každou vůni nabízíme ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku, velká ve sklenici 30 cl přibližně 220 g. Uvedené ceny jsou zatím pracovní.",
   },
   {
     question: "Mohu už odeslat objednávku?",

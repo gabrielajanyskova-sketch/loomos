@@ -1,47 +1,17 @@
+/** Browser walk-through of the built site on Cloudflare Pages Functions (wrangler pages dev). */
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
-import { once } from "node:events";
 import { existsSync, promises as fs } from "node:fs";
-import { tmpdir } from "node:os";
 import path from "node:path";
-import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { startShop } from "./helpers/server.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const artifacts =
   process.env.ARTIFACTS_DIR || path.join(root, ".local", "artifacts");
 await fs.mkdir(artifacts, { recursive: true });
-const temporary = await fs.mkdtemp(path.join(tmpdir(), "loomos-e2e-"));
-const servers = [];
-async function start(script, extra = {}) {
-  const child = spawn("python3", [script], {
-    cwd: root,
-    env: { ...process.env, PORT: "0", ...extra },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  servers.push(child);
-  return await new Promise((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error("Server se nespustil.")),
-      10000,
-    );
-    child.stdout.on("data", (chunk) => {
-      const found = chunk.toString().match(/127\.0\.0\.1:(\d+)/);
-      if (found) {
-        clearTimeout(timer);
-        resolve(`http://127.0.0.1:${found[1]}`);
-      }
-    });
-    child.once("error", reject);
-    child.once("exit", (code) => {
-      clearTimeout(timer);
-      reject(new Error("Server skončil před startem."));
-    });
-  });
-}
+const shop = await startShop();
 const browser = await chromium.launch({
-  headless: true,
   ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
     ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
     : existsSync("/usr/bin/chromium")
@@ -49,121 +19,142 @@ const browser = await chromium.launch({
       : {}),
   args: ["--no-sandbox"],
 });
+const issues = [];
+const watch = (page) => {
+  page.on("pageerror", (error) => issues.push(error.message));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") issues.push(msg.text());
+  });
+};
 try {
-  const staticUrl = await start("scripts/preview.py");
+  const base = shop.url;
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     timezoneId: "Europe/Prague",
   });
   const page = await context.newPage();
-  const issues = [];
-  const assetRequests = [];
-  page.on("pageerror", (error) => issues.push(error.message));
-  page.on("console", (msg) => {
-    if (msg.type() === "error") issues.push(msg.text());
-  });
-  page.on("request", (request) => assetRequests.push(request.url()));
-  await page.goto(staticUrl);
-  await page.locator(".product-card").nth(5).waitFor();
-  await page.evaluate(() => document.fonts.ready);
-  assert.equal(
-    await page
-      .locator(".main-nav")
-      .evaluate((el) => getComputedStyle(el).fontSize),
-    "17px",
+  watch(page);
+  const requests = [];
+  page.on("request", (r) => requests.push(r.url()));
+  await page.goto(base);
+  await page.locator(".product-card").nth(3).waitFor();
+  assert.equal(await page.locator(".product-card").count(), 4);
+  assert.match(
+    await page.locator(".product-card .member-price").first().textContent(),
+    /237/,
   );
-  assert.equal(await page.locator(".product-card").count(), 6);
   await page
     .locator('[data-card-size="okurka-zazvor-mata"]')
     .selectOption("velka");
   assert.match(
-    await page
-      .locator(".product-card")
-      .first()
-      .locator("[data-card-price]")
-      .textContent(),
+    await page.locator("[data-card-price]").first().textContent(),
     /349/,
   );
   await page.locator(".product-card").first().locator("[data-add]").click();
-  await page
-    .locator('[data-card-size="okurka-zazvor-mata"]')
-    .selectOption("mala");
-  await page.locator(".product-card").first().locator("[data-add]").click();
-  await page.locator(".hero").scrollIntoViewIfNeeded();
-  await page.evaluate(() => {
-    document.activeElement?.blur();
-    window.scrollTo(0, 0);
-  });
-  await page.screenshot({ path: path.join(artifacts, "homepage-desktop.png") });
-  await page
-    .locator("#svicky")
-    .screenshot({ path: path.join(artifacts, "size-selection-desktop.png") });
-  await page.goto(staticUrl + "/kosik");
-  await page.locator(".cart-item").nth(1).waitFor();
-  assert.match(await page.locator(".summary-total").textContent(), /598/);
-  await page.reload();
-  await page.locator(".cart-item").nth(1).waitFor();
-  assert.equal(await page.locator(".cart-item").count(), 2);
-  await page.goto(staticUrl + "/pokladna");
-  await page.locator(".checkout-layout").waitFor();
-  assert.equal(await page.locator("#checkout-form").count(), 0);
+  await page.screenshot({ path: path.join(artifacts, "home-desktop.png") });
+
+  await page.goto(base + "/kosik");
+  await page.locator(".cart-item").waitFor();
+  assert.match(await page.locator(".summary-total").textContent(), /349/);
+  assert.match(await page.locator(".member-hint").textContent(), /17/);
+
+  // Register from checkout and come back with the 5 % discount.
+  await page.goto(base + "/ucet?navrat=pokladna");
+  await page.fill("#register-form [name=name]", "Testovací Zákaznice");
+  await page.fill("#register-form [name=email]", "e2e@example.com");
+  await page.fill("#register-form [name=password]", "e2e-heslo-123");
+  await page.check("#register-form [name=terms]");
+  await page.click("#register-form button");
+  await page.waitForURL(/pokladna/);
+  await page.locator("#checkout-form").waitFor();
+  assert.equal(await page.inputValue("[name=email]"), "e2e@example.com");
+  assert.match(await page.locator(".summary-total").textContent(), /332/);
+  await page.fill("[name=phone]", "777123456");
+  await page.check("[name=terms]");
+  assert.ok(await page.locator("[name=payment][value=card]").isDisabled());
+  await page.click("#place-order");
+  await page.locator(".success-panel .qr svg").waitFor();
   assert.match(
-    await page.locator("#checkout-content").textContent(),
-    /Objednávky zatím připravujeme/,
+    await page.locator(".payment-details").textContent(),
+    /CZ65 0800 0000 1920 0014 5399/,
   );
-  await page.goto(staticUrl + "/admin/");
-  assert.equal(await page.locator("#login-panel").isVisible(), false);
+  await page.screenshot({
+    path: path.join(artifacts, "order-success.png"),
+    fullPage: true,
+  });
+  assert.equal(await page.locator(".cart-count").first().textContent(), "0");
+  await page.goto(base + "/ucet");
+  await page.locator(".order-list li").waitFor();
+
+  // Legal pages and SEO without JavaScript.
   const noJs = await browser.newContext({ javaScriptEnabled: false });
   const plain = await noJs.newPage();
-  await plain.goto(staticUrl);
-  assert.equal(await plain.locator(".product-card").count(), 6);
-  assert.equal(await plain.locator("#otazky summary").count(), 5);
+  await plain.goto(base);
+  assert.equal(await plain.locator(".product-card").count(), 4);
+  assert.match(await plain.locator(".footer-legal").textContent(), /19616295/);
+  await plain.goto(base + "/obchodni-podminky");
+  assert.match(await plain.locator("h1").textContent(), /Obchodní/);
   await noJs.close();
+
+  // Admin: mark paid, stock and codes.
+  const adminPage = await context.newPage();
+  watch(adminPage);
+  await adminPage.goto(base + "/admin/");
+  await adminPage.fill("#login-form [name=password]", shop.env.ADMIN_PASSWORD);
+  await adminPage.click("#login-form button");
+  await adminPage.locator(".stats").waitFor();
+  await adminPage.click('[data-tab="orders"]');
+  await adminPage.locator("[data-order]").first().click();
+  await adminPage.selectOption("#status-form select", "zaplacena");
+  await adminPage.click("#status-form button");
+  await adminPage
+    .locator("#admin-status")
+    .filter({ hasText: "uložený" })
+    .waitFor();
+  await adminPage.click('[data-tab="stock"]');
+  await adminPage.fill(".stock-input >> nth=0", "0");
+  await adminPage.click("[data-save-stock] >> nth=0");
+  await adminPage
+    .locator("#admin-status")
+    .filter({ hasText: "Sklad" })
+    .waitFor();
+  await adminPage.screenshot({
+    path: path.join(artifacts, "admin-stock.png"),
+    fullPage: true,
+  });
+  await page.goto(base + "/obchod");
+  await page.locator(".product-card").first().waitFor();
+  await page.waitForFunction(
+    () => document.querySelector("[data-add]")?.disabled === true,
+  );
+
+  // Mobile layout never scrolls sideways.
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
     isMobile: true,
   });
   const m = await mobile.newPage();
-  m.on("pageerror", (error) => issues.push(error.message));
+  watch(m);
   for (const route of [
     "/",
     "/obchod",
-    "/produkty/goji-cerveny-pomeranc",
+    "/produkty/zazvor-zeleny-caj",
     "/kosik",
     "/pokladna",
+    "/ucet",
+    "/obchodni-podminky",
+    "/ochrana-osobnich-udaju",
   ]) {
-    await m.goto(staticUrl + route);
-    await m.waitForTimeout(100);
+    await m.goto(base + route);
+    await m.waitForTimeout(150);
     assert.equal(
       await m.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       false,
       route,
     );
   }
-  await m.goto(staticUrl);
-  await m.locator(".menu-toggle").click();
-  assert.equal(
-    await m.locator(".menu-toggle").getAttribute("aria-expanded"),
-    "true",
-  );
-  assert.equal(
-    await m
-      .locator("#navigation a")
-      .first()
-      .evaluate((el) => getComputedStyle(el).fontSize),
-    "19px",
-  );
-  await m.keyboard.press("Escape");
-  await m.locator("[data-card-size]").first().selectOption("velka");
-  await m.locator("[data-add]").first().click();
-  await m
-    .locator("#svicky")
-    .screenshot({ path: path.join(artifacts, "size-selection-mobile.png") });
-  await m.goto(staticUrl + "/kosik");
-  await m.locator(".cart-item").waitFor();
-  assert.match(await m.locator(".cart-item .price").textContent(), /349/);
   assert.ok(
-    !assetRequests.some(
+    !requests.some(
       (url) =>
         url.includes("candle-editorial.png") ||
         url.endsWith(".ttf") ||
@@ -171,60 +162,10 @@ try {
     ),
   );
   assert.deepEqual(issues, []);
-  await context.close();
-  await mobile.close();
-  // Source API remains independently usable with temporary data and private test credentials.
-  const password = randomBytes(32).toString("hex");
-  const apiUrl = await start("server.py", {
-    LOOMOS_DATA_DIR: temporary,
-    LOOMOS_ADMIN_PASSWORD: password,
-  });
-  const api = await browser.newContext();
-  const a = await api.newPage();
-  a.on("pageerror", (error) => issues.push(error.message));
-  await a.goto(apiUrl + "/admin/");
-  await a.locator('[name="password"]').fill(password);
-  await a.locator("#login-form button").click();
-  await a.locator(".stats").waitFor();
-  await a.locator('[data-tab="products"]').click();
-  await a.locator('[data-edit="okurka-zazvor-mata"]').click();
-  await a.locator('[name="large_price"]').fill("359");
-  await a.locator("#product-form button").click();
-  await a.locator("#admin-status").filter({ hasText: "uložený" }).waitFor();
-  await a.goto(apiUrl + "/");
-  await a.locator("[data-card-size]").first().selectOption("velka");
-  assert.match(
-    await a.locator("[data-card-price]").first().textContent(),
-    /359/,
-  );
-  await a.locator("[data-add]").first().click();
-  await a.goto(apiUrl + "/pokladna");
-  await a.locator('[name="name"]').fill("Testovací zákaznice");
-  await a.locator('[name="email"]').fill("test@example.com");
-  await a.locator('[name="phone"]').fill("123456789");
-  await a.locator('[name="test_ack"]').check();
-  await a.locator("#place-order").click();
-  await a.locator(".success-panel").waitFor();
-  assert.equal(await a.locator(".cart-count").textContent(), "0");
-  await a.goto(apiUrl + "/admin/");
-  await a.locator(".stats").waitFor();
-  await a.locator('[data-tab="orders"]').click();
-  await a.locator("[data-order]").click();
-  assert.match(await a.locator("#admin-content .panel").textContent(), /Velká/);
-  assert.match(await a.locator("#admin-content .panel").textContent(), /359/);
-  assert.deepEqual(issues, []);
-  await api.close();
   console.log(
-    "PASS: static build, no-JS SEO, strict CSP, desktop/mobile sizes, cart, honest checkout, fonts/images, authenticated admin update and API order.",
+    "PASS: catalog, member pricing, registration, checkout with QR, legal pages, admin status/stock, mobile layout.",
   );
 } finally {
   await browser.close();
-  for (const child of servers) {
-    if (child.exitCode === null && child.signalCode === null) {
-      const exited = once(child, "exit").catch(() => {});
-      child.kill();
-      await exited;
-    }
-  }
-  await fs.rm(temporary, { recursive: true, force: true });
+  await shop.stop();
 }

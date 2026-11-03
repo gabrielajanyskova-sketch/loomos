@@ -8,8 +8,8 @@ import { metadata } from "../scripts/seo.mjs";
 const products = JSON.parse(
   readFileSync(new URL("../data/products.json", import.meta.url)),
 );
-test("six real scents and separate size prices are validated", () => {
-  assert.equal(validateCatalog(products).length, 6);
+test("four real scents and separate size prices are validated", () => {
+  assert.equal(validateCatalog(products).length, 4);
   for (const p of products) {
     assert.deepEqual(
       p.variants.map((v) => v.id),

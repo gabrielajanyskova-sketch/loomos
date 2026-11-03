@@ -19,8 +19,11 @@
       /></a>
       <nav>
         <button data-tab="overview" class="active">◈ Přehled</button
-        ><button data-tab="products">▧ Produkty</button
         ><button data-tab="orders">▤ Objednávky</button
+        ><button data-tab="stock">▧ Sklad</button
+        ><button data-tab="customers">☺ Zákazníci</button
+        ><button data-tab="codes">％ Slevové kódy</button
+        ><a href="/dilnicka/">⚗ Dílnička</a
         ><a href="/" target="_blank" rel="noopener">→ Zobrazit e-shop</a>
       </nav>
       <button id="logout" hidden>Odhlásit se</button>
@@ -30,12 +33,12 @@
       <div class="eyebrow">LOOMOS / SPRÁVA E-SHOPU</div>
       <h1>Vítejte <em>u sebe.</em></h1>
       <p class="muted">
-        Produkty, ceny a objednávky přehledně na jednom místě.
+        Objednávky, sklad, zákazníci a slevy přehledně na jednom místě.
       </p>
-      <div id="admin-status" role="status"></div>
-      <section id="login-panel" class="panel">
+      <div id="admin-status" role="status" hidden></div>
+      <section id="login-panel" class="panel" hidden>
         <h2>Přihlášení</h2>
-        <p>Administrace je chráněná heslem nastaveným na serveru.</p>
+        <p>Administrace je chráněná heslem uloženým v Cloudflare.</p>
         <form id="login-form">
           <label
             >Heslo<input

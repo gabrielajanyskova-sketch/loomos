@@ -24,6 +24,14 @@ export function validateCatalog(value) {
       if (typeof p[key] !== "string")
         throw new TypeError("Neplatný popis produktu.");
     if (
+      p.pyramid !== undefined &&
+      (!p.pyramid ||
+        typeof p.pyramid.top !== "string" ||
+        typeof p.pyramid.heart !== "string" ||
+        (p.pyramid.base !== undefined && typeof p.pyramid.base !== "string"))
+    )
+      throw new TypeError("Neplatné vonné tóny.");
+    if (
       p.variants !== undefined &&
       (!Array.isArray(p.variants) ||
         p.variants.length > 2 ||
@@ -33,6 +41,7 @@ export function validateCatalog(value) {
             !v ||
             !["mala", "velka"].includes(v.id) ||
             typeof v.name !== "string" ||
+            (v.detail !== undefined && typeof v.detail !== "string") ||
             !Number.isSafeInteger(v.price) ||
             !validPrice(v.price),
         ))
