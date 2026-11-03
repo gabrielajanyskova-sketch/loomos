@@ -3,10 +3,10 @@
     "id": "okurka-zazvor-mata",
     "name": "Okurka, zázvor a máta",
     "subtitle": "Svěží chvíle pro sebe.",
-    "notes": "Okurka · zázvor · máta",
+    "notes": "Okurka · máta · zázvor · bílé květy",
     "price": 249,
     "category": "svicky",
-    "description": "Okurka, zázvor a máta. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "description": "Svěží zelená vůně, která provoní domov jako otevřené okno do zahrady. Nejdřív vás probudí chladivá okurka, máta peprná a šťáva citronu s limetkou. V srdci se rozvinou lilie, frézie, jasmín a růže a vše jemně zakulatí teplé pižmo. Skvěle se hodí do kuchyně, koupelny i pracovny.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -20,16 +20,21 @@
         "name": "Velká",
         "price": 349
       }
-    ]
+    ],
+    "pyramid": {
+      "top": "Citron, okurka, máta peprná, zelená fialka, limetka",
+      "heart": "Lilie, frézie, jasmín, růže, ozon",
+      "base": "Teplé pižmo"
+    }
   },
   {
     "id": "pomeranc-vanilka",
     "name": "Pomeranč a vanilka",
     "subtitle": "Hřejivá vůně domova.",
-    "notes": "Pomeranč · vanilka",
+    "notes": "Pomeranč · čokoláda · vanilka",
     "price": 249,
     "category": "svicky",
-    "description": "Pomeranč a vanilka. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "description": "Sladká a hřejivá vůně jako odpoledne s hrnkem kakaa. Šťavnatý pomeranč se snoubí s jemnou čokoládou a vše zahalí krémová vanilka. Útulná vůně pro pohodové večery, která nepřebije prostor, ale příjemně ho zabydlí.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -43,16 +48,21 @@
         "name": "Velká",
         "price": 349
       }
-    ]
+    ],
+    "pyramid": {
+      "top": "Pomeranč",
+      "heart": "Čokoláda",
+      "base": "Vanilka"
+    }
   },
   {
     "id": "morska-sul-paculi",
     "name": "Mořská sůl a pačuli",
     "subtitle": "Chvíle, která patří jen vám.",
-    "notes": "Mořská sůl · pačuli",
+    "notes": "Mořská sůl · citrusy · jasmín · pačuli · ambra",
     "price": 249,
     "category": "svicky",
-    "description": "Mořská sůl a pačuli. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "description": "Exotická, lehce pryskyřičná vůně s nádechem dálek. Otevírá ji mořská sůl s grapefruitem, mandarinkou a pomerančem, v srdci se snoubí jasmín s vavřínem a bobkovým listem. Základ tvoří hřejivá ambra, guajakové dřevo, pačuli, dubový mech a labdanum. Vůně pro večery, kdy chcete zpomalit.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -66,16 +76,21 @@
         "name": "Velká",
         "price": 349
       }
-    ]
+    ],
+    "pyramid": {
+      "top": "Mořská sůl, grapefruit, mandarinka, pomeranč",
+      "heart": "Jasmín, vavřínový list, bobkový list",
+      "base": "Ambra, guajakové dřevo, pačuli, dubový mech, labdanum"
+    }
   },
   {
     "id": "svatecni-duch",
     "name": "Sváteční duch",
     "subtitle": "Atmosféra výjimečných chvil.",
-    "notes": "Sváteční duch",
+    "notes": "Skořice · jablko · hřebíček · vanilka",
     "price": 249,
     "category": "svicky",
-    "description": "Sváteční duch. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "description": "Vánoce v jedné sklenici. Pečené jablko, pomeranč a lesní plody doprovází skořice, v srdci se ozve brandy, hřebíček a zázvor a vše zjemní krémová vanilka. Vůně, která provoní celý byt jako sváteční pečení.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -89,16 +104,21 @@
         "name": "Velká",
         "price": 349
       }
-    ]
+    ],
+    "pyramid": {
+      "top": "Skořice, jablko, lesní plody, pomeranč",
+      "heart": "Brandy, hřebíček, zázvor",
+      "base": "Vanilka"
+    }
   },
   {
     "id": "zazvor-zeleny-caj",
     "name": "Zázvor a zelený čaj",
-    "subtitle": "Zpomalte. Nadechněte se.",
-    "notes": "Zázvor · zelený čaj",
+    "subtitle": "Klid a jasná mysl.",
+    "notes": "Zelený čaj · citronová tráva · zázvor",
     "price": 249,
     "category": "svicky",
-    "description": "Zázvor a zelený čaj. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "description": "Čistá a uklidňující vůně jako šálek čerstvě zalitého zeleného čaje. Svěžest citronové trávy doplňuje hřejivý zázvor. Lehká vůně, která nezatíží, ideální na ranní rozjezd i soustředěnou práci.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -112,16 +132,21 @@
         "name": "Velká",
         "price": 349
       }
-    ]
+    ],
+    "pyramid": {
+      "top": "Zelený čaj",
+      "heart": "Citronová tráva",
+      "base": "Zázvor"
+    }
   },
   {
     "id": "goji-cerveny-pomeranc",
     "name": "Goji a červený pomeranč",
-    "subtitle": "Malá radost do každého dne.",
-    "notes": "Goji · červený pomeranč",
+    "subtitle": "Šťavnatá energie do každého dne.",
+    "notes": "Pomeranč · malina · rebarbora · jahoda",
     "price": 249,
     "category": "svicky",
-    "description": "Goji a červený pomeranč. Ručně vyráběná sójová svíčka v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "description": "Ovocná a radostná vůně plná sluníčka. Šťavnatý pomeranč, malina a citron s kapkou cukru přecházejí v srdce z rebarbory, jahody, jasmínu, fialky a svěžího eukalyptu. Rozjasní pokoj i náladu.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -135,6 +160,10 @@
         "name": "Velká",
         "price": 349
       }
-    ]
+    ],
+    "pyramid": {
+      "top": "Pomeranč, malina, citron, cukr",
+      "heart": "Pomeranč, rebarbora, jahoda, jasmín, fialka, eukalyptus"
+    }
   }
 ]

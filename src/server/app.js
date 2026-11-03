@@ -4,6 +4,7 @@ import { HttpError, json } from "./http.js";
 import * as shop from "./shop.js";
 import * as account from "./account.js";
 import * as admin from "./admin.js";
+import * as workshop from "./workshop.js";
 
 const routes = {
   "GET /api/products": (db) => shop.products(db),
@@ -39,6 +40,12 @@ const adminRoutes = {
   "GET /api/admin/codes": admin.codes,
   "POST /api/admin/codes": admin.saveCode,
   "POST /api/admin/codes/delete": admin.deleteCode,
+  "GET /api/admin/workshop": workshop.overview,
+  "POST /api/admin/workshop/settings": workshop.saveSettings,
+  "POST /api/admin/workshop/jar": workshop.saveJar,
+  "POST /api/admin/workshop/batch": workshop.saveBatch,
+  "POST /api/admin/workshop/batch-done": workshop.finishBatch,
+  "POST /api/admin/workshop/batch-delete": workshop.deleteBatch,
 };
 
 export async function handle(request, env, ctx) {

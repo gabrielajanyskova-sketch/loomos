@@ -337,3 +337,58 @@ test("admin can block and delete customers; brute force is rate limited", async 
     );
   assert.equal(statuses.at(-1), 429);
 });
+
+test("Dílnička: jars, saved batch, finished candles go to stock; supplier data stays private", async () => {
+  assert.equal((await fetch(shop.url + "/data/oils.json")).status, 404);
+  assert.equal((await client(shop.url)("/api/admin/workshop")).status, 401);
+  const a = await admin();
+  assert.equal(
+    (
+      await a("/api/admin/workshop/jar", {
+        name: "Velká čirá",
+        water_g: 300,
+        fill_g: 258,
+        wicks: 2,
+        wick: "dřevěný",
+        variant_id: "velka",
+      })
+    ).status,
+    200,
+  );
+  const ws = (await a("/api/admin/workshop")).body;
+  assert.equal(ws.oils.length, 6);
+  const jar = ws.jars.find((j) => j.name === "Velká čirá");
+  const before = (await a("/api/admin/stock")).body.find(
+    (s) => s.product_id === "zazvor-zeleny-caj" && s.variant_id === "velka",
+  ).quantity;
+  const saved = await a("/api/admin/workshop/batch", {
+    name: "Test",
+    load_percent: 7,
+    loss_percent: 5,
+    items: [{ product_id: "zazvor-zeleny-caj", jar_id: jar.id, count: 4 }],
+  });
+  assert.equal(saved.status, 201);
+  const batch = (await a("/api/admin/workshop")).body.batches[0];
+  assert.equal(batch.result.totals.candles, 4);
+  assert.equal(batch.result.jars[0].wicks, 8);
+  const done = await a("/api/admin/workshop/batch-done", { id: batch.id });
+  assert.equal(done.status, 200);
+  assert.equal(
+    (await a("/api/admin/workshop/batch-done", { id: batch.id })).status,
+    409,
+  );
+  const after = (await a("/api/admin/stock")).body.find(
+    (s) => s.product_id === "zazvor-zeleny-caj" && s.variant_id === "velka",
+  ).quantity;
+  assert.equal(after, (before ?? 0) + 4);
+  assert.equal(
+    (
+      await a("/api/admin/workshop/batch", {
+        items: [{ product_id: "neexistuje", jar_id: jar.id, count: 1 }],
+        load_percent: 8,
+        loss_percent: 5,
+      })
+    ).status,
+    400,
+  );
+});

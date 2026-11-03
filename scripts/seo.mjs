@@ -15,6 +15,7 @@ const privatePages = new Set([
   "account",
   "reset",
   "order",
+  "workshop",
 ]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
@@ -27,6 +28,7 @@ const titles = {
   account: "Můj účet | LOOMOS",
   reset: "Obnovení hesla | LOOMOS",
   order: "Vaše objednávka | LOOMOS",
+  workshop: "Dílnička | LOOMOS",
   terms: "Obchodní podmínky | LOOMOS",
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",
 };
@@ -45,6 +47,11 @@ const crumbs = {
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
 };
+const shorten = (text, max) =>
+  text.length <= max
+    ? text
+    : text.slice(0, text.lastIndexOf(" ", max - 1)).replace(/[,.;:]$/, "") +
+      "…";
 export const publicPath = (file) =>
   file === "index.html" ? "/" : file.replace(/\.html$/, "");
 export function metadata({
@@ -61,7 +68,7 @@ export function metadata({
     ? `${product.name} — sójová svíčka | LOOMOS`
     : titles[page];
   const description = product
-    ? product.description
+    ? shorten(product.description, 158)
     : descriptions[page] || brand.description;
   const robots =
     indexable && !privatePages.has(page)
@@ -172,6 +179,19 @@ export function metadata({
             : "Malá, velká",
         },
         { "@type": "PropertyValue", name: "Vonné tóny", value: product.notes },
+        ...(product.pyramid
+          ? Object.entries({
+              "Hlava vůně": product.pyramid.top,
+              "Srdce vůně": product.pyramid.heart,
+              "Základ vůně": product.pyramid.base,
+            })
+              .filter(([, value]) => value)
+              .map(([name, value]) => ({
+                "@type": "PropertyValue",
+                name,
+                value,
+              }))
+          : []),
       ],
     });
     webPage.mainEntity = { "@id": canonical + "#product" };

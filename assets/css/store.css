@@ -2381,3 +2381,104 @@ tr.low td:first-child {
 #admin-status {
   margin: 16px 0;
 }
+.pyramid {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.pyramid div {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 12px;
+}
+.pyramid dt {
+  color: var(--copper-light);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pyramid dd {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* ---------- Dílnička ---------- */
+.workshop {
+  padding: 30px 0 80px;
+}
+.workshop-head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.workshop-head h1 {
+  margin: 4px 0 0;
+}
+.workshop-head #logout {
+  margin-left: auto;
+}
+.workshop-settings,
+.panel form.jar-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  align-items: end;
+  max-width: none;
+}
+.workshop-settings label,
+.jar-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+.workshop-settings .wide,
+.jar-form .wide,
+.jar-form h3,
+.jar-form .workshop-actions {
+  grid-column: 1 / -1;
+}
+.jar-form label.check {
+  flex-direction: row;
+  align-items: center;
+}
+.workshop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin-top: 16px;
+}
+.plan select,
+.plan input {
+  width: 100%;
+  min-width: 120px;
+}
+.workshop .stats {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.warnings li {
+  margin: 6px 0;
+  color: #f3c9a5;
+}
+tr.muted td {
+  opacity: 0.6;
+}
+@media print {
+  .workshop-head #logout,
+  .workshop .workshop-actions,
+  .workshop .panel:not(#result) {
+    display: none;
+  }
+  body.workshop-body {
+    background: #fff;
+    color: #000;
+  }
+}
+.admin-body.workshop-body {
+  display: block;
+}

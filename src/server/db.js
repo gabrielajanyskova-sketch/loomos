@@ -59,6 +59,32 @@ const SCHEMA = [
     test INTEGER NOT NULL DEFAULT 1,
     payload TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS workshop_jars (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    water_g INTEGER,
+    fill_g INTEGER NOT NULL CHECK (fill_g > 0),
+    wicks INTEGER NOT NULL DEFAULT 1,
+    wick TEXT NOT NULL DEFAULT '',
+    variant_id TEXT NOT NULL DEFAULT '',
+    note TEXT NOT NULL DEFAULT '',
+    active INTEGER NOT NULL DEFAULT 1
+  )`,
+  `CREATE TABLE IF NOT EXISTS workshop_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS workshop_batches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created INTEGER NOT NULL,
+    name TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'planovano',
+    load_percent REAL NOT NULL,
+    loss_percent REAL NOT NULL,
+    items TEXT NOT NULL,
+    result TEXT NOT NULL,
+    finished INTEGER
+  )`,
   "CREATE INDEX IF NOT EXISTS orders_customer ON orders (customer_id)",
   "CREATE INDEX IF NOT EXISTS sessions_expires ON sessions (expires)",
 ];

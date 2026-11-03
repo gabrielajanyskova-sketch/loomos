@@ -5,7 +5,7 @@ export const brand = {
   language: "cs-CZ",
   email: "info@loomos.cz",
   description:
-    "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Anglie bez ftalátů.",
+    "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Velké Británie bez ftalátů.",
 };
 /** Seller identification required by Czech consumer law (public data from ARES). */
 export const seller = {
@@ -17,8 +17,7 @@ export const seller = {
   country: "Česká republika",
   register: "Fyzická osoba podnikající dle živnostenského zákona",
   email: "info@loomos.cz",
-  // null until the owner confirms; the legal pages only mention VAT once this is set.
-  vatPayer: null,
+  vatPayer: false,
 };
 export const sellerAddress = `${seller.street}, ${seller.zip} ${seller.city}`;
 /** Packeta (Zásilkovna) widget key. It is public by design; the API password never belongs here. */
@@ -30,7 +29,7 @@ export const faqs = [
   {
     question: "Z čeho jsou svíčky LOOMOS vyrobené?",
     answer:
-      "Svíčky vyrábíme ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používáme vonné oleje dovážené z Anglie, které neobsahují ftaláty.",
+      "Svíčky vyrábíme ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používáme vonné oleje dovážené z Velké Británie, které neobsahují ftaláty.",
   },
   {
     question: "Jaké vůně si mohu vybrat?",

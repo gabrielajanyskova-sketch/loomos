@@ -1,0 +1,62 @@
+[
+  {
+    "product_id": "okurka-zazvor-mata",
+    "supplier_name": "Vonný olej s okurkou, zázvorem a mátou – upravené složení",
+    "flashpoint_c": 91,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 8.76
+  },
+  {
+    "product_id": "pomeranc-vanilka",
+    "supplier_name": "Orange & Vanilla Fragrance Oil – Reformulated",
+    "flashpoint_c": 72,
+    "vanillin_percent": 4.8,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 10
+  },
+  {
+    "product_id": "morska-sul-paculi",
+    "supplier_name": "Vonný olej Tisíc a jedna noc",
+    "flashpoint_c": 84,
+    "vanillin_percent": 0.2,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 11.1
+  },
+  {
+    "product_id": "svatecni-duch",
+    "supplier_name": "Vonný olej „Sváteční duch“ (Festive Spirit)",
+    "flashpoint_c": 68,
+    "vanillin_percent": 2.5,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 0.51
+  },
+  {
+    "product_id": "zazvor-zeleny-caj",
+    "supplier_name": "Vonný olej s čerstvým zázvorem a zeleným čajem",
+    "flashpoint_c": 86,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 7.94
+  },
+  {
+    "product_id": "goji-cerveny-pomeranc",
+    "supplier_name": "Vonný olej z goji a krvavého pomeranče – modifikovaný",
+    "flashpoint_c": 61,
+    "vanillin_percent": 0.3,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 4.19
+  }
+]

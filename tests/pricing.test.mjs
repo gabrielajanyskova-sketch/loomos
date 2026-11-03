@@ -80,3 +80,42 @@ test("Czech account numbers convert to valid IBANs and SPAYD payloads", () => {
   assert.match(svg, /^<svg[^>]+viewBox/);
   assert.ok(!svg.includes("style="));
 });
+
+test("Dílnička: wax and fragrance amounts, wicks and supplier warnings", async () => {
+  const { calcBatch, fillFromWater } = await import(
+    "../assets/js/workshop-calc.mjs"
+  );
+  assert.equal(fillFromWater(180), 155);
+  const r = calcBatch({
+    items: [
+      { product_id: "a", jar_id: 1, count: 6 },
+      { product_id: "a", jar_id: 2, count: 2 },
+    ],
+    jars: [
+      { id: 1, name: "Malá", fill_g: 155, wicks: 1, wick: "dřevěný" },
+      { id: 2, name: "Velká", fill_g: 258, wicks: 2, wick: "dřevěný" },
+    ],
+    oils: [
+      {
+        product_id: "a",
+        name: "A",
+        vanillin_percent: 2,
+        no_ufi_max_percent: 5,
+        flashpoint_c: 60,
+      },
+    ],
+    load_percent: 8,
+    loss_percent: 0,
+  });
+  const fill = 155 * 6 + 258 * 2;
+  assert.equal(r.totals.candles, 8);
+  assert.ok(Math.abs(r.totals.wax + r.totals.oil - fill) <= 1);
+  assert.ok(Math.abs(r.totals.oil - (fill / 1.08) * 0.08) <= 1);
+  assert.deepEqual(
+    r.jars.map((j) => j.wicks),
+    [6, 4],
+  );
+  assert.equal(r.warnings.length, 2);
+  assert.match(r.warnings.join(" "), /UFI/);
+  assert.match(r.warnings.join(" "), /vanilin/);
+});

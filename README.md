@@ -16,6 +16,14 @@ E-shop s ručně vyráběnými sójovými svíčkami. Běží celý na **Cloudfl
 - **Právní stránky:** obchodní podmínky, ochrana osobních údajů a cookies, údaje o prodejci v patičce.
 - **Google Analytics 4** se načte až po souhlasu návštěvníka (cookie lišta) a měří e-commerce události.
 
+## Dílnička (dilnicka.loomos.cz)
+
+Plánování výroby svíček pro majitelku, chráněné stejným heslem jako administrace (`ADMIN_PASSWORD`). Zadáte vůně, sklenice a počty kusů a Dílnička spočítá sójový vosk, vonný olej (v % z hmotnosti vosku, dodavatel doporučuje 6–8 %), rezervu na ztráty, sklenice a knoty. Upozorní na vanilin (žloutnutí vosku) a na překročení hranice „bez UFI“ podle dodavatele. Uložené výroby lze označit „Hotovo“ a svíčky se přičtou na sklad e-shopu (podle velikosti nastavené u sklenice).
+
+Údaje o vonných olejích (bod vzplanutí, vanilin, UFI…) jsou v `data/oils.json` a nikdy se nezveřejňují — čte je jen přihlášená administrace.
+
+Připojení subdomény: v projektu Pages _Custom domains → Set up a custom domain_ → `dilnicka.loomos.cz`. Funguje i adresa `loomos.cz/dilnicka/`.
+
 ## Nastavení v Cloudflare (jednorázově)
 
 1. **Databáze:** _Storage & Databases → D1 → Create database_, název `loomos`.
@@ -86,6 +94,6 @@ npm run test:e2e
 ## Před ostrým spuštěním
 
 - doplnit číslo účtu (`BANK_ACCOUNT`) a ověřit QR platbu ve své bankovní aplikaci,
-- potvrdit, zda jste plátce DPH, a zkontrolovat obchodní podmínky (lhůta odeslání, údaje) — doporučujeme konzultaci s právníkem,
+- zkontrolovat obchodní podmínky (lhůta odeslání, splatnost, osobní odběr) — doporučujeme konzultaci s právníkem; prodávající je neplátce DPH (`seller.vatPayer` v `assets/js/site.mjs`),
 - vybrat platební bránu (např. Comgate, GoPay nebo Stripe) a založit u ní účet,
 - nastavit `SHOP_LIVE=1`, případně `SITE_INDEXABLE=1` a `GA_MEASUREMENT_ID`.

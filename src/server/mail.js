@@ -50,7 +50,7 @@ function render(title, blocks) {
       );
     }
   }
-  const footer = `${seller.name} · IČO ${seller.ico} · ${sellerAddress} · ${seller.email}`;
+  const footer = `${seller.name} · IČO ${seller.ico} · ${sellerAddress}${seller.vatPayer === false ? " · neplátce DPH" : ""} · ${seller.email}`;
   return {
     text: [...text, "", "LOOMOS — ručně vyráběné sójové svíčky", footer].join(
       "\n\n",
