@@ -453,6 +453,7 @@ test("Dílnička: label texts and print settings are stored and validated", asyn
   assert.match(ws.labels["morska-sul-paculi"].source, /Arabian Nights/);
   assert.equal(ws.label.diameter, 50);
   assert.equal(ws.label.phone, "+420 777 123 456");
+  assert.equal(ws.label.icons, false);
 });
 
 test("order tracking: status timeline, manual tracking number and notes reach the customer", async () => {

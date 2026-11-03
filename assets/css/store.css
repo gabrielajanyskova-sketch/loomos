@@ -2528,7 +2528,7 @@ tr.muted td {
   );
 }
 .label-text p {
-  margin: 0 0 0.5em;
+  margin: 0 0 0.35em;
   color: #111;
   font-size: inherit;
 }
@@ -2765,4 +2765,16 @@ details.safety p {
 .steps li {
   margin: 0 0 12px;
   line-height: 1.6;
+}
+.label-icons {
+  display: flex;
+  justify-content: center;
+  gap: 0.6mm;
+  line-height: 0;
+}
+.label-icon {
+  width: calc(var(--label-d) * 0.115);
+  height: calc(var(--label-d) * 0.115);
+  min-width: 5.5mm;
+  min-height: 5.5mm;
 }

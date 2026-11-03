@@ -181,3 +181,12 @@ test("Dílnička: 'Bez UFI' caps each scent under the supplier's limit", async (
   });
   assert.match(off.warnings.join(" "), /potřebovala kód UFI/);
 });
+
+test("round label includes the EN 15494 pictograms unless switched off", async () => {
+  const { labelHtml, EN15494_ICONS } = await import("../assets/js/labels.mjs");
+  const base = { name: "Test", grams: 180, contains: "Limonene" };
+  assert.equal(EN15494_ICONS.length, 5);
+  assert.match(labelHtml(base), /Nikdy nenechávejte hořící svíčku bez dozoru/);
+  assert.ok(!labelHtml({ ...base, icons: false }).includes("label-icon"));
+  assert.ok(!labelHtml(base).includes("style="));
+});

@@ -217,6 +217,7 @@ const labelValues = () => {
     extra: texts.extra,
     pictogram: texts.pictogram,
     phone: data.label.phone,
+    icons: data.label.icons !== false,
     batch: f.elements.batch.value.trim(),
   };
 };
@@ -264,6 +265,7 @@ function renderLabels() {
         <label>Okraj nahoře (mm)<input name="margin_top" type="number" min="0" max="60" step="0.5" value="${l.margin_top}"></label>
         <label>Okraj vlevo (mm)<input name="margin_left" type="number" min="0" max="60" step="0.5" value="${l.margin_left}"></label>
         <label>Mezera mezi kroužky (mm)<input name="gap" type="number" min="0" max="30" step="0.5" value="${l.gap}"></label>
+        <label class="check wide"><input type="checkbox" name="icons" ${l.icons !== false ? "checked" : ""}>Tisknout bezpečnostní piktogramy (ČSN EN 15494)</label>
         <div class="workshop-actions"><button class="inline-button">Uložit nastavení</button></div>
       </form>
       <p class="muted">Rozměry archu najdete na obalu samolepicích kroužků. Při tisku zvolte měřítko 100 % (ne „přizpůsobit stránce“).</p>

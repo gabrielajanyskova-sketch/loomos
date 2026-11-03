@@ -75,6 +75,7 @@ export const LABEL_DEFAULTS = {
   margin_top: 15,
   margin_left: 15,
   gap: 5,
+  icons: true,
 };
 async function labelSettings(db) {
   const row = await db
@@ -489,6 +490,7 @@ export async function saveLabelSettings(db, request) {
     margin_top: num("margin_top", 0, 60),
     margin_left: num("margin_left", 0, 60),
     gap: num("gap", 0, 30),
+    icons: data.icons === true || data.icons === "on",
   };
   await db
     .prepare(
