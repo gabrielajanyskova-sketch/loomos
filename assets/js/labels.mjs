@@ -14,7 +14,7 @@ export const SAFETY_TEXT =
   "Nenechávejte hořet bez dozoru. Mimo dosah dětí, zvířat a hořlavých předmětů. Stavte na nehořlavou podložku mimo průvan. Zkracujte knot, hořte max. 4 h, nehaste vodou.";
 /** With the EN 15494 pictograms the text only adds what the pictures do not say. */
 export const SAFETY_TEXT_WITH_ICONS =
-  "Stavte na nehořlavou podložku mimo průvan a zdroje tepla. Zkracujte knot, hořte max. 4 h, nehaste vodou.";
+  "Stavte na nehořlavou podložku mimo průvan. Zkracujte knot, hořte max. 4 h.";
 
 /** Safety pictograms per ČSN EN 15494 (from svicky.cz's reference sheet, distance set to 10 cm). */
 const PICTOGRAMS = [
@@ -57,7 +57,7 @@ export function labelHtml({
   ]
     .filter(Boolean)
     .join(" · ");
-  return `<div class="label-circle"><div class="label-text"><span class="label-shape left" aria-hidden="true"></span><span class="label-shape right" aria-hidden="true"></span><p class="label-name"><strong>LOOMOS · ${esc(name)}</strong> · sójová svíčka ${esc(grams)} g</p>${pictogram ? `<p class="label-pictogram">${GHS07}</p>` : ""}${extra ? `<p>${esc(extra)}</p>` : ""}${contains ? `<p>Obsahuje ${esc(contains)}. Může vyvolat alergickou reakci.</p>` : ""}${icons === false ? "" : `<p class="label-icons">${EN15494_ICONS.join("")}</p>`}<p>${esc(icons === false ? SAFETY_TEXT : SAFETY_TEXT_WITH_ICONS)}</p><p class="label-maker">${esc(maker)}</p>${batch ? `<p class="label-maker">Šarže: ${esc(batch)}</p>` : ""}</div></div>`;
+  return `<div class="label-circle"><div class="label-text"><span class="label-shape left" aria-hidden="true"></span><span class="label-shape right" aria-hidden="true"></span><p class="label-name"><strong>${esc(name)}</strong> · sójová svíčka ${esc(grams)} g</p>${pictogram ? `<p class="label-pictogram">${GHS07}</p>` : ""}${extra ? `<p>${esc(extra)}</p>` : ""}${contains ? `<p>Obsahuje ${esc(contains)}. Může vyvolat alergickou reakci.</p>` : ""}${icons === false ? "" : `<p class="label-icons">${EN15494_ICONS.join("")}</p>`}<p>${esc(icons === false ? SAFETY_TEXT : SAFETY_TEXT_WITH_ICONS)}</p><p class="label-maker">${esc(maker)}</p>${batch ? `<p class="label-maker">Šarže: ${esc(batch)}</p>` : ""}</div></div>`;
 }
 
 /**
