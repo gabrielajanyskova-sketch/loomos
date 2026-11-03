@@ -39,6 +39,7 @@ export async function startShop(extra = {}) {
     ADMIN_PASSWORD: "test-admin-password-123",
     BANK_ACCOUNT: "19-2000145399/0800",
     RESEND_API_KEY: "re_test",
+    ORDER_RATE_LIMIT: "500",
     RESEND_API_URL: `${fakeUrl}/emails`,
     PACKETA_API_PASSWORD: "packeta<&>secret",
     PACKETA_API_URL: `${fakeUrl}/packeta`,

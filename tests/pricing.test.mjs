@@ -16,7 +16,7 @@ const lines = [
 test("guests pay list prices, members get 5 % off every item", () => {
   const guest = priceCart({ lines, shipping: "zasilkovna" });
   assert.equal(guest.items, 847);
-  assert.equal(guest.total, 847 + 79);
+  assert.equal(guest.total, 847 + 109);
   assert.equal(guest.savings, 0);
   const member = priceCart({ lines, member: true, shipping: "pickup" });
   assert.equal(memberPrice(249), 237);
@@ -40,7 +40,7 @@ test("discount codes apply after the member discount and never to shipping", () 
     shipping: "zasilkovna",
   });
   assert.equal(percent.codeDiscount, 81);
-  assert.equal(percent.total, 806 - 81 + 79);
+  assert.equal(percent.total, 806 - 81 + 109);
   assert.equal(percent.savings, 41 + 81);
   const fixed = priceCart({
     lines: [{ key: "a", name: "A", price: 100, qty: 1 }],
@@ -48,7 +48,7 @@ test("discount codes apply after the member discount and never to shipping", () 
     shipping: "zasilkovna",
   });
   assert.equal(fixed.codeDiscount, 100);
-  assert.equal(fixed.total, 79);
+  assert.equal(fixed.total, 109);
   const tooSmall = priceCart({
     lines,
     code: { code: "MIN", type: "percent", value: 10, min_total: 1000 },

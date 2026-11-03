@@ -79,12 +79,12 @@ test("guest order: server prices, QR payment, e-mails, idempotency", async () =>
   const created = await call("/api/orders", data);
   assert.equal(created.status, 201, JSON.stringify(created.body));
   const o = created.body;
-  assert.equal(o.pricing.total, 349 + 79);
+  assert.equal(o.pricing.total, 349 + 109);
   assert.equal(o.pricing.memberSavings, 0);
   assert.match(o.number, /^\d{7}$/);
   assert.equal(o.payment.vs, o.number);
   assert.equal(o.payment.iban, "CZ65 0800 0000 1920 0014 5399");
-  assert.match(o.payment.spayd, /AM:428\.00\*CC:CZK\*X-VS:/);
+  assert.match(o.payment.spayd, /AM:458\.00\*CC:CZK\*X-VS:/);
   assert.ok(o.test);
   const again = await call("/api/orders", data);
   assert.equal(again.body.number, o.number);
@@ -152,7 +152,7 @@ test("accounts: 5 % member pricing, password reset by e-mail, order history", as
     order({ email: "petra@example.com" }),
   );
   assert.equal(bought.body.pricing.memberSavings, 2 * 249 - 2 * 237);
-  assert.equal(bought.body.pricing.total, 2 * 237 + 79);
+  assert.equal(bought.body.pricing.total, 2 * 237 + 109);
   const mine = await call("/api/account/orders");
   assert.equal(mine.body.length, 1);
   assert.equal(mine.body[0].number, bought.body.number);
@@ -665,4 +665,121 @@ test("invoices on payment, customer PDF, withdrawal button flow and order deleti
     (await a("/api/admin/order-delete", { number: paid.number })).status,
     200,
   );
+});
+
+test("Zásilkovna: Z-BOX and home delivery are priced, validated and shown everywhere", async () => {
+  const call = client(shop.url);
+  const zbox = await call(
+    "/api/orders",
+    order({
+      shipping: "zbox",
+      pickup_point: "Z-BOX Nový Jičín, Masarykovo nám.",
+      packeta_point_id: "4321",
+    }),
+  );
+  assert.equal(zbox.status, 201, JSON.stringify(zbox.body));
+  assert.equal(zbox.body.pricing.shippingPrice, 109);
+  assert.equal(
+    (await call("/api/orders", order({ shipping: "zbox", pickup_point: "" })))
+      .status,
+    400,
+  );
+  assert.equal(
+    (
+      await call(
+        "/api/orders",
+        order({
+          shipping: "domu",
+          street: "Hlavní",
+          city: "Praha",
+          zip: "11000",
+        }),
+      )
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await call(
+        "/api/orders",
+        order({
+          shipping: "domu",
+          street: "Hlavní 5",
+          city: "Praha",
+          zip: "1100",
+        }),
+      )
+    ).status,
+    400,
+  );
+  const home = await call(
+    "/api/orders",
+    order({
+      email: "domu@example.com",
+      shipping: "domu",
+      street: "Hlavní 12/3a",
+      city: "Nový Jičín",
+      zip: "741 01",
+      pickup_point: "",
+      packeta_point_id: "",
+    }),
+  );
+  assert.equal(home.status, 201, JSON.stringify(home.body));
+  assert.equal(home.body.pricing.shippingPrice, 149);
+  assert.deepEqual(home.body.address, {
+    street: "Hlavní 12/3a",
+    city: "Nový Jičín",
+    zip: "74101",
+  });
+  const mail = await mailTo("domu@example.com", new RegExp(home.body.number));
+  assert.match(
+    mail.body.text,
+    /doručení domů: Hlavní 12\/3a, 74101 Nový Jičín/,
+  );
+  const a = await admin();
+  const before = shop.packets.length;
+  const packet = await a("/api/admin/packeta-packet", {
+    number: home.body.number,
+    weight: 0.6,
+  });
+  assert.equal(packet.status, 201, JSON.stringify(packet.body));
+  const xml = shop.packets.slice(before).join("");
+  assert.match(xml, /<addressId>106<\/addressId>/);
+  assert.match(
+    xml,
+    /<street>Hlavní<\/street><houseNumber>12\/3a<\/houseNumber><city>Nový Jičín<\/city><zip>74101<\/zip>/,
+  );
+});
+
+test("Balíkovna: point picked on the Česká pošta map is required and kept for the label", async () => {
+  const call = client(shop.url);
+  assert.equal(
+    (
+      await call(
+        "/api/orders",
+        order({ shipping: "balikovna", packeta_point_id: "" }),
+      )
+    ).status,
+    400,
+  );
+  const res = await call(
+    "/api/orders",
+    order({
+      email: "balikovna@example.com",
+      shipping: "balikovna",
+      pickup_point: "",
+      packeta_point_id: "",
+      balikovna_id: "74101",
+      balikovna_zip: "741 01",
+      balikovna_name: "Nový Jičín 1",
+    }),
+  );
+  assert.equal(res.status, 201, JSON.stringify(res.body));
+  assert.equal(res.body.pricing.shippingPrice, 99);
+  assert.deepEqual(res.body.balikovna, {
+    id: "74101",
+    zip: "74101",
+    name: "Nový Jičín 1",
+  });
+  assert.equal(res.body.pickup_point, "Nový Jičín 1, 741 01");
 });

@@ -16,6 +16,7 @@ import {
 } from "./auth.js";
 import { catalog, variantsOf } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
+import { shippingKind, shippingProvider } from "../../assets/js/pricing.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
 import { createPacket } from "./packeta.js";
 import { invoiceFor, invoicePdf, issueInvoice, pdfBase64 } from "./invoice.js";
@@ -223,7 +224,11 @@ export async function packet(db, request, env) {
   if (!row) fail(404, "Objednávka neexistuje.");
   const order = JSON.parse(row.payload);
   if (order.packeta) fail(409, "Zásilka už byla vytvořena.");
-  if (order.shipping !== "zasilkovna" || !order.packeta_point_id)
+  const kind = shippingKind(order.shipping);
+  if (kind === "pickup") fail(400, "Osobní odběr nepotřebuje zásilku.");
+  if (shippingProvider(order.shipping) !== "packeta")
+    fail(400, "Zásilku do Balíkovny podejte přes Českou poštu.");
+  if (kind === "point" && !order.packeta_point_id)
     fail(400, "Objednávka nemá výdejní místo vybrané na mapě.");
   // Claim the order first so a double click cannot create two packets.
   const claim = await db
