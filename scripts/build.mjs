@@ -248,9 +248,15 @@ const ga = gaId
     }
   : { script: "", connect: "", img: "" };
 const packetaOrigin = "https://widget.packeta.com";
+// library.js first calls a healthcheck (XHR) and falls back to the backup or error-page host.
+const packetaHosts = [
+  packetaOrigin,
+  "https://backup.widget.packeta.com",
+  "https://error-page-service-widget-errors.prod.packeta-com.codenow.com",
+].join(" ");
 const balikovnaOrigin = "https://b2c.cpost.cz";
 const policy = ({ packeta = false } = {}) =>
-  `default-src 'self'; script-src 'self'${ga.script}${packeta ? " " + packetaOrigin : ""}; style-src 'self'${packeta ? " 'unsafe-inline' " + packetaOrigin : ""}; font-src 'self'${packeta ? " " + packetaOrigin : ""}; img-src 'self' data:${ga.img}${packeta ? " " + packetaOrigin : ""}; connect-src 'self'${ga.connect}; object-src 'none'; frame-src ${packeta ? `${packetaOrigin} ${balikovnaOrigin}` : "'none'"}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
+  `default-src 'self'; script-src 'self'${ga.script}${packeta ? " " + packetaOrigin : ""}; style-src 'self'${packeta ? " 'unsafe-inline' " + packetaOrigin : ""}; font-src 'self'${packeta ? " " + packetaOrigin : ""}; img-src 'self' data:${ga.img}${packeta ? " " + packetaOrigin : ""}; connect-src 'self'${ga.connect}${packeta ? " " + packetaOrigin : ""}; object-src 'none'; frame-src ${packeta ? `${packetaHosts} ${balikovnaOrigin}` : "'none'"}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
 const csp = policy();
 const expires = new Date(Date.now() + 365 * 864e5).toISOString();
 await write(
