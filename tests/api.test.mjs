@@ -449,3 +449,43 @@ test("Dílnička: label texts and print settings are stored and validated", asyn
   assert.equal(ws.label.diameter, 50);
   assert.equal(ws.label.phone, "+420 777 123 456");
 });
+
+test("order tracking: status timeline, manual tracking number and notes reach the customer", async () => {
+  const created = await client(shop.url)(
+    "/api/orders",
+    order({ email: "sledovani@example.com" }),
+  );
+  const { number, token } = created.body;
+  const a = await admin();
+  await a("/api/admin/order-status", { number, status: "zaplacena" });
+  const sent = await a("/api/admin/order-status", {
+    number,
+    status: "odeslana",
+    tracking: "Z 123 456 7890",
+    note: "Přibalili jsme vzorek <vosku>.",
+  });
+  assert.equal(sent.status, 200);
+  assert.equal(
+    (
+      await a("/api/admin/order-status", {
+        number,
+        status: "odeslana",
+        tracking: "<script>",
+      })
+    ).status,
+    400,
+  );
+  const view = (await client(shop.url)(`/api/orders/view?t=${token}`)).body;
+  assert.equal(view.status, "odeslana");
+  assert.equal(view.tracking.code, "Z 123 456 7890");
+  assert.match(view.tracking.url, /tracking\.packeta\.com.*Z1234567890/);
+  assert.deepEqual(
+    view.history.map((h) => h.status),
+    ["nova", "zaplacena", "odeslana"],
+  );
+  assert.equal(view.history[2].note, "Přibalili jsme vzorek <vosku>.");
+  const mail = await mailTo("sledovani@example.com", /na cestě/);
+  assert.match(mail.body.html, /Z1234567890/);
+  assert.match(mail.body.html, /vzorek &lt;vosku&gt;/);
+  assert.match(mail.body.html, new RegExp(`objednavka\\?t=${token}`));
+});

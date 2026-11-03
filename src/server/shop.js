@@ -20,6 +20,7 @@ import {
   validIban,
 } from "../../assets/js/payment.mjs";
 import { seller } from "../../assets/js/site.mjs";
+import { trackingOf } from "../../assets/js/orders.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
 import { qrPng } from "./png.js";
 
@@ -114,7 +115,12 @@ const publicOrder = (row, env) => {
       row.status === "nova"
         ? paymentInfo(env, { ...order, number: row.number })
         : null,
-    packet: order.packeta?.barcode || null,
+    tracking: trackingOf({ ...order, shipping: order.shipping }),
+    history: (order.history || []).map(({ status, at, note }) => ({
+      status,
+      at,
+      ...(note ? { note } : {}),
+    })),
   };
 };
 

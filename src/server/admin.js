@@ -15,7 +15,7 @@ import {
   safeEqual,
 } from "./auth.js";
 import { catalog, variantsOf } from "./catalog.js";
-import { ORDER_STATUS } from "../../assets/js/orders.mjs";
+import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
 import { createPacket } from "./packeta.js";
 
@@ -95,26 +95,44 @@ const STATUS_MAIL = {
 
 export async function setStatus(db, request, env, ctx) {
   assertSameOrigin(request);
-  const data = await readJson(request, 2048);
+  const data = await readJson(request, 4096);
   const number = text(data.number, "objednávka", 20);
   const status = data.status;
   if (!Object.hasOwn(ORDER_STATUS, status)) fail(400, "Neplatný stav.");
+  const note = text(data.note, "vzkaz pro zákazníka", 500, false);
+  const tracking =
+    data.tracking === undefined
+      ? undefined
+      : text(data.tracking, "sledovací číslo", 40, false);
+  if (tracking && !/^[A-Za-z0-9 -]{4,40}$/.test(tracking))
+    fail(
+      400,
+      "Sledovací číslo smí obsahovat jen písmena, čísla, mezery a pomlčky.",
+    );
   const row = await db
     .prepare("SELECT * FROM orders WHERE number=?")
     .bind(number)
     .first();
   if (!row) fail(404, "Objednávka neexistuje.");
-  if (row.status === status) return json(adminOrder(row));
-  if (row.status === "zrusena")
-    fail(400, "Zrušenou objednávku už nelze obnovit. Vytvořte novou.");
   const order = JSON.parse(row.payload);
-  order.history = [...(order.history || []), { status, at: now() }];
+  const statusChanged = row.status !== status;
+  const trackingChanged =
+    tracking !== undefined && tracking !== (order.tracking || "");
+  if (!statusChanged && !trackingChanged && !note) return json(adminOrder(row));
+  if (row.status === "zrusena" && statusChanged)
+    fail(400, "Zrušenou objednávku už nelze obnovit. Vytvořte novou.");
+  if (trackingChanged) order.tracking = tracking;
+  if (statusChanged || note)
+    order.history = [
+      ...(order.history || []),
+      { status, at: now(), ...(note ? { note } : {}) },
+    ];
   const statements = [
     db
       .prepare("UPDATE orders SET status=?, payload=? WHERE number=?")
       .bind(status, JSON.stringify(order), number),
   ];
-  if (status === "zrusena")
+  if (statusChanged && status === "zrusena")
     for (const item of order.items)
       statements.push(
         db
@@ -124,30 +142,39 @@ export async function setStatus(db, request, env, ctx) {
           .bind(item.qty, item.id, item.variant),
       );
   await db.batch(statements);
-  if (data.notify !== false && STATUS_MAIL[status]) {
-    const [title, body] = STATUS_MAIL[status];
-    const tracking =
-      status === "odeslana" && order.packeta?.barcode
-        ? [
-            {
-              button: [
-                "Sledovat zásilku",
-                `https://tracking.packeta.com/cs/?id=${encodeURIComponent(order.packeta.barcode.replace(/\s/g, ""))}`,
-              ],
-            },
-          ]
-        : [];
+  const mail = statusChanged
+    ? STATUS_MAIL[status]
+    : note || trackingChanged
+      ? ["Novinka k vaší objednávce", "máme pro vás novinku k objednávce."]
+      : null;
+  if (data.notify !== false && mail) {
+    const [title, body] = mail;
+    const track = trackingOf(order);
+    const origin = new URL(request.url).origin;
     ctx.waitUntil(
       sendMail(env, {
         to: order.customer.email,
         subject: `${title} — objednávka ${number} | LOOMOS`,
         title,
-        key: `status-${number}-${status}`,
+        key: `status-${number}-${status}-${order.history?.length || 0}-${track?.code || ""}`,
         replyTo: shopEmail(env),
         blocks: [
           `Dobrý den, ${order.customer.name},\n${body}`,
+          ...(note ? [`Vzkaz od nás: ${note}`] : []),
+          ...(track && ["odeslana", "dokoncena"].includes(status)
+            ? [
+                track.url
+                  ? { button: [`Sledovat zásilku ${track.code}`, track.url] }
+                  : `Sledovací číslo zásilky: ${track.code}`,
+              ]
+            : []),
           { rows: orderRows(order) },
-          ...tracking,
+          {
+            button: [
+              "Stav objednávky",
+              `${origin}/objednavka?t=${row.public_token}`,
+            ],
+          },
         ],
       }),
     );

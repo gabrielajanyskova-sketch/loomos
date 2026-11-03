@@ -2590,3 +2590,121 @@ tr.muted td {
     box-shadow: 0 0 0 0.2mm #999;
   }
 }
+
+/* ---------- order timeline ---------- */
+.timeline {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 6px 0 18px;
+  padding: 0;
+  position: relative;
+}
+.timeline li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.timeline li::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: -50%;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+.timeline li:first-child::before {
+  display: none;
+}
+.timeline li.done::before,
+.timeline li.current::before {
+  background: var(--copper);
+}
+.timeline .dot {
+  position: relative;
+  z-index: 1;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #806346;
+  background: var(--bg);
+}
+.timeline li.done .dot {
+  background: var(--copper);
+  border-color: var(--copper);
+}
+.timeline li.current .dot {
+  background: var(--copper-light);
+  border-color: var(--copper-light);
+  box-shadow: 0 0 0 5px #cb956833;
+}
+.timeline li.done strong,
+.timeline li.current strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.timeline small {
+  font-size: 12px;
+}
+.timeline-status {
+  text-align: center;
+  color: var(--copper-light);
+  margin: 0 0 6px;
+}
+.tracking {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px 16px;
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.tracking span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.shop-notes {
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.shop-notes h3 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+.shop-note {
+  margin: 8px 0;
+}
+.shop-note span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 560px) {
+  .timeline {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    justify-items: start;
+  }
+  .timeline li {
+    flex-direction: row;
+    text-align: left;
+  }
+  .timeline li::before {
+    display: none;
+  }
+}
+.inline-form label.wide {
+  flex-basis: 100%;
+}
+.inline-form textarea {
+  width: 100%;
+}

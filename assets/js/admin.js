@@ -147,7 +147,7 @@ function orderDetail(number) {
       )
       .join(
         "",
-      )}</select></label><label class="check"><input type="checkbox" name="notify" checked>Poslat zákazníkovi e-mail o změně</label><button class="button" ${o.status === "zrusena" ? "disabled" : ""}>Uložit stav</button></form><p class="muted">Zrušení vrátí zboží zpět na sklad. Při změně na „Zaplaceno“ dostane zákazník potvrzení o přijetí platby.</p>${o.history?.length ? `<h3>Historie</h3><ul class="history">${o.history.map((h) => `<li>${date(h.at)} — ${esc(ORDER_STATUS[h.status] || h.status)}</li>`).join("")}</ul>` : ""}</section>`;
+      )}</select></label><label>Sledovací číslo zásilky<input name="tracking" maxlength="40" value="${esc(o.tracking || "")}" placeholder="${esc(o.packeta?.barcode || "např. Z 123 456 7890")}"></label><label class="wide">Vzkaz pro zákazníka (nepovinné, uvidí ho v e-mailu i u objednávky)<textarea name="note" rows="2" maxlength="500" placeholder="např. Svíčky jsme zabalili s malým dárkem."></textarea></label><label class="check"><input type="checkbox" name="notify" checked>Poslat zákazníkovi e-mail</label><button class="button" ${o.status === "zrusena" ? "disabled" : ""}>Uložit stav</button></form><p class="muted">Zrušení vrátí zboží zpět na sklad. Při změně na „Zaplaceno“ dostane zákazník potvrzení o přijetí platby.</p>${o.history?.length ? `<h3>Historie</h3><ul class="history">${o.history.map((h) => `<li>${date(h.at)} — ${esc(ORDER_STATUS[h.status] || h.status)}${h.note ? `<br><small>Vzkaz: ${esc(h.note)}</small>` : ""}</li>`).join("")}</ul>` : ""}</section>`;
   $("#back").onclick = () => show("orders");
   $("#status-form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -161,6 +161,8 @@ function orderDetail(number) {
       await api("order-status", {
         number,
         status: f.elements.status.value,
+        tracking: f.elements.tracking.value,
+        note: f.elements.note.value,
         notify: f.elements.notify.checked,
       });
       orders = await api("orders");

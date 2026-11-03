@@ -17,7 +17,7 @@ import {
   MAX_QTY,
 } from "./pricing.mjs";
 import { qrSvg } from "./payment.mjs";
-import { ORDER_STATUS } from "./orders.mjs";
+import { ORDER_STATUS, orderSteps } from "./orders.mjs";
 import { initAnalytics, track } from "./analytics.mjs";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -478,13 +478,41 @@ function renderCheckout() {
 }
 
 /* ---------- order page ---------- */
+const day = (t) =>
+  new Date(t * 1000).toLocaleDateString("cs-CZ", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+function orderTimeline(o) {
+  const history = o.history || [];
+  const reachedAt = (status) =>
+    [...history].reverse().find((h) => h.status === status)?.at;
+  const steps = orderSteps(o.shipping);
+  const current = steps.findIndex(([id]) => id === o.status);
+  const notes = history.filter((h) => h.note);
+  const tracking = o.tracking
+    ? `<div class="tracking"><span>Sledovací číslo</span><strong>${esc(o.tracking.code)}</strong>${o.tracking.url ? `<a class="text-link" href="${esc(o.tracking.url)}" target="_blank" rel="noopener">Sledovat zásilku →</a>` : ""}</div>`
+    : "";
+  if (o.status === "zrusena")
+    return `<section class="panel timeline-panel"><p class="status-label">Objednávka byla zrušena${reachedAt("zrusena") ? " " + day(reachedAt("zrusena")) : ""}</p>${notes.map((n) => `<p class="shop-note"><span>${day(n.at)}</span>${esc(n.note)}</p>`).join("")}</section>`;
+  return `<section class="panel timeline-panel"><ol class="timeline">${steps
+    .map(([id, label], i) => {
+      const state = i < current ? "done" : i === current ? "current" : "";
+      const at = i <= current ? reachedAt(id) : null;
+      return `<li class="${state}"${state === "current" ? ' aria-current="step"' : ""}><span class="dot" aria-hidden="true"></span><strong>${esc(label)}</strong>${at ? `<small>${day(at)}</small>` : ""}</li>`;
+    })
+    .join(
+      "",
+    )}</ol><p class="timeline-status">${esc(ORDER_STATUS[o.status] || o.status)}</p>${tracking}${notes.length ? `<div class="shop-notes"><h3>Zprávy od nás</h3>${notes.map((n) => `<p class="shop-note"><span>${day(n.at)}</span>${esc(n.note)}</p>`).join("")}</div>` : ""}</section>`;
+}
 async function renderOrderPage() {
   const el = $("#order-content");
   const token = new URLSearchParams(location.search).get("t") || "";
   try {
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
-    el.innerHTML = `<section class="panel"><h2>Objednávka ${esc(o.number)}</h2><p>Stav: <span class="status-label">${esc(ORDER_STATUS[o.status] || o.status)}</span>${o.test ? ' · <span class="muted">zkušební</span>' : ""}</p>${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(o.shipping === "zasilkovna" ? "Zásilkovna — " + o.pickup_point : SHIPPING.pickup.label)}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div>${o.packet ? `<p>Zásilka: <a href="https://tracking.packeta.com/cs/?id=${encodeURIComponent(o.packet.replace(/\s/g, ""))}" rel="noopener" target="_blank">${esc(o.packet)}</a></p>` : ""}</section>${o.payment ? paymentBlock(o.payment, o.test) : ""}`;
+    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(o.shipping === "zasilkovna" ? "Zásilkovna — " + o.pickup_point : SHIPPING.pickup.label)}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}`;
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }
