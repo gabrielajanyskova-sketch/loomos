@@ -38,13 +38,13 @@ const DEFAULT_JARS = [
     name: "Oxford 20 cl (střední) — průhledná",
     fill_g: 180,
     variant_id: "mala",
-    note: "Ø 74 × 87 mm, vnitřní Ø 67 mm, sklo cca 296 g. S víčkem plnit cca 165 g. Dodavatel doporučuje knot HTP 105, hoření cca 33 h.",
+    note: "Ø 74 × 87 mm, vnitřní Ø 67 mm, sklo cca 296 g. S víčkem plnit cca 165 g. Dodavatel sklenic doporučuje bavlněný knot HTP 105 (hoření cca 33 h); u dřevěného knotu vyzkoušejte vhodnou šířku.",
   },
   {
     name: "Kimberley 30 cl (velká) — průhledná",
     fill_g: 220,
     variant_id: "velka",
-    note: "Ø 81,5 × 93 mm, vnitřní Ø 77 mm, sklo cca 370 g. S víčkem plnit cca 200 g. Dodavatel doporučuje knot HTP 126, hoření až 40 h.",
+    note: "Ø 81,5 × 93 mm, vnitřní Ø 77 mm, sklo cca 370 g. S víčkem plnit cca 200 g. Dodavatel sklenic doporučuje bavlněný knot HTP 126 (hoření až 40 h); u dřevěného knotu vyzkoušejte vhodnou šířku.",
   },
 ];
 async function seedJars(db) {
@@ -56,7 +56,7 @@ async function seedJars(db) {
     ...DEFAULT_JARS.map((j) =>
       db
         .prepare(
-          "INSERT INTO workshop_jars (name, fill_g, wicks, wick, variant_id, note) VALUES (?,?,1,'',?,?)",
+          "INSERT INTO workshop_jars (name, fill_g, wicks, wick, variant_id, note) VALUES (?,?,1,'dřevěný knot',?,?)",
         )
         .bind(j.name, j.fill_g, j.variant_id, j.note),
     ),
