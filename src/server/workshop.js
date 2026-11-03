@@ -65,14 +65,37 @@ async function seedJars(db) {
   ]);
 }
 
+export const LABEL_DEFAULTS = {
+  diameter: 60,
+  font: 6.5,
+  phone: "",
+  columns: 3,
+  rows: 4,
+  margin_top: 15,
+  margin_left: 15,
+  gap: 5,
+};
+async function labelSettings(db) {
+  const row = await db
+    .prepare("SELECT value FROM workshop_settings WHERE key='label'")
+    .first();
+  try {
+    return { ...LABEL_DEFAULTS, ...(row ? JSON.parse(row.value) : {}) };
+  } catch {
+    return { ...LABEL_DEFAULTS };
+  }
+}
+
 export async function overview(db) {
   await seedJars(db);
-  const [jars, config, batches] = await Promise.all([
+  const [jars, config, batches, labels, label] = await Promise.all([
     jarsOf(db, true),
     settings(db),
     db
       .prepare("SELECT * FROM workshop_batches ORDER BY id DESC LIMIT 50")
       .all(),
+    db.prepare("SELECT * FROM workshop_labels").all(),
+    labelSettings(db),
   ]);
   return json({
     oils,
@@ -83,6 +106,13 @@ export async function overview(db) {
     })),
     jars,
     settings: config,
+    labels: Object.fromEntries(
+      labels.results.map((l) => [
+        l.product_id,
+        { contains: l.contains, extra: l.extra },
+      ]),
+    ),
+    label,
     batches: batches.results.map((b) => ({
       ...b,
       items: JSON.parse(b.items),
@@ -262,6 +292,55 @@ export async function deleteBatch(db, request) {
   await db
     .prepare("DELETE FROM workshop_batches WHERE id=?")
     .bind(Number(data.id))
+    .run();
+  return json({ ok: true });
+}
+
+/** Text from the supplier's "KE STAŽENÍ" documents (Substances / Mixtures) for each scent. */
+export async function saveLabel(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 4096);
+  if (!scentIds.has(data.product_id)) fail(400, "Neznámá vůně.");
+  await db
+    .prepare(
+      "INSERT INTO workshop_labels (product_id, contains, extra) VALUES (?,?,?) ON CONFLICT(product_id) DO UPDATE SET contains=excluded.contains, extra=excluded.extra",
+    )
+    .bind(
+      data.product_id,
+      text(data.contains, "obsahuje", 1000, false),
+      text(data.extra, "další upozornění", 1000, false),
+    )
+    .run();
+  return json({ ok: true });
+}
+
+export async function saveLabelSettings(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 2048);
+  const num = (key, min, max) => {
+    const n = Number(data[key]);
+    if (!Number.isFinite(n) || n < min || n > max)
+      fail(400, `Zkontrolujte nastavení etiket (${key}).`);
+    return Math.round(n * 10) / 10;
+  };
+  const phoneValue = text(data.phone, "telefon", 30, false);
+  if (phoneValue && !/^\+?[0-9 ()-]{9,20}$/.test(phoneValue))
+    fail(400, "Zadejte platný telefon.");
+  const value = {
+    diameter: num("diameter", 20, 120),
+    font: num("font", 4, 12),
+    phone: phoneValue,
+    columns: num("columns", 1, 10),
+    rows: num("rows", 1, 15),
+    margin_top: num("margin_top", 0, 60),
+    margin_left: num("margin_left", 0, 60),
+    gap: num("gap", 0, 30),
+  };
+  await db
+    .prepare(
+      "INSERT INTO workshop_settings (key, value) VALUES ('label', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+    )
+    .bind(JSON.stringify(value))
     .run();
   return json({ ok: true });
 }

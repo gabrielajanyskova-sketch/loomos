@@ -2486,3 +2486,107 @@ tr.muted td {
   flex-direction: row;
   align-items: center;
 }
+
+/* ---------- round bottom labels ---------- */
+.label-circle {
+  --label-d: 60mm;
+  --label-font: 6.5pt;
+  --label-pad: 2.2mm;
+  width: var(--label-d);
+  height: var(--label-d);
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  overflow: hidden;
+  position: relative;
+  flex: none;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: var(--label-font);
+  line-height: 1.18;
+  box-shadow: 0 0 0 0.3mm #bbb;
+}
+.label-text {
+  height: 100%;
+  text-align: center;
+}
+.label-shape {
+  float: left;
+  width: 50%;
+  height: 100%;
+  shape-outside: radial-gradient(
+    farthest-side at right,
+    transparent calc(100% - var(--label-pad)),
+    #000 calc(100% - var(--label-pad))
+  );
+}
+.label-shape.right {
+  float: right;
+  shape-outside: radial-gradient(
+    farthest-side at left,
+    transparent calc(100% - var(--label-pad)),
+    #000 calc(100% - var(--label-pad))
+  );
+}
+.label-text p {
+  margin: 0 0 0.5em;
+  color: #111;
+  font-size: inherit;
+}
+.label-text p:first-of-type {
+  padding-top: calc(var(--label-pad) + 1mm);
+}
+.label-brand {
+  letter-spacing: 0.25em;
+  font-weight: 700;
+}
+.label-name strong {
+  font-size: 1.25em;
+}
+.label-maker {
+  font-size: 0.9em;
+}
+.label-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  margin: 18px 0;
+}
+.label-fit {
+  font-size: 14px;
+}
+.label-fit.bad {
+  color: #f0ad95;
+}
+#label-sheet {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body.print-labels {
+    background: #fff;
+  }
+  body.print-labels > *:not(#label-sheet) {
+    display: none !important;
+  }
+  body.print-labels #label-sheet {
+    display: block;
+  }
+  .label-page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    page-break-after: always;
+    break-after: page;
+  }
+  .label-page .label-circle {
+    position: absolute;
+    box-shadow: none;
+  }
+  body.print-labels.print-guides .label-page .label-circle {
+    box-shadow: 0 0 0 0.2mm #999;
+  }
+}

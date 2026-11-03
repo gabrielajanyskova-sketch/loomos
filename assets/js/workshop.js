@@ -4,6 +4,7 @@ import {
   maxLoadWithoutUfi,
   SUPPLIER_LOAD,
 } from "./workshop-calc.mjs";
+import { labelHtml, overflows, sizeLabel } from "./labels.mjs";
 
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) =>
@@ -109,12 +110,111 @@ function render() {
   </section>
   <section class="panel" id="result"></section>
   <section class="panel"><h2>Uložené výroby</h2><div id="batches"></div></section>
+  <section class="panel"><h2>Etikety na dno</h2><div id="labels"></div></section>
   <section class="panel"><h2>Moje sklenice</h2><div id="jars"></div></section>
   <section class="panel"><h2>Vonné oleje (údaje dodavatele)</h2><div id="oils"></div></section>`;
   renderRows();
   renderBatches();
   renderJars();
   renderOils();
+  renderLabels();
+}
+
+const labelValues = () => {
+  const f = $("#label-print");
+  const jar = data.jars.find((j) => j.id === Number(f.elements.jar.value));
+  const scent = f.elements.scent.value;
+  const texts = data.labels[scent] || {};
+  return {
+    name: scentName(scent),
+    grams: jar?.fill_g ?? "",
+    contains: texts.contains,
+    extra: texts.extra,
+    phone: data.label.phone,
+    batch: f.elements.batch.value.trim(),
+  };
+};
+function renderLabelPreview() {
+  const preview = $("#label-preview");
+  preview.innerHTML = labelHtml(labelValues());
+  const circle = $(".label-circle", preview);
+  sizeLabel(circle, data.label);
+  const fits = !overflows(circle);
+  $("#label-fit").textContent = fits
+    ? `Text se vejde (průměr ${num(data.label.diameter)} mm, písmo ${num(data.label.font)} pt).`
+    : "Text se nevejde — zvětšete průměr nebo zmenšete písmo.";
+  $("#label-fit").className = "label-fit" + (fits ? "" : " bad");
+  const texts = data.labels[$("#label-print").elements.scent.value];
+  $("#label-missing").hidden = Boolean(texts?.contains);
+}
+function renderLabels() {
+  const l = data.label;
+  const jars = activeJars();
+  $("#labels").innerHTML = `
+    <p class="muted">Kulatá bezpečnostní etiketa na dno sklenice. Látky z dokumentů dodavatele (záložka „KE STAŽENÍ“, v angličtině „Substances“ nebo „Mixtures“) zapište u každé vůně níže.</p>
+    <form id="label-print" class="jar-form">
+      <label>Vůně<select name="scent">${data.scents.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("")}</select></label>
+      <label>Sklenice (hmotnost)<select name="jar">${jars.map((j) => `<option value="${j.id}">${esc(j.name)} · ${j.fill_g} g</option>`).join("")}</select></label>
+      <label>Počet etiket<input name="count" type="number" min="1" max="500" value="${l.columns * l.rows}"></label>
+      <label>Šarže / datum (nepovinné)<input name="batch" maxlength="40" placeholder="např. 2026-11"></label>
+      <label class="check wide"><input type="checkbox" name="guides">Tisknout obrysy kroužků (zkušební tisk na obyčejný papír)</label>
+      <div class="workshop-actions"><button class="button">Vytisknout etikety</button></div>
+    </form>
+    <p id="label-missing" class="notice" hidden>U této vůně ještě nejsou zapsané látky „Obsahuje“ — doplňte je níže.</p>
+    <div class="label-preview"><div id="label-preview"></div><p id="label-fit" class="label-fit" role="status"></p></div>
+    <details><summary>Texty podle vůní</summary>${data.scents
+      .map((s) => {
+        const t = data.labels[s.id] || {};
+        return `<form class="jar-form label-texts" data-label-scent="${esc(s.id)}"><h3>${esc(s.name)}</h3><label class="wide">Obsahuje (látky z dokumentu dodavatele, oddělené čárkou)<textarea name="contains" rows="2" maxlength="1000" placeholder="např. Linalool, Limonene, Citral">${esc(t.contains)}</textarea></label><label class="wide">Další upozornění z dokumentu (nepovinné)<textarea name="extra" rows="2" maxlength="1000">${esc(t.extra)}</textarea></label><div class="workshop-actions"><button class="inline-button">Uložit texty</button></div></form>`;
+      })
+      .join("")}</details>
+    <details><summary>Nastavení tisku a údaje na etiketě</summary>
+      <form id="label-settings" class="jar-form">
+        <label>Telefon na etiketu<input name="phone" type="tel" maxlength="30" value="${esc(l.phone)}" placeholder="+420 …"></label>
+        <label>Průměr etikety (mm)<input name="diameter" type="number" min="20" max="120" step="1" value="${l.diameter}"></label>
+        <label>Velikost písma (pt)<input name="font" type="number" min="4" max="12" step="0.1" value="${l.font}"></label>
+        <label>Kroužků v řadě<input name="columns" type="number" min="1" max="10" value="${l.columns}"></label>
+        <label>Řad na stránce<input name="rows" type="number" min="1" max="15" value="${l.rows}"></label>
+        <label>Okraj nahoře (mm)<input name="margin_top" type="number" min="0" max="60" step="0.5" value="${l.margin_top}"></label>
+        <label>Okraj vlevo (mm)<input name="margin_left" type="number" min="0" max="60" step="0.5" value="${l.margin_left}"></label>
+        <label>Mezera mezi kroužky (mm)<input name="gap" type="number" min="0" max="30" step="0.5" value="${l.gap}"></label>
+        <div class="workshop-actions"><button class="inline-button">Uložit nastavení</button></div>
+      </form>
+      <p class="muted">Rozměry archu najdete na obalu samolepicích kroužků. Při tisku zvolte měřítko 100 % (ne „přizpůsobit stránce“).</p>
+    </details>`;
+  if (jars.length) renderLabelPreview();
+}
+function printLabels() {
+  const f = $("#label-print");
+  const l = data.label;
+  const count = Math.max(1, Math.min(500, Number(f.elements.count.value) || 1));
+  const perPage = l.columns * l.rows;
+  let sheet = document.getElementById("label-sheet");
+  if (!sheet) {
+    sheet = document.createElement("div");
+    sheet.id = "label-sheet";
+    document.body.append(sheet);
+  }
+  const html = labelHtml(labelValues());
+  sheet.innerHTML = Array.from(
+    { length: Math.ceil(count / perPage) },
+    (_, page) =>
+      `<div class="label-page">${Array.from(
+        { length: Math.min(perPage, count - page * perPage) },
+        () => html,
+      ).join("")}</div>`,
+  ).join("");
+  sheet.querySelectorAll(".label-page").forEach((pageEl) =>
+    pageEl.querySelectorAll(".label-circle").forEach((circle, i) => {
+      sizeLabel(circle, l);
+      circle.style.left = `${l.margin_left + (i % l.columns) * (l.diameter + l.gap)}mm`;
+      circle.style.top = `${l.margin_top + Math.floor(i / l.columns) * (l.diameter + l.gap)}mm`;
+    }),
+  );
+  document.body.classList.add("print-labels");
+  document.body.classList.toggle("print-guides", f.elements.guides.checked);
+  window.print();
+  document.body.classList.remove("print-labels", "print-guides");
 }
 
 function renderRows() {
@@ -229,6 +329,7 @@ document.addEventListener("input", (e) => {
     renderResult();
   }
   if (["load", "loss", "no-ufi"].includes(e.target.id)) renderResult();
+  if (e.target.closest("#label-print")) renderLabelPreview();
   if (e.target.name === "water_g") {
     const water = Number(e.target.value);
     if (water > 0) e.target.form.elements.fill_g.value = fillFromWater(water);
@@ -331,6 +432,30 @@ document.addEventListener(
 document.addEventListener(
   "submit",
   guard(async (e) => {
+    if (e.target.matches("#label-print")) {
+      e.preventDefault();
+      return printLabels();
+    }
+    if (e.target.matches("[data-label-scent]")) {
+      e.preventDefault();
+      const id = e.target.dataset.labelScent;
+      const body = {
+        product_id: id,
+        contains: e.target.elements.contains.value.replace(/[.\s]+$/, ""),
+        extra: e.target.elements.extra.value,
+      };
+      await api("workshop/label", body);
+      data.labels[id] = { contains: body.contains, extra: body.extra };
+      status("Texty etikety jsou uložené.");
+      return renderLabelPreview();
+    }
+    if (e.target.matches("#label-settings")) {
+      e.preventDefault();
+      const values = Object.fromEntries(new FormData(e.target));
+      await api("workshop/label-settings", values);
+      status("Nastavení etiket je uložené.");
+      return load();
+    }
     if (!e.target.matches("#jar-form")) return;
     e.preventDefault();
     const f = e.target;

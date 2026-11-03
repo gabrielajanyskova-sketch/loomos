@@ -404,3 +404,48 @@ test("Dílnička: jars, saved batch, finished candles go to stock; supplier data
     400,
   );
 });
+
+test("Dílnička: label texts and print settings are stored and validated", async () => {
+  const a = await admin();
+  assert.equal(
+    (
+      await a("/api/admin/workshop/label", {
+        product_id: "okurka-zazvor-mata",
+        contains: "Linalool, Limonene",
+      })
+    ).status,
+    200,
+  );
+  assert.equal(
+    (await a("/api/admin/workshop/label", { product_id: "nic", contains: "x" }))
+      .status,
+    400,
+  );
+  const settings = {
+    diameter: 50,
+    font: 6,
+    phone: "+420 777 123 456",
+    columns: 3,
+    rows: 5,
+    margin_top: 10,
+    margin_left: 12,
+    gap: 4,
+  };
+  assert.equal(
+    (await a("/api/admin/workshop/label-settings", settings)).status,
+    200,
+  );
+  assert.equal(
+    (
+      await a("/api/admin/workshop/label-settings", {
+        ...settings,
+        diameter: 500,
+      })
+    ).status,
+    400,
+  );
+  const ws = (await a("/api/admin/workshop")).body;
+  assert.equal(ws.labels["okurka-zazvor-mata"].contains, "Linalool, Limonene");
+  assert.equal(ws.label.diameter, 50);
+  assert.equal(ws.label.phone, "+420 777 123 456");
+});

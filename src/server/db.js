@@ -74,6 +74,11 @@ const SCHEMA = [
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS workshop_labels (
+    product_id TEXT PRIMARY KEY,
+    contains TEXT NOT NULL DEFAULT '',
+    extra TEXT NOT NULL DEFAULT ''
+  )`,
   `CREATE TABLE IF NOT EXISTS workshop_batches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,

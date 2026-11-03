@@ -46,6 +46,8 @@ const adminRoutes = {
   "POST /api/admin/workshop/batch": workshop.saveBatch,
   "POST /api/admin/workshop/batch-done": workshop.finishBatch,
   "POST /api/admin/workshop/batch-delete": workshop.deleteBatch,
+  "POST /api/admin/workshop/label": workshop.saveLabel,
+  "POST /api/admin/workshop/label-settings": workshop.saveLabelSettings,
 };
 
 export async function handle(request, env, ctx) {
