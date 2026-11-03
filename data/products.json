@@ -153,10 +153,10 @@
     "id": "goji-cerveny-pomeranc",
     "name": "Goji a červený pomeranč",
     "subtitle": "Šťavnatá energie do každého dne.",
-    "notes": "Pomeranč · malina · rebarbora · jahoda",
+    "notes": "Pomeranč · malina · rebarbora · vanilka",
     "price": 249,
     "category": "svicky",
-    "description": "Ovocná a radostná vůně plná sluníčka. Šťavnatý pomeranč, malina a citron s kapkou cukru přecházejí v srdce z rebarbory, jahody, jasmínu, fialky a svěžího eukalyptu. Rozjasní pokoj i náladu.",
+    "description": "Ovocná a radostná vůně plná sluníčka. Šťavnatý pomeranč, malina a citron s kapkou cukru přecházejí v srdce z rebarbory, jahody, jasmínu, fialky a svěžího eukalyptu. Vše hřejivě dozní vanilkou a ambrou. Rozjasní pokoj i náladu.",
     "active": true,
     "price_provisional": true,
     "variants": [
@@ -175,7 +175,8 @@
     ],
     "pyramid": {
       "top": "Pomeranč, malina, citron, cukr",
-      "heart": "Pomeranč, rebarbora, jahoda, jasmín, fialka, eukalyptus"
+      "heart": "Pomeranč, rebarbora, jahoda, jasmín, fialka, eukalyptus",
+      "base": "Vanilka, ambra"
     }
   }
 ]
