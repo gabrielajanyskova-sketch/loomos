@@ -1,10 +1,13 @@
 /** Catalog = data/products.json (bundled, single source of truth for prices) + stock from D1. */
 import products from "../../data/products.json";
 import { validateCatalog } from "../../assets/js/catalog.mjs";
+import { withSafety } from "../../assets/js/safety.mjs";
 import { fail } from "./http.js";
 import { MAX_QTY } from "../../assets/js/pricing.mjs";
 
-export const catalog = validateCatalog(products).filter((p) => p.active);
+export const catalog = withSafety(
+  validateCatalog(products).filter((p) => p.active),
+);
 const byId = new Map(catalog.map((p) => [p.id, p]));
 
 export const variantsOf = (p) =>

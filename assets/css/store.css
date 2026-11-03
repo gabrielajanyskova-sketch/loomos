@@ -2471,7 +2471,7 @@ tr.muted td {
 @media print {
   .workshop-head #logout,
   .workshop .workshop-actions,
-  .workshop .panel:not(#result) {
+  .workshop .panel:not(#result):not(#procedure) {
     display: none;
   }
   body.workshop-body {
@@ -2718,4 +2718,51 @@ tr.muted td {
   height: calc(var(--label-d) * 0.35);
   min-width: 10mm;
   min-height: 10mm;
+}
+
+/* ---------- composition & safety ---------- */
+details.safety {
+  margin: 24px 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 14px 18px;
+}
+details.safety summary {
+  cursor: pointer;
+  color: var(--copper-light);
+  font-size: 15px;
+}
+details.safety p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 12px 0 0;
+}
+.safety-warning {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.safety .label-ghs,
+.safety-warning .label-ghs {
+  width: 46px;
+  height: 46px;
+  min-width: 0;
+  min-height: 0;
+  flex: none;
+}
+.safety-table td {
+  font-size: 14px;
+  line-height: 1.5;
+  vertical-align: top;
+}
+.safety-table td:first-child {
+  white-space: nowrap;
+}
+
+.steps {
+  padding-left: 22px;
+}
+.steps li {
+  margin: 0 0 12px;
+  line-height: 1.6;
 }

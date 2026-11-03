@@ -107,8 +107,116 @@ const seedLabels = (db) =>
       ),
   );
 
+/** The two soy waxes the owner uses (values from the supplier's product pages). */
+const DEFAULT_WAXES = [
+  {
+    name: "Golden Wax 464 (US464)",
+    melt: "45–48 °C",
+    heat_to: 85,
+    add_oil_at: 70,
+    pour_from: 60,
+    pour_to: 80,
+    max_load: "obvykle 7–8 %, max. 10 %",
+    cure_min: 10,
+    cure_max: 14,
+    note: "Lít pomalu do předehřátých sklenic, chladnout na mřížce. Pomalé chladnutí omezuje praskliny a nerovný povrch.",
+  },
+  {
+    name: "Nature Wax C-3",
+    melt: "45 °C",
+    heat_to: 77,
+    add_oil_at: 65,
+    pour_from: 55,
+    pour_to: 65,
+    max_load: "6–8 %, max. 10 %",
+    cure_min: 10,
+    cure_max: 14,
+    note: "Zahřívat na 65–77 °C, nikdy nad 93 °C. Olej přidávat při 65–70 °C. Při chladnu (pod 22 °C) sklenice předehřát kvůli přilnavosti ke sklu. Zapálit nejdříve po 48 hodinách, ideálně po 1–2 týdnech.",
+  },
+];
+const WAX_FIELDS = [
+  "name",
+  "melt",
+  "heat_to",
+  "add_oil_at",
+  "pour_from",
+  "pour_to",
+  "max_load",
+  "cure_min",
+  "cure_max",
+  "note",
+];
+async function seedWaxes(db) {
+  const seeded = await db
+    .prepare("SELECT 1 FROM workshop_settings WHERE key='seeded_waxes'")
+    .first();
+  if (seeded) return;
+  await db.batch([
+    ...DEFAULT_WAXES.map((w) =>
+      db
+        .prepare(
+          `INSERT INTO workshop_waxes (${WAX_FIELDS.join(", ")}) VALUES (${WAX_FIELDS.map(() => "?").join(",")})`,
+        )
+        .bind(...WAX_FIELDS.map((f) => w[f])),
+    ),
+    db.prepare(
+      "INSERT OR IGNORE INTO workshop_settings (key, value) VALUES ('seeded_waxes', '1')",
+    ),
+  ]);
+}
+
+export async function saveWax(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 4096);
+  const temp = (key, label) => {
+    const v = data[key];
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 20 || n > 120)
+      fail(400, `Zkontrolujte teplotu: ${label}.`);
+    return n;
+  };
+  const days = (key) => {
+    const v = data[key];
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 0 || n > 90)
+      fail(400, "Zkontrolujte dobu zrání.");
+    return n;
+  };
+  const values = {
+    name: text(data.name, "název vosku", 80),
+    melt: text(data.melt, "bod tání", 40, false),
+    heat_to: temp("heat_to", "zahřát na"),
+    add_oil_at: temp("add_oil_at", "přidat olej při"),
+    pour_from: temp("pour_from", "lít od"),
+    pour_to: temp("pour_to", "lít do"),
+    max_load: text(data.max_load, "max. olej", 60, false),
+    cure_min: days("cure_min"),
+    cure_max: days("cure_max"),
+    note: text(data.note, "poznámka", 500, false),
+  };
+  const list = WAX_FIELDS.map((f) => values[f]);
+  if (data.id)
+    await db
+      .prepare(
+        `UPDATE workshop_waxes SET ${WAX_FIELDS.map((f) => `${f}=?`).join(", ")}, active=? WHERE id=?`,
+      )
+      .bind(...list, data.active === false ? 0 : 1, Number(data.id))
+      .run();
+  else
+    await db
+      .prepare(
+        `INSERT INTO workshop_waxes (${WAX_FIELDS.join(", ")}) VALUES (${WAX_FIELDS.map(() => "?").join(",")})`,
+      )
+      .bind(...list)
+      .run();
+  return json({ ok: true });
+}
+
 export async function overview(db) {
   await seedJars(db);
+  await seedWaxes(db);
   await seedLabels(db);
   const [jars, config, batches, labels, label] = await Promise.all([
     jarsOf(db, true),
@@ -119,7 +227,17 @@ export async function overview(db) {
     db.prepare("SELECT * FROM workshop_labels").all(),
     labelSettings(db),
   ]);
+  const [waxes, waxSetting] = await Promise.all([
+    db.prepare("SELECT * FROM workshop_waxes ORDER BY id").all(),
+    db
+      .prepare("SELECT value FROM workshop_settings WHERE key='wax_id'")
+      .first(),
+  ]);
   return json({
+    waxes: waxes.results,
+    wax_id: waxSetting
+      ? Number(waxSetting.value)
+      : (waxes.results[0]?.id ?? null),
     oils,
     scents: catalog.map((p) => ({
       id: p.id,
@@ -165,6 +283,7 @@ export async function saveSettings(db, request) {
       ["load_percent", load],
       ["loss_percent", loss],
       ["no_ufi", data.no_ufi === false || data.no_ufi === 0 ? 0 : 1],
+      ...(Number.isInteger(data.wax_id) ? [["wax_id", data.wax_id]] : []),
     ].map(([k, v]) =>
       db
         .prepare(
@@ -252,6 +371,13 @@ export async function saveBatch(db, request) {
   for (const i of items)
     if (!jars.some((j) => j.id === i.jar_id)) fail(400, "Neznámá sklenice.");
   const result = calcBatch({ items, jars, oils, ...config });
+  if (Number.isInteger(data.wax_id)) {
+    const wax = await db
+      .prepare("SELECT * FROM workshop_waxes WHERE id=?")
+      .bind(data.wax_id)
+      .first();
+    if (wax) result.wax = wax;
+  }
   await db
     .prepare(
       "INSERT INTO workshop_batches (created, name, load_percent, loss_percent, no_ufi, items, result) VALUES (?,?,?,?,?,?,?)",

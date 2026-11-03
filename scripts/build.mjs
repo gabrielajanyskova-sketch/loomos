@@ -9,9 +9,11 @@ import {
   renderFooter,
   renderProductDetail,
   renderFAQ,
+  safetyTable,
   esc,
 } from "../assets/js/ui.mjs";
 import { validateCatalog } from "../assets/js/catalog.mjs";
+import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
 
 export const root = path.resolve(
@@ -35,9 +37,13 @@ const live = process.env.SHOP_LIVE === "1";
 const gaId = process.env.GA_MEASUREMENT_ID || "";
 if (gaId && !/^G-[A-Z0-9]{4,12}$/.test(gaId))
   throw Error("GA_MEASUREMENT_ID musí mít tvar G-XXXXXXXXXX.");
-const products = validateCatalog(
-  JSON.parse(await fs.readFile(path.join(root, "data/products.json"), "utf8")),
-).filter((p) => p.active);
+const products = withSafety(
+  validateCatalog(
+    JSON.parse(
+      await fs.readFile(path.join(root, "data/products.json"), "utf8"),
+    ),
+  ).filter((p) => p.active),
+);
 
 async function write(file, content) {
   const dest = path.join(output, file);
@@ -123,6 +129,7 @@ const pages = [
   ["objednavka.html", "order"],
   ["obchodni-podminky.html", "terms"],
   ["ochrana-osobnich-udaju.html", "privacy"],
+  ["slozeni-a-bezpecnost.html", "safety"],
   ...products.map((p) => [`produkty/${p.id}.html`, "product", p]),
 ];
 const sitemap = [];
@@ -160,6 +167,8 @@ for (const [file, page, product] of pages) {
         `$1${products.length} vůní v nabídce$2`,
       );
     }
+    if (page === "safety")
+      html = slot(html, "safety-table", safetyTable(products));
     if (product) {
       html = slot(html, "product-detail", renderProductDetail(product));
       html = html.replace(
@@ -170,7 +179,15 @@ for (const [file, page, product] of pages) {
   }
   await write(file, cleanLinks(html));
   if (
-    ["home", "shop", "wholesale", "product", "terms", "privacy"].includes(page)
+    [
+      "home",
+      "shop",
+      "wholesale",
+      "product",
+      "terms",
+      "privacy",
+      "safety",
+    ].includes(page)
   )
     sitemap.push(new URL(publicPath(file), siteUrl).href);
 }

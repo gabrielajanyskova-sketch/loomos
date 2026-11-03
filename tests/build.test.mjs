@@ -53,7 +53,7 @@ test("deployment output never contains source, database, tests, secrets or old i
 });
 test("sitemap points only to real indexable content routes on the future domain", () => {
   const xml = read("sitemap.xml");
-  assert.equal((xml.match(/<loc>/g) || []).length, 9);
+  assert.equal((xml.match(/<loc>/g) || []).length, 10);
   assert.ok(!xml.includes("ucet") && !xml.includes("objednavka"));
   assert.ok(!xml.includes("kosik"));
   assert.ok(!xml.includes("pages.dev"));

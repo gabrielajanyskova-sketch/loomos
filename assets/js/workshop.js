@@ -85,6 +85,7 @@ const scentName = (id) => data.scents.find((s) => s.id === id)?.name || id;
 const settings = () => ({
   load_percent: Number($("#load").value),
   no_ufi: $("#no-ufi").checked ? 1 : 0,
+  wax_id: Number($("#wax").value) || null,
   loss_percent: Number($("#loss").value),
 });
 
@@ -96,6 +97,13 @@ function render() {
     ${jars.length ? "" : '<p class="notice">Nejdřív si níže v části <strong>Moje sklenice</strong> přidejte sklenice, do kterých lijete.</p>'}
     <div class="workshop-settings">
       <label>Vonný olej (% z vosku)<input id="load" type="number" min="0" max="20" step="0.5" value="${data.settings.load_percent}"></label>
+      <label>Vosk<select id="wax">${data.waxes
+        .filter((w) => w.active)
+        .map(
+          (w) =>
+            `<option value="${w.id}" ${w.id === data.wax_id ? "selected" : ""}>${esc(w.name)}</option>`,
+        )
+        .join("")}</select></label>
       <label>Rezerva na ztráty (%)<input id="loss" type="number" min="0" max="30" step="1" value="${data.settings.loss_percent}"></label>
       <label class="check wide"><input type="checkbox" id="no-ufi" ${data.settings.no_ufi ? "checked" : ""}>Bez UFI — u každé vůně držet olej pod hranicí, do které dodavatel uvádí „bez UFI“ (s 5% rezervou)</label>
       <label class="wide">Název výroby (nepovinné)<input id="batch-name" maxlength="120" placeholder="např. Vánoční várka"></label>
@@ -109,15 +117,92 @@ function render() {
     </div>
   </section>
   <section class="panel" id="result"></section>
+  <section class="panel" id="procedure"></section>
   <section class="panel"><h2>Uložené výroby</h2><div id="batches"></div></section>
   <section class="panel"><h2>Etikety na dno</h2><div id="labels"></div></section>
   <section class="panel"><h2>Moje sklenice</h2><div id="jars"></div></section>
+  <section class="panel"><h2>Moje vosky</h2><div id="waxes"></div></section>
   <section class="panel"><h2>Vonné oleje (údaje dodavatele)</h2><div id="oils"></div></section>`;
   renderRows();
   renderBatches();
   renderJars();
   renderOils();
   renderLabels();
+  renderWaxes();
+}
+
+const temp = (n) => (n == null ? null : `${n} °C`);
+function renderProcedure(r) {
+  const el = $("#procedure");
+  if (!el) return;
+  const wax = data.waxes.find((w) => w.id === settings().wax_id);
+  if (!r.totals.candles || !wax) {
+    el.innerHTML =
+      '<h2>Postup výroby</h2><p class="muted">Vyberte vosk a přidejte do plánu svíčky.</p>';
+    return;
+  }
+  const missing = "doplňte v části Moje vosky";
+  const today = new Date();
+  const plus = (days) =>
+    new Date(today.getTime() + days * 864e5).toLocaleDateString("cs-CZ");
+  const flashWarnings = r.scents
+    .filter(
+      (s) =>
+        wax.add_oil_at != null &&
+        s.flashpoint_c != null &&
+        wax.add_oil_at >= s.flashpoint_c - 5,
+    )
+    .map(
+      (s) =>
+        `${scentName(s.product_id)}: bod vzplanutí oleje je ${s.flashpoint_c} °C — olej přidávejte až pod ${s.flashpoint_c - 5} °C.`,
+    );
+  const jars = r.jars
+    .map((j) => {
+      const jar = data.jars.find((x) => x.id === j.id);
+      return `${j.candles}× ${esc(j.name)} (${jar?.fill_g ?? "?"} g na kus)`;
+    })
+    .join(", ");
+  el.innerHTML = `<h2>Postup výroby — ${esc(wax.name)}</h2>
+    <ol class="steps">
+      <li><strong>Příprava.</strong> Sklenice čisté a suché: ${jars}. Na střed dna každé sklenice přilepte knot (${r.jars.reduce((s, j) => s + j.wicks, 0)} knotů) a zajistěte ho držákem. Sklenice předehřejte (např. v troubě na nejnižší stupeň nebo fénem). Připravte váhu, teploměr a konvičku na vosk.</li>
+      <li><strong>Rozpuštění vosku.</strong> Navažte vosk podle tabulky níže (celkem ${grams(r.totals.wax)}) a rozpouštějte ve vodní lázni${wax.heat_to ? ` na <strong>${temp(wax.heat_to)}</strong>` : ` (teplota zahřátí: ${missing})`}. Bod tání vosku: ${esc(wax.melt || "—")}. Vosk nepřehřívejte a nenechávejte bez dozoru.</li>
+      <li><strong>Přidání vonného oleje.</strong> Nechte vosk zchladnout${wax.add_oil_at ? ` na <strong>${temp(wax.add_oil_at)}</strong>` : ` (teplota přidání oleje: ${missing})`}. Přilijte navážený olej pro danou vůni a pomalu, ale důkladně míchejte aspoň 2 minuty, aby se olej s voskem dobře spojil.</li>
+      <li><strong>Lití.</strong> ${wax.pour_from ? `Při teplotě <strong>${wax.pour_from}–${wax.pour_to} °C</strong>` : `Při teplotě lití (${missing})`} lijte pomalu do předehřátých sklenic. Každou sklenici postavte na váhu a nalijte náplň podle tabulky sklenic; nahoře nechte asi 1 cm volného místa.</li>
+      <li><strong>Chladnutí.</strong> Svíčky nechte chladnout pomalu při pokojové teplotě, nejlépe na mřížce, mimo průvan a bez zakrytí. Prvních 24 hodin s nimi nehýbejte. Drobné důlky nebo nerovný povrch po ztuhnutí můžete opatrně zarovnat horkovzdušnou pistolí.</li>
+      <li><strong>Dokončení.</strong> Po ztuhnutí zkraťte knot (bavlněný asi na 6 mm, dřevěný kratší), nalepte etiketu na dno a označte šarži.</li>
+      <li><strong>Zrání.</strong> ${wax.cure_min ? `Nechte svíčky vyzrát ${wax.cure_min}${wax.cure_max ? `–${wax.cure_max}` : ""} dní — při dnešní výrobě jsou hotové <strong>${plus(wax.cure_min)}${wax.cure_max ? ` až ${plus(wax.cure_max)}` : ""}</strong>.` : "Nechte svíčky vyzrát podle doporučení výrobce vosku."} Teprve pak je zapalte nebo prodávejte. Nakonec v Uložených výrobách klikněte „Hotovo → na sklad“.</li>
+    </ol>
+    <h3>Navážit pro každou vůni</h3>
+    <div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Svíček</th><th>Vosk</th><th>Vonný olej</th><th>Bod vzplanutí oleje</th></tr></thead><tbody>${r.scents.map((s) => `<tr><td>${esc(scentName(s.product_id))}</td><td>${s.candles}</td><td>${grams(s.wax)}</td><td><strong>${grams(s.oil)}</strong></td><td>${s.flashpoint_c ? s.flashpoint_c + " °C" : "—"}</td></tr>`).join("")}</tbody></table></div>
+    ${flashWarnings.length ? `<ul class="warnings">${flashWarnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+    ${wax.note ? `<p class="muted">Poznámka k vosku: ${esc(wax.note)}</p>` : ""}
+    <p class="muted">Doporučení dodavatele vosku: max. olej ${esc(wax.max_load || "—")}. Teploty a doby jsou výchozí hodnoty z jeho stránek, upravit je můžete v části Moje vosky.</p>`;
+}
+
+function renderWaxes() {
+  const el = $("#waxes");
+  el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Vosk</th><th>Zahřát</th><th>Olej při</th><th>Lít při</th><th>Zrání</th><th></th></tr></thead><tbody>${data.waxes
+    .map(
+      (w) =>
+        `<tr class="${w.active ? "" : "muted"}"><td>${esc(w.name)}<br><small>tání ${esc(w.melt || "—")} · olej ${esc(w.max_load || "—")}</small></td><td>${temp(w.heat_to) || "—"}</td><td>${temp(w.add_oil_at) || "—"}</td><td>${w.pour_from ? `${w.pour_from}–${w.pour_to} °C` : "—"}</td><td>${w.cure_min ? `${w.cure_min}${w.cure_max ? `–${w.cure_max}` : ""} dní` : "—"}</td><td><button class="inline-button" data-edit-wax="${w.id}">Upravit</button></td></tr>`,
+    )
+    .join("")}</tbody></table></div>
+  <form id="wax-form" class="jar-form">
+    <h3 id="wax-form-title">Přidat vosk</h3>
+    <input type="hidden" name="wax_id">
+    <label>Název<input name="name" required maxlength="80"></label>
+    <label>Bod tání<input name="melt" maxlength="40" placeholder="např. 45–48 °C"></label>
+    <label>Zahřát na (°C)<input name="heat_to" type="number" min="20" max="120"></label>
+    <label>Přidat olej při (°C)<input name="add_oil_at" type="number" min="20" max="120"></label>
+    <label>Lít od (°C)<input name="pour_from" type="number" min="20" max="120"></label>
+    <label>Lít do (°C)<input name="pour_to" type="number" min="20" max="120"></label>
+    <label>Max. olej<input name="max_load" maxlength="60" placeholder="např. 7–8 %"></label>
+    <label>Zrání od (dní)<input name="cure_min" type="number" min="0" max="90"></label>
+    <label>Zrání do (dní)<input name="cure_max" type="number" min="0" max="90"></label>
+    <label class="wide">Poznámka<textarea name="note" rows="2" maxlength="500"></textarea></label>
+    <label class="check"><input type="checkbox" name="active" checked>Používat</label>
+    <div class="workshop-actions"><button class="button">Uložit vosk</button><button type="button" class="inline-button" id="wax-reset">Nový</button></div>
+  </form>`;
 }
 
 const labelValues = () => {
@@ -240,6 +325,7 @@ function renderResult() {
     oils: data.oils,
     ...settings(),
   });
+  renderProcedure(r);
   if (!r.totals.candles) {
     el.innerHTML =
       '<h2>Výpočet</h2><p class="muted">Přidejte řádek s vůní, sklenicí a počtem kusů.</p>';
@@ -329,7 +415,7 @@ document.addEventListener("input", (e) => {
     saveDraft();
     renderResult();
   }
-  if (["load", "loss", "no-ufi"].includes(e.target.id)) renderResult();
+  if (["load", "loss", "no-ufi", "wax"].includes(e.target.id)) renderResult();
   if (e.target.closest("#label-print")) renderLabelPreview();
   if (e.target.name === "water_g") {
     const water = Number(e.target.value);
@@ -337,8 +423,10 @@ document.addEventListener("input", (e) => {
   }
 });
 document.addEventListener("change", (e) => {
-  if (["load", "loss", "no-ufi"].includes(e.target.id))
+  if (["load", "loss", "no-ufi", "wax"].includes(e.target.id)) {
+    data.wax_id = settings().wax_id;
     guard(() => api("workshop/settings", settings()))();
+  }
 });
 document.addEventListener(
   "click",
@@ -381,6 +469,7 @@ document.addEventListener(
       rows = b.items.map((i) => ({ ...i }));
       $("#load").value = b.load_percent;
       $("#no-ufi").checked = Boolean(b.no_ufi);
+      if (b.result.wax?.id) $("#wax").value = b.result.wax.id;
       $("#loss").value = b.loss_percent;
       $("#batch-name").value = b.name;
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -420,6 +509,32 @@ document.addEventListener(
       $("#jar-form-title").textContent = "Upravit sklenici";
       f.scrollIntoView({ behavior: "smooth" });
       return;
+    } else if (t.dataset.editWax) {
+      const w = data.waxes.find((w) => w.id === Number(t.dataset.editWax));
+      const f = $("#wax-form");
+      f.elements.wax_id.value = w.id;
+      for (const k of [
+        "name",
+        "melt",
+        "heat_to",
+        "add_oil_at",
+        "pour_from",
+        "pour_to",
+        "max_load",
+        "cure_min",
+        "cure_max",
+        "note",
+      ])
+        f.elements[k].value = w[k] ?? "";
+      f.elements.active.checked = Boolean(w.active);
+      $("#wax-form-title").textContent = "Upravit vosk";
+      f.scrollIntoView({ behavior: "smooth" });
+      return;
+    } else if (t.id === "wax-reset") {
+      $("#wax-form").reset();
+      $("#wax-form").elements.wax_id.value = "";
+      $("#wax-form-title").textContent = "Přidat vosk";
+      return;
     } else if (t.id === "jar-reset") {
       $("#jar-form").reset();
       $("#jar-form").elements.jar_id.value = "";
@@ -450,6 +565,18 @@ document.addEventListener(
       data.labels[id] = { ...body, source: "upraveno ručně" };
       status("Texty etikety jsou uložené.");
       return renderLabelPreview();
+    }
+    if (e.target.matches("#wax-form")) {
+      e.preventDefault();
+      const f = e.target;
+      const values = Object.fromEntries(new FormData(f));
+      await api("workshop/wax", {
+        ...values,
+        id: values.wax_id ? Number(values.wax_id) : null,
+        active: f.elements.active.checked,
+      });
+      status("Vosk je uložený.");
+      return load();
     }
     if (e.target.matches("#label-settings")) {
       e.preventDefault();

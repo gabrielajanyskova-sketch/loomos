@@ -39,6 +39,8 @@ try {
   await page.goto(base);
   await page.locator(".product-card").nth(3).waitFor();
   assert.equal(await page.locator(".product-card").count(), 4);
+  // Wait until the catalog script has loaded (stock and member price are filled in).
+  await page.locator(".product-card [data-add][data-label]").first().waitFor();
   assert.match(
     await page.locator(".product-card .member-price").first().textContent(),
     /237/,
@@ -46,9 +48,8 @@ try {
   await page
     .locator('[data-card-size="okurka-zazvor-mata"]')
     .selectOption("velka");
-  assert.match(
-    await page.locator("[data-card-price]").first().textContent(),
-    /349/,
+  await page.waitForFunction(() =>
+    /349/.test(document.querySelector("[data-card-price]")?.textContent),
   );
   await page.locator(".product-card").first().locator("[data-add]").click();
   await page.screenshot({ path: path.join(artifacts, "home-desktop.png") });
