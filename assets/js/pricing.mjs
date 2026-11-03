@@ -40,6 +40,12 @@ export const SHIPPING = {
     kind: "point",
     provider: "balikovna",
   },
+  balikovna_domu: {
+    label: "Česká pošta — doručení domů",
+    price: 129,
+    kind: "home",
+    provider: "balikovna",
+  },
 };
 export const shippingKind = (id) => SHIPPING[id]?.kind || "pickup";
 export const shippingProvider = (id) => SHIPPING[id]?.provider || null;

@@ -783,3 +783,23 @@ test("Balíkovna: point picked on the Česká pošta map is required and kept fo
   });
   assert.equal(res.body.pickup_point, "Nový Jičín 1, 741 01");
 });
+
+test("Česká pošta home delivery needs an address, not a Balíkovna", async () => {
+  const call = client(shop.url);
+  const res = await call(
+    "/api/orders",
+    order({
+      email: "posta-domu@example.com",
+      shipping: "balikovna_domu",
+      pickup_point: "",
+      packeta_point_id: "",
+      street: "Hlavní 5",
+      city: "Praha",
+      zip: "110 00",
+    }),
+  );
+  assert.equal(res.status, 201, JSON.stringify(res.body));
+  assert.equal(res.body.pricing.shippingPrice, 129);
+  assert.equal(res.body.balikovna, null);
+  assert.equal(res.body.address.zip, "11000");
+});

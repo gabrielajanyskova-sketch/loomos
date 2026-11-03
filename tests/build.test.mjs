@@ -48,7 +48,10 @@ test("deployment output never contains source, database, tests, secrets or old i
     ),
   );
   assert.match(read("_headers"), /frame-ancestors 'none'/);
-  assert.ok(!read("_headers").includes("unsafe-inline"));
+  // Only checkout allows inline styles (the Packeta widget sets style attributes); never inline scripts.
+  const headers = read("_headers");
+  assert.ok(!headers.split("/pokladna*")[0].includes("unsafe-inline"));
+  assert.ok(!/script-src[^;]*unsafe-inline/.test(headers));
   assert.match(read("_headers"), /X-Robots-Tag: noindex/);
 });
 test("sitemap points only to real indexable content routes on the future domain", () => {

@@ -191,7 +191,10 @@ export async function createOrder(db, request, env, ctx) {
   let pointId = "";
   let address = null;
   let balikovna = null;
-  if (shippingProvider(shipping) === "balikovna") {
+  if (
+    shippingProvider(shipping) === "balikovna" &&
+    shippingKind(shipping) === "point"
+  ) {
     // Česká pošta needs the Balíkovna ZIP and name for the label ("BALÍKOVNA / ZIP NAME").
     balikovna = {
       id: text(String(data.balikovna_id ?? ""), "Balíkovna", 12),
