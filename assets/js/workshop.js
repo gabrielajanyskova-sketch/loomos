@@ -121,6 +121,7 @@ function render() {
   <section class="panel"><h2>Uložené výroby</h2><div id="batches"></div></section>
   <section class="panel"><h2>Etikety na dno</h2><div id="labels"></div></section>
   <section class="panel"><h2>Moje sklenice</h2><div id="jars"></div></section>
+  <section class="panel"><h2>Testy knotů</h2><div id="wick-tests"></div></section>
   <section class="panel"><h2>Moje vosky</h2><div id="waxes"></div></section>
   <section class="panel"><h2>Vonné oleje (údaje dodavatele)</h2><div id="oils"></div></section>`;
   renderRows();
@@ -129,6 +130,77 @@ function render() {
   renderOils();
   renderLabels();
   renderWaxes();
+  renderWickTests();
+}
+
+const FLAME = {
+  mala: "malý / slabý",
+  dobra: "akorát",
+  velka: "moc velký",
+  nestabilni: "skáče / čoudí",
+};
+function renderWickTests() {
+  const el = $("#wick-tests");
+  const jarName = (id) => data.jars.find((j) => j.id === id)?.name || "—";
+  const waxName = (id) => data.waxes.find((w) => w.id === id)?.name || "";
+  const tests = data.wick_tests;
+  const byJar = new Map();
+  for (const t of tests) {
+    const best = byJar.get(t.jar_id);
+    if (t.rating && (!best || t.rating > best.rating)) byJar.set(t.jar_id, t);
+  }
+  el.innerHTML = `<p class="muted">Zapalte zkušební svíčku a po 2–3 hodinách zapište výsledek. Ideální knot rozpustí vosk až k okraji sklenice, plamen je klidný (cca 1–2 cm), nečoudí a na knotu se nedělá „houbička“.</p>
+  <form id="wick-form" class="jar-form">
+    <label>Sklenice<select name="jar_id">${data.jars.map((j) => `<option value="${j.id}">${esc(j.name)}</option>`).join("")}</select></label>
+    <label>Knot<input name="wick" required maxlength="80" placeholder="např. dřevěný 13 mm"></label>
+    <label>Vůně<select name="product_id"><option value="">—</option>${data.scents.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select></label>
+    <label>Vosk<select name="wax_id">${data.waxes.map((w) => `<option value="${w.id}" ${w.id === data.wax_id ? "selected" : ""}>${esc(w.name)}</option>`).join("")}</select></label>
+    <label>Hořelo hodin<input name="hours" type="number" min="0" max="100" step="0.5" value="3"></label>
+    <label>Šíře rozpuštěného vosku (mm)<input name="melt_mm" type="number" min="0" max="300"></label>
+    <label>Plamen<select name="flame"><option value="">—</option>${Object.entries(
+      FLAME,
+    )
+      .map(([k, v]) => `<option value="${k}">${v}</option>`)
+      .join("")}</select></label>
+    <label>Hodnocení<select name="rating"><option value="">—</option>${[5, 4, 3, 2, 1].map((n) => `<option value="${n}">${"★".repeat(n)}</option>`).join("")}</select></label>
+    <label class="check"><input type="checkbox" name="full_pool">Rozpuštěno až k okraji</label>
+    <label class="check"><input type="checkbox" name="soot">Čoudí / černá sklo</label>
+    <label class="check"><input type="checkbox" name="mushroom">Houbička na knotu</label>
+    <label class="wide">Poznámka<textarea name="note" rows="2" maxlength="500" placeholder="např. tunel po 1. hoření, vůně slabší…"></textarea></label>
+    <div class="workshop-actions"><button class="button">Uložit test</button></div>
+  </form>
+  ${
+    byJar.size
+      ? `<h3>Nejlépe hodnocené knoty</h3><ul class="order-list">${[...byJar]
+          .map(
+            ([jarId, t]) =>
+              `<li><span>${esc(jarName(jarId))}</span><strong>${esc(t.wick)} ${"★".repeat(t.rating)}</strong><button class="inline-button" data-use-wick="${t.id}">Nastavit u sklenice</button></li>`,
+          )
+          .join("")}</ul>`
+      : ""
+  }
+  ${
+    tests.length
+      ? `<div class="table-wrap"><table><thead><tr><th>Datum</th><th>Sklenice / knot</th><th>Vůně, vosk</th><th>Výsledek</th><th></th></tr></thead><tbody>${tests
+          .map(
+            (t) =>
+              `<tr><td>${new Date(t.created * 1000).toLocaleDateString("cs-CZ")}</td><td>${esc(jarName(t.jar_id))}<br><strong>${esc(t.wick)}</strong></td><td>${esc(t.product_id ? scentName(t.product_id) : "—")}<br><small>${esc(waxName(t.wax_id))}</small></td><td>${[
+                t.hours != null ? `${num(t.hours)} h` : "",
+                t.melt_mm != null ? `vosk ${t.melt_mm} mm` : "",
+                t.full_pool ? "až k okraji" : "",
+                t.flame ? `plamen ${FLAME[t.flame]}` : "",
+                t.soot ? "čoudí" : "",
+                t.mushroom ? "houbička" : "",
+                t.rating ? "★".repeat(t.rating) : "",
+              ]
+                .filter(Boolean)
+                .join(
+                  " · ",
+                )}${t.note ? `<br><small>${esc(t.note)}</small>` : ""}</td><td><button class="inline-button danger" data-delete-wick="${t.id}">Smazat</button></td></tr>`,
+          )
+          .join("")}</tbody></table></div>`
+      : '<p class="muted">Zatím žádné testy.</p>'
+  }`;
 }
 
 const temp = (n) => (n == null ? null : `${n} °C`);
@@ -532,6 +604,31 @@ document.addEventListener(
       $("#wax-form-title").textContent = "Upravit vosk";
       f.scrollIntoView({ behavior: "smooth" });
       return;
+    } else if (t.dataset.useWick) {
+      const test = data.wick_tests.find(
+        (x) => x.id === Number(t.dataset.useWick),
+      );
+      const jar = data.jars.find((j) => j.id === test.jar_id);
+      if (
+        !jar ||
+        !confirm(`Nastavit u sklenice „${jar.name}“ knot „${test.wick}“?`)
+      )
+        return;
+      await api("workshop/jar", {
+        ...jar,
+        wick: test.wick,
+        active: Boolean(jar.active),
+      });
+      status("Knot je nastavený u sklenice.");
+      await load();
+      return;
+    } else if (t.dataset.deleteWick) {
+      if (!confirm("Smazat tento test?")) return;
+      await api("workshop/wick-test-delete", {
+        id: Number(t.dataset.deleteWick),
+      });
+      await load();
+      return;
     } else if (t.id === "wax-reset") {
       $("#wax-form").reset();
       $("#wax-form").elements.wax_id.value = "";
@@ -578,6 +675,21 @@ document.addEventListener(
         active: f.elements.active.checked,
       });
       status("Vosk je uložený.");
+      return load();
+    }
+    if (e.target.matches("#wick-form")) {
+      e.preventDefault();
+      const f = e.target;
+      const values = Object.fromEntries(new FormData(f));
+      await api("workshop/wick-test", {
+        ...values,
+        jar_id: Number(values.jar_id) || null,
+        wax_id: Number(values.wax_id) || null,
+        full_pool: f.elements.full_pool.checked,
+        soot: f.elements.soot.checked,
+        mushroom: f.elements.mushroom.checked,
+      });
+      status("Test knotu je uložený.");
       return load();
     }
     if (e.target.matches("#label-settings")) {

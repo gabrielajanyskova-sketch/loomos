@@ -116,6 +116,12 @@ for (const dir of ["img", "fonts"])
       await fs.readFile(path.join(root, "assets", dir, name)),
     );
   }
+for (const name of await fs.readdir(path.join(root, "assets/img/pikto")))
+  if (name.endsWith(".png"))
+    await write(
+      `assets/img/pikto/${name}`,
+      await fs.readFile(path.join(root, "assets/img/pikto", name)),
+    );
 await write("data/products.json", JSON.stringify(products));
 const pages = [
   ["index.html", "home"],

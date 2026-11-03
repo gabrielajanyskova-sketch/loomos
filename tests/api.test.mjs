@@ -532,3 +532,38 @@ test("Dílnička: wax profiles are seeded, editable and stored with a batch", as
   const batch = (await a("/api/admin/workshop")).body.batches[0];
   assert.equal(batch.result.wax.name, c3.name);
 });
+
+test("Dílnička: wick tests are logged, validated and deletable", async () => {
+  const a = await admin();
+  const jar = (await a("/api/admin/workshop")).body.jars[0];
+  assert.equal(
+    (
+      await a("/api/admin/workshop/wick-test", {
+        jar_id: jar.id,
+        wick: "dřevěný 15 mm",
+        product_id: "okurka-zazvor-mata",
+        hours: "3",
+        melt_mm: "77",
+        full_pool: true,
+        flame: "dobra",
+        rating: "5",
+      })
+    ).status,
+    201,
+  );
+  assert.equal(
+    (await a("/api/admin/workshop/wick-test", { wick: "x", flame: "obri" }))
+      .status,
+    400,
+  );
+  const tests = (await a("/api/admin/workshop")).body.wick_tests;
+  assert.equal(tests[0].wick, "dřevěný 15 mm");
+  assert.equal(tests[0].full_pool, true);
+  assert.equal(tests[0].melt_mm, 77);
+  await a("/api/admin/workshop/wick-test-delete", { id: tests[0].id });
+  assert.ok(
+    !(await a("/api/admin/workshop")).body.wick_tests.some(
+      (t) => t.id === tests[0].id,
+    ),
+  );
+});
