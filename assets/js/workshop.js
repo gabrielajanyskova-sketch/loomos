@@ -110,6 +110,7 @@ const KNOWLEDGE = `<div class="knowledge">
 <li><strong>Díra nebo propadlina u knotu:</strong> sójový vosk se při chladnutí smršťuje, střed kolem knotu tuhne poslední a pod povrchem vznikne dutina (u dřevěného knotu častěji). Před prodejem opravit — knot by se při hoření mohl propadnout nebo čadit.</li>
 <li><strong>Oprava:</strong> po ztuhnutí udělat špejlí 2–3 hluboké díry asi 1 cm od knotu (skoro ke dnu), dolít trochou stejného vosku jen do roviny a nakonec povrch přejet horkovzdušnou pistolí.</li>
 <li><strong>Praskliny na povrchu:</strong> svíčka chladla moc rychle nebo nerovnoměrně (průvan, okno, studená deska, moc horký vosk). Stačí přejet povrch horkovzdušnou pistolí.</li>
+<li><strong>Odlepení od skla (wet spots, „mokré skvrny“):</strong> vosk se při chladnutí smrští a místy odtrhne od skla — běžné u sójového vosku, jen vzhled, na hoření ani vůni nemá vliv. Příčiny: studené nebo mastné sklenice, moc horký vosk, rychlé chladnutí, výkyvy teploty. Prevence: sklenice otřít izopropylalkoholem, předehřát na 40–50 °C, lít při 55–60 °C, chladnout pomalu a skladovat při stálé teplotě. Částečná oprava: sklo zvenku krátce prohřát horkovzdušnou pistolí (stále v pohybu, ať sklo nepraskne).</li>
 <li><strong>Prevence:</strong> lít chladnější (55–60 °C), sklenice předehřát, chladnout pomalu v pokoji 20–22 °C bez průvanu, volně přikryté krabicí, podložené dřevem, korkem nebo mřížkou — ne na studené desce. Lít pomalu, aby nevznikaly bublinky.</li>
 </ul></details>
 <details><summary>Vonné oleje — rady dodavatele</summary><ul>
