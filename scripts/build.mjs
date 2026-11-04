@@ -12,7 +12,7 @@ import {
   safetyTable,
   esc,
 } from "../assets/js/ui.mjs";
-import { validateCatalog, isCandle } from "../assets/js/catalog.mjs";
+import { validateCatalog, isCandle, giftFor } from "../assets/js/catalog.mjs";
 import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
 
@@ -128,6 +128,8 @@ const pages = [
   ["obchod.html", "shop"],
   ["velkoobchod.html", "wholesale"],
   ["lapace-slunce.html", "suncatchers"],
+  ["darek-pro-ni.html", "gifts-her"],
+  ["darek-pro-nej.html", "gifts-him"],
   ["kosik.html", "cart"],
   ["pokladna.html", "checkout"],
   ["admin/index.html", "admin"],
@@ -197,6 +199,19 @@ for (const [file, page, product] of pages) {
         `$1${products.filter(isCandle).length} vůní v nabídce$2`,
       );
     }
+    if (page === "gifts-her" || page === "gifts-him")
+      html = slot(
+        html,
+        "gift-products",
+        products
+          .filter(
+            (p) =>
+              isCandle(p) &&
+              giftFor(p, page === "gifts-her" ? "pro-ni" : "pro-nej"),
+          )
+          .map(productCard)
+          .join(""),
+      );
     if (page === "suncatchers") {
       const list = products.filter((p) => !isCandle(p));
       if (list.length)
@@ -223,6 +238,8 @@ for (const [file, page, product] of pages) {
       "shop",
       "wholesale",
       "suncatchers",
+      "gifts-her",
+      "gifts-him",
       "product",
       "terms",
       "privacy",
@@ -252,7 +269,7 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Dárek pro ni — vonné svíčky pro ženy](${siteUrl}/darek-pro-ni)\n- [Dárek pro něj — pánské vonné svíčky](${siteUrl}/darek-pro-nej)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
     .filter(isCandle)
     .map(
       (p) =>
