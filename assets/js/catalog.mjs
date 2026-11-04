@@ -1,6 +1,9 @@
 /** Product categories: candles (default) and window sun catchers. */
 export const SUNCATCHER = "lapace-slunce";
 export const isCandle = (p) => (p.category || "svicky") === "svicky";
+/** Gift audiences: "pro-ni" (for her), "pro-nej" (for him); both = unisex. */
+export const GIFTS = { "pro-ni": "Pro ni", "pro-nej": "Pro něj" };
+export const giftFor = (p, who) => Boolean(p.gift?.includes(who));
 
 /** Validate the same public catalog in the static build and the browser. */
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -27,6 +30,11 @@ export function validateCatalog(value) {
     for (const key of ["subtitle", "notes", "description"])
       if (typeof p[key] !== "string")
         throw new TypeError("Neplatný popis produktu.");
+    if (
+      p.gift !== undefined &&
+      (!Array.isArray(p.gift) || p.gift.some((g) => !(g in GIFTS)))
+    )
+      throw new TypeError("Neplatné určení dárku.");
     if (
       p.character !== undefined &&
       (!Array.isArray(p.character) ||

@@ -9,7 +9,7 @@ import {
   renderProductDetail,
   renderFAQ,
 } from "./ui.mjs";
-import { validateCatalog, readCart, isCandle } from "./catalog.mjs";
+import { validateCatalog, readCart, isCandle, giftFor } from "./catalog.mjs";
 import {
   memberPrice,
   priceCart,
@@ -810,6 +810,13 @@ async function init() {
   const candles = products.filter(isCandle);
   if (page === "home")
     $("#home-products").innerHTML = candles.map(productCard).join("");
+  if (page === "gifts-her" || page === "gifts-him") {
+    const who = page === "gifts-her" ? "pro-ni" : "pro-nej";
+    $("#gift-products").innerHTML = candles
+      .filter((p) => giftFor(p, who))
+      .map(productCard)
+      .join("");
+  }
   if (page === "suncatchers") {
     const list = products.filter((p) => !isCandle(p));
     $("#suncatcher-products").innerHTML = list.length
@@ -817,8 +824,17 @@ async function init() {
       : '<div class="coming-soon"><span class="pill">PŘIPRAVUJEME</span><p>První lapače slunce právě vyrábím. Chcete vědět, až budou? <a href="mailto:info@loomos.cz?subject=Lapa%C4%8De%20slunce">Napište mi</a> a dám vám vědět.</p></div>';
   }
   if (page === "shop") {
+    const tabs = [...document.querySelectorAll("[data-filter]")];
+    let filter = new URLSearchParams(location.search).get("pro");
+    filter = filter ? `pro-${filter}` : "all";
     const render = () => {
-      const list = [...candles];
+      tabs.forEach((t) => {
+        t.classList.toggle("active", t.dataset.filter === filter);
+        t.setAttribute("aria-pressed", String(t.dataset.filter === filter));
+      });
+      const list = candles.filter(
+        (p) => filter === "all" || giftFor(p, filter),
+      );
       const sort = $("#sort").value;
       if (sort === "price-up") list.sort((a, b) => a.price - b.price);
       if (sort === "price-down") list.sort((a, b) => b.price - a.price);
@@ -827,9 +843,24 @@ async function init() {
       $("#shop-products").innerHTML = list.length
         ? list.map(productCard).join("")
         : "<p>Nové vůně právě připravuji.</p>";
-      $("#product-count").textContent = `${list.length} vůní v nabídce`;
+      const n = list.length;
+      const word = n === 1 ? "vůně" : n >= 2 && n <= 4 ? "vůně" : "vůní";
+      $("#product-count").textContent =
+        filter === "all"
+          ? `${n} ${word} v nabídce`
+          : `${n} ${word} ${filter === "pro-ni" ? "pro ni" : "pro něj"}`;
       refreshCards();
     };
+    tabs.forEach((t) =>
+      t.addEventListener("click", () => {
+        filter = t.dataset.filter;
+        const url = new URL(location.href);
+        if (filter === "all") url.searchParams.delete("pro");
+        else url.searchParams.set("pro", filter.slice(4));
+        history.replaceState(null, "", url);
+        render();
+      }),
+    );
     $("#sort").addEventListener("change", render);
     render();
   }

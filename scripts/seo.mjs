@@ -24,6 +24,8 @@ const titles = {
   shop: "Sójové svíčky — vůně pro vaše chvíle, dvě velikosti | LOOMOS",
   wholesale: "Spolupráce a zakázková tvorba | LOOMOS",
   suncatchers: "Lapače slunce — duhové nálepky na okno | LOOMOS",
+  "gifts-her": "Dárek pro ni — vonné svíčky pro ženy | LOOMOS",
+  "gifts-him": "Dárek pro něj — pánské vonné svíčky | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
   admin: "Administrace | LOOMOS",
@@ -41,6 +43,10 @@ const descriptions = {
   safety:
     "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používám, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si z vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
+  "gifts-her":
+    "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi a dřevěným knotem. Dárek pro ženu, přítelkyni i mámu k Vánocům, narozeninám nebo na Valentýna.",
+  "gifts-him":
+    "Tip na dárek pro něj: pánské vonné svíčky ze sójového vosku s dřevěným knotem — cedr, pačuli, ambra, mořské tóny. Dárek pro muže, přítele i tátu k Vánocům, narozeninám nebo na svátek.",
   suncatchers:
     "Lapače slunce LOOMOS: nálepky na okno z hranolové fólie, které ze slunečních paprsků vykouzlí duhy na stěnách i podlaze. Jak fungují, kam je nalepit a nabídka.",
   wholesale:
@@ -54,6 +60,8 @@ const crumbs = {
   shop: "Svíčky",
   wholesale: "Spolupráce",
   suncatchers: "Lapače slunce",
+  "gifts-her": "Dárek pro ni",
+  "gifts-him": "Dárek pro něj",
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
   safety: "Složení a bezpečnost",
