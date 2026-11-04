@@ -3,6 +3,7 @@ import {
   money,
   esc,
   productCard,
+  saleMarkup,
   burnLine,
   renderHeader,
   renderFooter,
@@ -123,7 +124,7 @@ function lines() {
         id: i.id,
         variant: v?.id || "",
         name: p.name + (v ? " — " + v.name : ""),
-        price: v?.price ?? p.price,
+        price: v ? v.price : p.price,
         qty: i.qty,
       };
     })
@@ -163,7 +164,7 @@ function add(id, qty = 1, variantId = "mala") {
   const variant = variantOf(product || {}, variantId);
   if (
     !product ||
-    !Number.isInteger(variant?.price ?? product.price) ||
+    !Number.isInteger(variant ? variant.price : product.price) ||
     (product.variants?.length && !variant)
   )
     return;
@@ -191,14 +192,22 @@ function availability(button, product, variantId) {
   if (!button || !product) return;
   const stock = stockOf(product, variantId);
   const soldOut = stock === 0;
-  button.disabled = soldOut || product.price == null;
+  const selected = variantOf(product, variantId);
+  const selectedPrice = selected ? selected.price : product.price;
+  button.disabled = soldOut || selectedPrice == null;
   button.dataset.soldOut = soldOut ? "1" : "";
   const label = button.querySelector(".add-label") || button;
   const plus = button.querySelector(".add-label + span");
-  if (plus) plus.hidden = soldOut;
+  if (plus) {
+    plus.hidden = soldOut || selectedPrice == null;
+    plus.textContent = "＋";
+  }
   if (soldOut) label.textContent = "Vyprodáno";
-  else if (product.price == null) label.textContent = "Cenu připravujeme";
-  else if (button.dataset.label) label.textContent = button.dataset.label;
+  else if (selectedPrice == null) label.textContent = "Cenu připravujeme";
+  else
+    label.textContent = button.querySelector(".add-label")
+      ? "Přidat do košíku"
+      : "Přidat do košíku ＋";
   const note = button
     .closest(".product-meta, .detail-copy")
     ?.querySelector(".stock-note");
@@ -215,11 +224,14 @@ function refreshCards(root = document) {
     if (!product) return;
     const select = $("[data-card-size]", card);
     const variant = variantOf(product, select?.value);
-    const price = variant?.price ?? product.price;
+    const price = variant ? variant.price : product.price;
     $("[data-card-price]", card).textContent = money(price);
+    const reference = $("[data-sale-reference]", card);
+    if (reference) reference.innerHTML = saleMarkup(variant ?? product);
     const burn = $("[data-card-burn]", card);
     if (burn) burn.textContent = burnLine(variant, price);
     const memberEl = $("[data-card-member]", card);
+    if (memberEl) memberEl.hidden = price == null;
     if (memberEl && price != null)
       memberEl.innerHTML = member
         ? `Vaše cena s účtem: <strong>${money(memberPrice(price))}</strong>`
@@ -259,11 +271,14 @@ function updateDetail() {
   const p = products.find((p) => p.id === document.body.dataset.product);
   if (!p) return;
   const v = variantOf(p, $("#size-choice")?.value);
-  const price = v?.price ?? p.price;
+  const price = v ? v.price : p.price;
   $("#detail-price").textContent = money(price);
+  const reference = $(".detail-copy [data-sale-reference]");
+  if (reference) reference.innerHTML = saleMarkup(v ?? p);
   if ($("#detail-burn")) $("#detail-burn").textContent = burnLine(v, price);
   const memberEl = $("#detail-member-price");
-  if (memberEl) memberEl.textContent = money(memberPrice(price));
+  if (memberEl)
+    memberEl.textContent = money(price == null ? null : memberPrice(price));
   const button = $(".detail-copy [data-add]");
   if (button) {
     button.dataset.label ||= "Přidat do košíku ＋";
@@ -821,7 +836,9 @@ async function init() {
     const p = products.find((p) => p.id === i.id);
     return (
       p &&
-      Number.isInteger(p.price) &&
+      Number.isInteger(
+        p.variants?.length ? variantOf(p, i.variant)?.price : p.price,
+      ) &&
       (!p.variants?.length || variantOf(p, i.variant))
     );
   });

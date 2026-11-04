@@ -14,7 +14,8 @@ import {
   readSession,
   safeEqual,
 } from "./auth.js";
-import { catalog, variantsOf } from "./catalog.js";
+import { saveProductPrice } from "./product-prices.js";
+import { catalog, variantsOf, publicCatalog } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { shippingKind, shippingProvider } from "../../assets/js/pricing.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
@@ -265,14 +266,31 @@ export async function stock(db) {
     results.map((r) => [`${r.product_id}::${r.variant_id}`, r.quantity]),
   );
   return json(
-    catalog.flatMap((p) =>
+    (await publicCatalog(db)).flatMap((p) =>
       variantsOf(p).map((v) => ({
         product_id: p.id,
         variant_id: v.id,
         name: p.name + (v.name ? ` — ${v.name}` : ""),
         price: v.price,
+        regular_price: p.variants?.length ? v.regular_price : p.regular_price,
+        sale_price: p.variants?.length ? v.sale_price : p.sale_price,
+        lowest_30: p.variants?.length ? v.lowest_30 : p.lowest_30,
+        revision: p.variants?.length ? v.revision : p.revision,
+        tracked_since: p.variants?.length ? v.tracked_since : p.tracked_since,
         quantity: map[`${p.id}::${v.id}`] ?? null,
       })),
+    ),
+  );
+}
+
+export async function setPrice(db, request) {
+  assertSameOrigin(request);
+  return json(
+    await saveProductPrice(
+      db,
+      await readJson(request, 2048),
+      catalog,
+      variantsOf,
     ),
   );
 }

@@ -3165,3 +3165,37 @@ a.category-card {
   font-size: 13px;
   color: #c2b5a5;
 }
+
+.suncatcher-product-image {
+  aspect-ratio: 3 / 4;
+}
+.product-card .suncatcher-product-image img,
+.detail-photo .suncatcher-product-image img {
+  object-fit: contain;
+  object-position: center;
+  filter: none;
+}
+
+.sale-reference {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 14px;
+  font-size: 14px;
+}
+.sale-reference del {
+  color: var(--muted);
+  font-size: 18px;
+}
+.sale-reference span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.stock-price-table input {
+  min-width: 120px;
+  width: 140px;
+}
+.stock-price-table small {
+  display: block;
+  margin-top: 6px;
+}

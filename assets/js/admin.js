@@ -230,23 +230,34 @@ function orderDetail(number) {
 /* ---------- stock ---------- */
 async function renderStock(el) {
   const rows = await api("stock");
-  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad</h2></div><p class="muted">Prázdné pole = sklad se nehlídá (zboží lze vždy objednat). Při 0 se v e-shopu zobrazí „Vyprodáno“. Objednávka sklad automaticky odečte, zrušení ho vrátí.</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Cena</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows
-    .map(
-      (r) =>
-        `<tr class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}</td><td>${money(r.price)}</td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`,
-    )
-    .join("")}</tbody></table></div>`;
+  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2></div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}<br><small>Aktuálně: ${money(r.price)}</small></td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 async function saveStock(row) {
+  const inputs = [...row.querySelectorAll("input")];
+  if (inputs.some((i) => !i.reportValidity())) return;
   const input = $(".stock-input", row);
-  const value = input.value.trim();
-  await api("stock", {
-    product_id: input.dataset.product,
-    variant_id: input.dataset.variant,
-    quantity: value === "" ? null : Number(value),
-  });
-  status("Sklad je uložený.");
-  await show("stock");
+  const number = (selector) => {
+    const value = $(selector, row).value.trim();
+    return value === "" ? null : Number(value);
+  };
+  const button = $("[data-save-stock]", row);
+  if (button.disabled) return;
+  button.disabled = true;
+  try {
+    await api("prices", {
+      product_id: input.dataset.product,
+      variant_id: input.dataset.variant,
+      revision: Number(row.dataset.revision),
+      quantity: number(".stock-input"),
+      regular_price: number(".regular-price-input"),
+      sale_price: number(".sale-price-input"),
+      confirmed_lowest_30: number(".reference-price-input"),
+    });
+    status("Sklad i ceny jsou uložené.");
+    await show("stock");
+  } finally {
+    button.disabled = false;
+  }
 }
 
 /* ---------- customers ---------- */
@@ -393,7 +404,7 @@ document.addEventListener("click", (e) => {
     });
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && e.target.matches(".stock-input")) {
+  if (e.key === "Enter" && e.target.matches(".stock-price-table input")) {
     e.preventDefault();
     guard(() => saveStock(e.target.closest("tr")));
   }

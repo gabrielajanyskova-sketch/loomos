@@ -96,11 +96,11 @@ test("JSON-LD cannot break out of its non-executable script", () => {
   );
 });
 
-test("fifteen unpriced sun catchers render without wax claims or zero prices", () => {
+test("fourteen unpriced sun catchers render without wax claims or zero prices", () => {
   const catchers = validateCatalog(products).filter(
     (p) => p.category === "lapace-slunce",
   );
-  assert.equal(catchers.length, 15);
+  assert.equal(catchers.length, 14);
   for (const p of catchers) {
     assert.equal(p.price, null);
     const html = productCard(p, 0) + renderProductDetail(p);
@@ -130,5 +130,20 @@ test("fifteen unpriced sun catchers render without wax claims or zero prices", (
   assert.deepEqual(
     readCart('[{"id":"lapac-slunce-sova","variant":"","qty":1}]'),
     [{ id: "lapac-slunce-sova", variant: "", qty: 1 }],
+  );
+});
+
+test("nullable candle variant prices disable only that size, zero remains invalid", () => {
+  const p = {
+    ...products[0],
+    price: null,
+    variants: products[0].variants.map((v, i) => ({
+      ...v,
+      price: i === 0 ? null : v.price,
+    })),
+  };
+  assert.equal(validateCatalog([p])[0].variants[0].price, null);
+  assert.throws(() =>
+    validateCatalog([{ ...p, variants: [{ ...p.variants[0], price: 0 }] }]),
   );
 });

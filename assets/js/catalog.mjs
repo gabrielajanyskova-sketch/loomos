@@ -122,7 +122,6 @@ export function validateCatalog(value) {
                 v.burn_hours > 0 &&
                 v.burn_hours <= 500
               )) ||
-            !Number.isSafeInteger(v.price) ||
             !validPrice(v.price),
         ))
     )
