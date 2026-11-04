@@ -1,4 +1,5 @@
 import { brand, faqs, seller } from "../assets/js/site.mjs";
+import { isCandle } from "../assets/js/catalog.mjs";
 import { esc } from "../assets/js/ui.mjs";
 
 export const ogImage = {
@@ -22,6 +23,7 @@ const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
   shop: "Sójové svíčky — čtyři vůně, dvě velikosti | LOOMOS",
   wholesale: "Spolupráce a zakázková tvorba | LOOMOS",
+  suncatchers: "Lapače slunce — duhové nálepky na okno | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
   admin: "Administrace | LOOMOS",
@@ -39,6 +41,8 @@ const descriptions = {
   safety:
     "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používáme, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si ze čtyř vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
+  suncatchers:
+    "Lapače slunce LOOMOS: nálepky na okno z hranolové fólie, které ze slunečních paprsků vykouzlí duhy na stěnách i podlaze. Jak fungují, kam je nalepit a nabídka.",
   wholesale:
     "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište nám a domluvíme se osobně.",
   terms:
@@ -49,6 +53,7 @@ const descriptions = {
 const crumbs = {
   shop: "Svíčky",
   wholesale: "Spolupráce",
+  suncatchers: "Lapače slunce",
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
   safety: "Složení a bezpečnost",
@@ -171,11 +176,13 @@ export function metadata({
       description: product.description,
       url: canonical,
       sku: product.id,
-      category: "Vonné svíčky",
+      category: isCandle(product) ? "Vonné svíčky" : "Lapače slunce",
       image: [siteUrl + "/assets/img/candle-1536.webp", siteUrl + ogImage.path],
       brand: { "@type": "Brand", name: brand.name },
       manufacturer: { "@id": organization["@id"] },
-      material: "Sójový vosk; čiré sklo; dřevěný knot",
+      material: isCandle(product)
+        ? "Sójový vosk; čiré sklo; dřevěný knot"
+        : "Hranolová (duhová) fólie na okno",
       additionalProperty: [
         {
           "@type": "PropertyValue",
@@ -186,7 +193,15 @@ export function metadata({
                 .join(", ")
             : "Malá, velká",
         },
-        { "@type": "PropertyValue", name: "Vonné tóny", value: product.notes },
+        ...(isCandle(product)
+          ? [
+              {
+                "@type": "PropertyValue",
+                name: "Vonné tóny",
+                value: product.notes,
+              },
+            ]
+          : []),
         ...(product.pyramid
           ? Object.entries({
               "Hlava vůně": product.pyramid.top,

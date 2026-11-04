@@ -1,3 +1,7 @@
+/** Product categories: candles (default) and window sun catchers. */
+export const SUNCATCHER = "lapace-slunce";
+export const isCandle = (p) => (p.category || "svicky") === "svicky";
+
 /** Validate the same public catalog in the static build and the browser. */
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const validPrice = (price) =>
