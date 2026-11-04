@@ -177,15 +177,21 @@ function add(id, qty = 1, variantId = "mala") {
   if (stock !== null && wanted > stock) {
     toast(
       stock
-        ? `Skladem jsou jen ${stock} ks této velikosti.`
-        : "Tahle velikost je bohužel vyprodaná.",
+        ? `Skladem ${product.variants?.length ? "této velikosti " : ""}jsou jen ${stock} ks.`
+        : product.variants?.length
+          ? "Tahle velikost je bohužel vyprodaná."
+          : "Tohle je bohužel vyprodané.",
     );
     return;
   }
   if (item) item.qty = wanted;
   else cart.push({ id, variant: variantId, qty: wanted });
   persist();
-  toast("Máte přidáno. Vaše vůně čeká v košíku.");
+  toast(
+    isCandle(product)
+      ? "Máte přidáno. Vaše vůně čeká v košíku."
+      : `Máte přidáno. ${product.name} čeká v košíku.`,
+  );
   track("add_to_cart", product, variant, qty);
 }
 function availability(button, product, variantId) {
@@ -281,7 +287,7 @@ function renderProduct() {
   const p = products.find((p) => p.id === id);
   if (!p) {
     $("#product-detail").innerHTML =
-      '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
+      '<div class="empty-state"><h2>Tenhle produkt právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
     return;
   }
   document.title = `${p.name} — ${isCandle(p) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`;
@@ -347,12 +353,6 @@ async function prepareFile(file) {
 function renderInquiry() {
   const form = $("#inquiry-form");
   if (!form) return;
-  const type = new URLSearchParams(location.search).get("typ");
-  if (
-    type &&
-    form.elements.type.querySelector(`option[value="${CSS.escape(type)}"]`)
-  )
-    form.elements.type.value = type;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -365,9 +365,8 @@ function renderInquiry() {
       const file = f.file.files[0] ? await prepareFile(f.file.files[0]) : null;
       await api("inquiry", {
         type: f.type.value,
-        size: f.size.value,
+        size: "kruh 15 cm",
         quantity: Number(f.quantity.value),
-        material: f.material.value,
         motif: f.motif.value,
         deadline: f.deadline.value,
         name: f.name.value,
@@ -376,7 +375,7 @@ function renderInquiry() {
         consent: f.consent.checked,
         file,
       });
-      form.outerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem a cenou.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
+      form.outerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
     } catch (err) {
       error.textContent = err.message;
       btn.disabled = false;
@@ -503,7 +502,7 @@ function renderCheckout() {
   const el = $("#checkout-content");
   if (!lines().length) {
     el.innerHTML =
-      '<div class="empty-state"><h2>Nejdřív si vyberte svou vůni.</h2><a class="button" href="/obchod.html">Do obchodu →</a></div>';
+      '<div class="empty-state"><h2>Košík je zatím prázdný.</h2><a class="button" href="/obchod.html">Do obchodu →</a></div>';
     return;
   }
   const shippingOptions = Object.entries(SHIPPING)

@@ -381,7 +381,7 @@ function productFromForm(form) {
 /* ---------- inquiries ---------- */
 async function renderInquiries(el) {
   const list = await api("inquiries");
-  el.innerHTML = `<div class="admin-toolbar"><h2>Poptávky na míru</h2><span class="muted">${((n) => (n === 1 ? "1 nová" : n >= 2 && n <= 4 ? `${n} nové` : `${n} nových`))(list.filter((i) => i.status === "nova").length)}</span></div>${
+  el.innerHTML = `<div class="admin-toolbar"><h2>Lapače na přání — poptávky</h2><span class="muted">${((n) => (n === 1 ? "1 nová" : n >= 2 && n <= 4 ? `${n} nové` : `${n} nových`))(list.filter((i) => i.status === "nova").length)}</span></div>${
     list.length
       ? list
           .map(
@@ -389,7 +389,7 @@ async function renderInquiries(el) {
               `<section class="panel inquiry ${i.status}"><div class="admin-toolbar"><h3>č. ${i.id} · ${esc(i.type_label)}${i.status === "nova" ? ' <span class="status-label">Nová</span>' : ""}</h3><small class="muted">${date(i.created)}</small></div><p><strong>${esc(i.name)}</strong> · <a href="mailto:${esc(i.email)}?subject=${encodeURIComponent("Vaše poptávka č. " + i.id + " — LOOMOS")}">${esc(i.email)}</a>${i.phone ? " · " + esc(i.phone) : ""}</p><p class="muted">Velikost: ${esc(i.size || "—")} · Počet: ${i.quantity} ks · Fólie: ${esc(i.material || "nevím")} · Termín: ${esc(i.deadline || "—")}</p><p class="pre">${esc(i.motif)}</p><div class="order-actions">${i.file_name ? `<a class="inline-button" href="/api/admin/inquiry-file?id=${i.id}">Stáhnout přílohu (${esc(i.file_name)})</a>` : '<span class="muted">Bez přílohy</span>'}<button type="button" class="inline-button" data-inquiry="${i.id}" data-status="${i.status === "nova" ? "vyrizena" : "nova"}">${i.status === "nova" ? "Označit jako vyřízenou" : "Vrátit mezi nové"}</button><button type="button" class="inline-button danger" data-inquiry="${i.id}" data-delete>Smazat</button></div></section>`,
           )
           .join("")
-      : '<div class="panel">Zatím žádné poptávky. Formulář je na stránce <a href="/poptavka.html" target="_blank" rel="noopener">Tvorba na míru</a>.</div>'
+      : '<div class="panel">Zatím žádné poptávky. Formulář je na stránce <a href="/poptavka.html" target="_blank" rel="noopener">Lapač na přání</a>.</div>'
   }<p class="muted">Poptávka vám přijde i e-mailem (s přílohou); odpovědět můžete přímo na něj.</p>`;
 }
 
