@@ -178,5 +178,95 @@
       "heart": "Fialka, jasmín, balzámy",
       "base": "Vanilka, santalové dřevo, pačuli, pižmo"
     }
+  },
+  {
+    "id": "amalfinske-pobrezi",
+    "name": "Amalfinské pobřeží",
+    "subtitle": "Procházka po slunném pobřeží.",
+    "notes": "Citron · bergamot · máta · pižmo",
+    "price": 249,
+    "category": "svicky",
+    "description": "Ranní slunce nad terasami citroníků a slaný vánek od moře. Svěží citron, pomeranč a bergamot doplňují bylinky, neroli a chladivá máta, vše jemně zahalí pižmo, ambra a mech.",
+    "active": false,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+      }
+    ],
+    "pyramid": {
+      "top": "Citron, pomeranč, bergamot",
+      "heart": "Bylinky, neroli, máta, ozon",
+      "base": "Pižmo, ambra, mech"
+    }
+  },
+  {
+    "id": "more-cedr",
+    "name": "Moře a cedr",
+    "subtitle": "Svěží vánek, hluboké dřevo.",
+    "notes": "Citrusy · mořské tóny · cedr · santal",
+    "price": 249,
+    "category": "svicky",
+    "description": "Svěží mořský vánek s citrusy a zeleným jablkem, v srdci mořské tóny, květy a bylinky. Cedr, santal, pačuli a ambra dávají vůni sebevědomý, dlouhý dřevitý závěr.",
+    "active": false,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+      }
+    ],
+    "pyramid": {
+      "top": "Citrusy, bergamot, grapefruit, jablko, černý rybíz",
+      "heart": "Mořské tóny, růže, lilie, fialka, jasmín, ylang-ylang, levandule",
+      "base": "Cedr, santalové dřevo, pačuli, ambra, pižmo"
+    }
+  },
+  {
+    "id": "kokos-limetka",
+    "name": "Kokos a limetka",
+    "subtitle": "Tropické odpoledne.",
+    "notes": "Kokos · limetka · broskev · vanilkový cukr",
+    "price": 249,
+    "category": "svicky",
+    "description": "Teplý písek pod nohama a chladný mořský vánek. Šťavnatá limetka a citrusy se snoubí s krémovým kokosem a špetkou jahody, v srdci broskev a květy, na konci sladký vanilkový cukr a pižmo.",
+    "active": false,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+      }
+    ],
+    "pyramid": {
+      "top": "Kokos, limetka, pomeranč, citron, jahoda",
+      "heart": "Broskev, květy",
+      "base": "Vanilkový cukr, pižmo"
+    }
   }
 ]

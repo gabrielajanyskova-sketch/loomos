@@ -36,9 +36,30 @@
   },
   {
     "product_id": "vanilka-paculi-santal",
-    "supplier": "Podle CLP etikety dodavatele pro svíčku s 10 % oleje (šarže 53005-26, 60302-26); při 8 % oleje z vosku (7,4 % ve svíčce) platí s rezervou — Limonene 0,49 %, Linalool 0,46 %, Coumarin 0,42 % ve svíčce, pod 1 %, bez H317",
+    "supplier": "Podle CLP etikety dodavatele pro svíčku s 10 % oleje (šarže 53005-26, 60302-26); při 8 % oleje z vosku (7,4 % ve svíčce) platí s rezervou — Limonene 0,49 %, Linalool 0,46 %, Coumarin 0,42 % ve svíčce, pod 1 %, bez H317 — Alpha-Isomethyl ionone 1,26 % v oleji = 0,093 % ve svíčce, pod 0,1 %, neuvádí se (platí jen do 8 % oleje z vosku)",
     "pictogram": false,
     "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
-    "contains": "Acetyl cedrene, Alpha-Isomethyl ionone, Citronellol, Coumarin, Geraniol, Limonene, Linalool, Linalyl acetate, beta-Pinene"
+    "contains": "Acetyl cedrene, Citronellol, Coumarin, Geraniol, Limonene, Linalool, Linalyl acetate, beta-Pinene"
+  },
+  {
+    "product_id": "amalfinske-pobrezi",
+    "supplier": "Výpočet LOOMOS pro 8 % oleje z vosku (7,4 % ve svíčce) z deklarace alergenů dodavatele, šarže 27210-26 — Linalyl acetate 0,76 % < 1 %, bez H317 (dodavatelova etiketa pro 10 % má H317, proto víc než 8 % nedávat); EUH208 doplněno o Linalyl acetate — Citronellol 1,206 % v oleji = 0,089 % ve svíčce, pod 0,1 %, neuvádí se",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": "Acetyl cedrene, Alpha-Isomethyl ionone, Citral, Limonene, Linalool, Linalyl acetate"
+  },
+  {
+    "product_id": "more-cedr",
+    "supplier": "Podle CLP etikety dodavatele pro svíčku s 10 % oleje (šarže 57446-26); při 8 % oleje z vosku (7,4 % ve svíčce) platí s rezervou, bez H317 — Citronellol 1,2 % v oleji = 0,089 % ve svíčce, pod 0,1 %, neuvádí se (platí jen do 8 % oleje z vosku)",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": "4-tert-Butylcyclohexyl acetate, Cedryl methyl ether, Ethyl Linalool, Limonene, Linalool, Linalyl acetate, Tetramethyl acetylocathydronaphthalenes"
+  },
+  {
+    "product_id": "kokos-limetka",
+    "supplier": "Podle CLP etikety dodavatele pro svíčku s 10 % oleje (šarže 09652-26); při 8 % oleje z vosku (7,4 % ve svíčce) platí s rezervou — Limonene 0,71 % ve svíčce, pod 1 %, bez H317",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": "Citral, Ethyl methylphenylglycidate, Limonene"
   }
 ]
