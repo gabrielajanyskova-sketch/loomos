@@ -18,7 +18,7 @@ test("seven scents on sale (more in Dílnička only) and separate size prices ar
     );
     assert.deepEqual(
       p.variants.map((v) => v.price),
-      [249, 349],
+      [349, 449],
     );
   }
   assert.throws(() =>
