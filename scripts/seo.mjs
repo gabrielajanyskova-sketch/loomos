@@ -169,17 +169,21 @@ export function metadata({
         acceptedAnswer: { "@type": "Answer", text: f.answer },
       })),
     });
-  if (page === "shop")
+  if (["shop", "suncatchers"].includes(page))
     graph.push({
       "@type": "ItemList",
       "@id": canonical + "#nabidka",
-      numberOfItems: products.length,
-      itemListElement: products.map((p, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: p.name,
-        url: siteUrl + "/produkty/" + p.id,
-      })),
+      numberOfItems: products.filter(
+        (p) => isCandle(p) === (page !== "suncatchers"),
+      ).length,
+      itemListElement: products
+        .filter((p) => isCandle(p) === (page !== "suncatchers"))
+        .map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.name,
+          url: siteUrl + "/produkty/" + p.id,
+        })),
     });
   if (product) {
     // Prices are provisional and checkout is a preview: do not publish Offer or availability claims.
@@ -191,51 +195,74 @@ export function metadata({
       url: canonical,
       sku: product.id,
       category: isCandle(product) ? "Vonné svíčky" : "Lapače slunce",
-      image: [siteUrl + "/assets/img/candle-1536.webp", siteUrl + ogImage.path],
+      ...(isCandle(product)
+        ? {
+            image: [
+              siteUrl + "/assets/img/candle-1536.webp",
+              siteUrl + ogImage.path,
+            ],
+          }
+        : {}),
       brand: { "@type": "Brand", name: brand.name },
-      manufacturer: { "@id": organization["@id"] },
-      material: isCandle(product)
-        ? "Sójový vosk; čiré sklo; dřevěný knot"
-        : "Hranolová (duhová) fólie na okno",
-      additionalProperty: [
-        {
-          "@type": "PropertyValue",
-          name: "Velikosti",
-          value: product.variants?.length
-            ? product.variants
-                .map((v) => (v.detail ? `${v.name} (${v.detail})` : v.name))
-                .join(", ")
-            : "Malá, velká",
-        },
-        ...(isCandle(product)
-          ? [
-              {
-                "@type": "PropertyValue",
-                name: "Vonné tóny",
-                value: product.notes,
-              },
-            ]
-          : []),
-        ...(product.pyramid
-          ? Object.entries({
-              "Hlava vůně": product.pyramid.top,
-              "Srdce vůně": product.pyramid.heart,
-              "Základ vůně": product.pyramid.base,
-            })
-              .filter(([, value]) => value)
-              .map(([name, value]) => ({
-                "@type": "PropertyValue",
-                name,
-                value,
-              }))
-          : []),
-      ],
+      ...(isCandle(product)
+        ? {
+            manufacturer: { "@id": organization["@id"] },
+            material: "Sójový vosk; čiré sklo; dřevěný knot",
+          }
+        : {}),
+      additionalProperty: !isCandle(product)
+        ? [
+            { "@type": "PropertyValue", name: "Průměr", value: "15 cm" },
+            {
+              "@type": "PropertyValue",
+              name: "Uchycení",
+              value: "Statické přilnutí, bez lepidla",
+            },
+          ]
+        : [
+            {
+              "@type": "PropertyValue",
+              name: "Velikosti",
+              value: product.variants?.length
+                ? product.variants
+                    .map((v) => (v.detail ? `${v.name} (${v.detail})` : v.name))
+                    .join(", ")
+                : "Malá, velká",
+            },
+            ...(isCandle(product)
+              ? [
+                  {
+                    "@type": "PropertyValue",
+                    name: "Vonné tóny",
+                    value: product.notes,
+                  },
+                ]
+              : []),
+            ...(product.pyramid
+              ? Object.entries({
+                  "Hlava vůně": product.pyramid.top,
+                  "Srdce vůně": product.pyramid.heart,
+                  "Základ vůně": product.pyramid.base,
+                })
+                  .filter(([, value]) => value)
+                  .map(([name, value]) => ({
+                    "@type": "PropertyValue",
+                    name,
+                    value,
+                  }))
+              : []),
+          ],
     });
     webPage.mainEntity = { "@id": canonical + "#product" };
   }
   if (page !== "home" && !privatePages.has(page)) {
     const items = [{ name: "Domů", item: siteUrl + "/" }];
-    if (product) items.push({ name: "Svíčky", item: siteUrl + "/obchod" });
+    if (product)
+      items.push(
+        isCandle(product)
+          ? { name: "Svíčky", item: siteUrl + "/obchod" }
+          : { name: "Lapače slunce", item: siteUrl + "/lapace-slunce" },
+      );
     items.push({
       name: product?.name || crumbs[page] || title,
       item: canonical,

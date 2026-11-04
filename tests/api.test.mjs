@@ -856,22 +856,21 @@ test("admin adds and edits products; quantity price and dynamic product page wor
   const all = (await a("/api/admin/products")).body;
   const okurka = all.find((p) => p.id === "okurka-zazvor-mata");
   const edited = await a("/api/admin/product", {
-    product: {
-      ...okurka,
-      variants: okurka.variants.map((v) => ({ ...v, price: v.price + 10 })),
-    },
+    product: { ...okurka, subtitle: "Upraveno v adminu." },
   });
   assert.equal(edited.status, 200, JSON.stringify(edited.body));
   let shown = (await call("/api/products")).body.find(
     (p) => p.id === "okurka-zazvor-mata",
   );
-  assert.equal(shown.variants[0].price, 359);
+  assert.equal(shown.subtitle, "Upraveno v adminu.");
+  // Prices stay in Sklad a ceny (D1 price history), not in the product editor.
+  assert.equal(shown.variants[0].price, 349);
   await a("/api/admin/product-reset", { id: "okurka-zazvor-mata" });
   await a("/api/admin/product-reset", { id: sun.id });
   shown = (await call("/api/products")).body.find(
     (p) => p.id === "okurka-zazvor-mata",
   );
-  assert.equal(shown.variants[0].price, 349);
+  assert.notEqual(shown.subtitle, "Upraveno v adminu.");
   assert.ok(!(await call("/api/products")).body.some((p) => p.id === sun.id));
 });
 
@@ -934,4 +933,47 @@ test("individual inquiry: validated, stored with its file, e-mailed and handled 
   assert.ok(
     !(await a("/api/admin/inquiries")).body.some((i) => i.id === mine.id),
   );
+});
+
+test("single-size sun catcher: admin stock, and it cannot be ordered without a price", async () => {
+  const isolated = await startShop();
+  try {
+    const a = client(isolated.url);
+    assert.equal(
+      (await a("/api/admin/login", { password: isolated.env.ADMIN_PASSWORD }))
+        .status,
+      200,
+    );
+    const product_id = "lapac-slunce-sova";
+    assert.equal(
+      (await a("/api/admin/stock", { product_id, variant_id: "", quantity: 7 }))
+        .status,
+      200,
+    );
+    const row = (await a("/api/admin/stock")).body.find(
+      (p) => p.product_id === product_id && p.variant_id === "",
+    );
+    assert.equal(row.quantity, 7);
+    assert.equal(row.price, 199);
+    const cleared = await a("/api/admin/prices", {
+      product_id,
+      variant_id: "",
+      regular_price: null,
+      sale_price: null,
+      revision: row.revision,
+    });
+    assert.equal(cleared.status, 200, JSON.stringify(cleared.body));
+    const call = client(isolated.url);
+    assert.equal(
+      (
+        await call(
+          "/api/orders",
+          order({ items: [{ id: product_id, variant: "", qty: 1 }] }),
+        )
+      ).status,
+      400,
+    );
+  } finally {
+    await isolated.stop();
+  }
 });

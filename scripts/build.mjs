@@ -53,7 +53,7 @@ async function write(file, content) {
   await fs.writeFile(dest, content);
 }
 function slot(html, id, content) {
-  const expression = new RegExp(`(<div id="${id}"[^>]*>)[\\s\\S]*?(</div>)`);
+  const expression = new RegExp(`(<div\\s+id="${id}"[^>]*>)[\\s\\S]*?(</div>)`);
   if (!expression.test(html)) throw Error(`Chybí místo pro ${id}`);
   return html.replace(expression, (_, open, close) => open + content + close);
 }
@@ -163,6 +163,11 @@ for (const [file, page, product] of pages) {
           `<title>${esc(product.name)} — LOOMOS</title>`,
         );
     });
+  if (product?.category === "lapace-slunce")
+    html = html.replace(
+      '<a href="/obchod.html">Svíčky</a>',
+      '<a href="/lapace-slunce.html">Lapače slunce</a>',
+    );
   html = html.replace(/<head>[\s\S]*?<\/head>/, () =>
     renderHead({
       meta: metadata({ page, product, siteUrl, indexable, file, products }),
@@ -198,10 +203,7 @@ for (const [file, page, product] of pages) {
         "shop-products",
         products.filter(isCandle).map(productCard).join(""),
       );
-      html = html.replace(
-        /(<p id="product-count"[^>]*>).*?(<\/p>)/,
-        `$1${products.filter(isCandle).length} vůní v nabídce$2`,
-      );
+      html = html.replace(/(<p id="product-count"[^>]*>).*?(<\/p>)/, "$1$2");
     }
     if (page === "gifts-her" || page === "gifts-him")
       html = slot(

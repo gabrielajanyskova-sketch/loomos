@@ -1,9 +1,10 @@
-/** Catalog = data/products.json (bundled, single source of truth for prices) + stock from D1. */
+/** Product descriptions from the catalog; authoritative prices and stock from D1. */
 import products from "../../data/products.json";
 import { validateCatalog } from "../../assets/js/catalog.mjs";
 import { withSafety } from "../../assets/js/safety.mjs";
 import labels from "../../data/labels.json";
 import { fail } from "./http.js";
+import { priceRows, effectivePrice } from "./product-prices.js";
 import { MAX_QTY } from "../../assets/js/pricing.mjs";
 
 const bundled = validateCatalog(products);
@@ -56,9 +57,49 @@ export async function stockMap(db) {
 }
 
 export async function publicCatalog(db) {
-  const stock = await stockMap(db);
-  const { active } = await loadCatalog(db);
-  return active.map((p) => ({
+  return withStock(db, (await loadCatalog(db)).active);
+}
+
+/** Prices from D1 (product_prices, with history) applied to products; missing rows are seeded. */
+export async function priceProducts(db, list) {
+  const [stock, prices] = await Promise.all([
+    stockMap(db),
+    priceRows(db, list, variantsOf),
+  ]);
+  const map = new Map(
+    prices.map((r) => [`${r.product_id}::${r.variant_id}`, r]),
+  );
+  const priced = list.map((p) => {
+    const variants = variantsOf(p).map((v) => {
+      const row = map.get(`${p.id}::${v.id}`);
+      return {
+        ...v,
+        price: effectivePrice(row),
+        regular_price: row.regular_price,
+        sale_price: row.sale_price,
+        lowest_30: row.reference_price,
+        revision: row.revision,
+        tracked_since: row.tracked_since,
+      };
+    });
+    const first = variants[0];
+    return {
+      ...p,
+      price: first.price,
+      regular_price: first.regular_price,
+      sale_price: first.sale_price,
+      lowest_30: first.lowest_30,
+      ...(p.variants?.length
+        ? { variants }
+        : { revision: first.revision, tracked_since: first.tracked_since }),
+    };
+  });
+  return { priced, stock };
+}
+
+async function withStock(db, list) {
+  const { priced, stock } = await priceProducts(db, list);
+  return priced.map((p) => ({
     ...p,
     stock: Object.fromEntries(
       variantsOf(p).map((v) => [v.id, stock[`${p.id}::${v.id}`] ?? null]),
@@ -67,13 +108,14 @@ export async function publicCatalog(db) {
 }
 
 /** Validate cart items against the catalog and return priced lines. */
-export function resolveItems(items, byId) {
+export function resolveItems(items, pricedCatalog) {
+  const currentById = new Map(pricedCatalog.map((p) => [p.id, p]));
   if (!Array.isArray(items) || items.length < 1 || items.length > 50)
     fail(400, "Košík je prázdný.");
   const seen = new Set();
   return items.map((item) => {
     if (!item || typeof item !== "object") fail(400, "Neplatná položka.");
-    const product = byId.get(item.id);
+    const product = currentById.get(item.id);
     const qty = item.qty;
     if (!product || !Number.isInteger(qty) || qty < 1 || qty > MAX_QTY)
       fail(400, "Zkontrolujte položky a množství v košíku.");

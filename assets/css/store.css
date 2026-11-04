@@ -3100,10 +3100,6 @@ a.category-card {
 }
 
 /* Nejoblíbenější vůně + Mohlo by se vám líbit */
-.product-card.featured {
-  outline: 1px solid #cb956899;
-  outline-offset: -1px;
-}
 .product-card.featured .product-tag {
   background: var(--copper);
   color: #1b1712;
@@ -3234,4 +3230,68 @@ a.category-card {
 }
 .howto-steps strong {
   color: var(--text);
+
+.pending-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1/1.05;
+  background: radial-gradient(ellipse at top, #3b342b, #1b1916);
+  text-decoration: none;
+}
+.pending-photo-circle {
+  width: 55%;
+  aspect-ratio: 1;
+  border: 1px solid #a88865;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 16px;
+  color: var(--text, #f1e9dc);
+}
+.pending-photo-circle > span {
+  font-family: Georgia, serif;
+  font-size: clamp(20px, 3vw, 30px);
+}
+.pending-photo-circle small {
+  font-size: 13px;
+  color: #c2b5a5;
+}
+
+.suncatcher-product-image {
+  aspect-ratio: 3 / 4;
+}
+.product-card .suncatcher-product-image img,
+.detail-photo .suncatcher-product-image img {
+  object-fit: contain;
+  object-position: center;
+  filter: none;
+}
+
+.sale-reference {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 14px;
+  font-size: 14px;
+}
+.sale-reference del {
+  color: var(--muted);
+  font-size: 18px;
+}
+.sale-reference span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.stock-price-table input {
+  min-width: 120px;
+  width: 140px;
+}
+.stock-price-table small {
+  display: block;
+  margin-top: 6px;
 }

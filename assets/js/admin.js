@@ -11,11 +11,13 @@ const esc = (s) =>
       ],
   );
 const money = (n) =>
-  new Intl.NumberFormat("cs-CZ", {
-    style: "currency",
-    currency: "CZK",
-    maximumFractionDigits: 0,
-  }).format(n || 0);
+  n == null
+    ? "Cena bude doplněna"
+    : new Intl.NumberFormat("cs-CZ", {
+        style: "currency",
+        currency: "CZK",
+        maximumFractionDigits: 0,
+      }).format(n || 0);
 const date = (t, time = true) =>
   t
     ? new Date(t * 1000).toLocaleString("cs-CZ", {
@@ -237,23 +239,34 @@ function orderDetail(number) {
 /* ---------- stock ---------- */
 async function renderStock(el) {
   const rows = (await api("stock")).filter((r) => r.category === category);
-  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad</h2>${categoryTabs(category)}</div><p class="muted">Prázdné pole = sklad se nehlídá (zboží lze vždy objednat). Při 0 se v e-shopu zobrazí „Vyprodáno“. Objednávka sklad automaticky odečte, zrušení ho vrátí.</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Cena</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows
-    .map(
-      (r) =>
-        `<tr class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}</td><td>${money(r.price)}</td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`,
-    )
-    .join("")}</tbody></table></div>`;
+  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2>${categoryTabs(category)}</div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}<br><small>Aktuálně: ${money(r.price)}</small></td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 async function saveStock(row) {
+  const inputs = [...row.querySelectorAll("input")];
+  if (inputs.some((i) => !i.reportValidity())) return;
   const input = $(".stock-input", row);
-  const value = input.value.trim();
-  await api("stock", {
-    product_id: input.dataset.product,
-    variant_id: input.dataset.variant,
-    quantity: value === "" ? null : Number(value),
-  });
-  status("Sklad je uložený.");
-  await show("stock");
+  const number = (selector) => {
+    const value = $(selector, row).value.trim();
+    return value === "" ? null : Number(value);
+  };
+  const button = $("[data-save-stock]", row);
+  if (button.disabled) return;
+  button.disabled = true;
+  try {
+    await api("prices", {
+      product_id: input.dataset.product,
+      variant_id: input.dataset.variant,
+      revision: Number(row.dataset.revision),
+      quantity: number(".stock-input"),
+      regular_price: number(".regular-price-input"),
+      sale_price: number(".sale-price-input"),
+      confirmed_lowest_30: number(".reference-price-input"),
+    });
+    status("Sklad i ceny jsou uložené.");
+    await show("stock");
+  } finally {
+    button.disabled = false;
+  }
 }
 
 /* ---------- products ---------- */
@@ -284,7 +297,7 @@ function productForm(p, isNew) {
   const v = (x) => esc(x ?? "");
   const variantFields = (id, label) => {
     const x = variant(id);
-    return `<fieldset class="variant-fields"><legend>${label}</legend><label>Cena (Kč)<input name="${id}_price" type="number" min="1" value="${v(x.price)}" required></label><label>Popis velikosti<input name="${id}_detail" maxlength="120" value="${v(x.detail)}"></label><label>Hoří (hodin)<input name="${id}_burn" type="number" min="1" max="500" value="${v(x.burn_hours)}"></label></fieldset>`;
+    return `<fieldset class="variant-fields"><legend>${label}</legend><label>${isNew ? "Výchozí cena (Kč)" : "Cena (Kč) — mění se v Sklad a ceny"}<input name="${id}_price" type="number" min="1" value="${v(x.regular_price ?? x.price)}" ${isNew ? "required" : "readonly"}></label><label>Popis velikosti<input name="${id}_detail" maxlength="120" value="${v(x.detail)}"></label><label>Hoří (hodin)<input name="${id}_burn" type="number" min="1" max="500" value="${v(x.burn_hours)}"></label></fieldset>`;
   };
   const editor = $("#product-editor");
   editor.hidden = false;
@@ -302,7 +315,7 @@ function productForm(p, isNew) {
     <label>Základ<input name="base" maxlength="160" value="${v(p.pyramid?.base)}"></label>
     <label>Charakter (oddělte čárkou, max. 4)<input name="character" maxlength="100" value="${v((p.character || []).join(", "))}" placeholder="sladká, hřejivá"></label>
     <fieldset class="variant-fields"><legend>Dárek</legend><label class="check"><input type="checkbox" name="pro_ni" ${p.gift?.includes("pro-ni") ? "checked" : ""}>Pro ni</label><label class="check"><input type="checkbox" name="pro_nej" ${p.gift?.includes("pro-nej") ? "checked" : ""}>Pro něj</label></fieldset>`
-        : `<label>Cena za kus (Kč)<input name="price" type="number" min="1" required value="${v(p.price)}"></label>
+        : `<label>${isNew ? "Výchozí cena za kus (Kč, prázdné = cenu připravuji)" : "Cena za kus (Kč) — mění se v Sklad a ceny"}<input name="price" type="number" min="1" value="${v(p.regular_price ?? p.price)}" ${isNew ? "" : "readonly"}></label>
     <label>Množstevní cena od (ks)<input name="bulk_min" type="number" min="2" max="100" value="${v(bulk.min_qty)}" placeholder="např. 2"></label>
     <label>Množstevní cena za kus (Kč)<input name="bulk_price" type="number" min="1" value="${v(bulk.price)}" placeholder="např. 175"></label>`
     }
@@ -330,7 +343,8 @@ function productFromForm(form) {
       ["mala", "Malá"],
       ["velka", "Velká"],
     ].map(([id, name]) => {
-      const variant = { id, name, price: Number(f[id + "_price"].value) };
+      const value = f[id + "_price"].value;
+      const variant = { id, name, price: value === "" ? null : Number(value) };
       if (f[id + "_detail"].value.trim())
         variant.detail = f[id + "_detail"].value.trim();
       if (f[id + "_burn"].value)
@@ -352,7 +366,7 @@ function productFromForm(form) {
     ].filter(Boolean);
     if (gift.length) product.gift = gift;
   } else {
-    product.price = Number(f.price.value);
+    product.price = f.price.value === "" ? null : Number(f.price.value);
     const min = intOrNull(f.bulk_min.value);
     const price = intOrNull(f.bulk_price.value);
     if (min !== null || price !== null) {
@@ -564,7 +578,7 @@ document.addEventListener("click", (e) => {
     });
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && e.target.matches(".stock-input")) {
+  if (e.key === "Enter" && e.target.matches(".stock-price-table input")) {
     e.preventDefault();
     guard(() => saveStock(e.target.closest("tr")));
   }

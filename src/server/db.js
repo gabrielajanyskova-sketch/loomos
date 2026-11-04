@@ -1,5 +1,22 @@
 /** D1 schema. Created lazily, so the owner never has to run SQL by hand. */
 const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS product_prices (
+    product_id TEXT NOT NULL, variant_id TEXT NOT NULL,
+    regular_price INTEGER CHECK(regular_price IS NULL OR regular_price BETWEEN 1 AND 100000),
+    sale_price INTEGER CHECK(sale_price IS NULL OR (sale_price > 0 AND sale_price < regular_price)),
+    reference_price INTEGER, sale_started INTEGER, reference_source TEXT,
+    tracked_since INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 0, write_token TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY(product_id,variant_id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS price_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, product_id TEXT NOT NULL, variant_id TEXT NOT NULL,
+    regular_price INTEGER, sale_price INTEGER, reference_price INTEGER, reference_source TEXT, created INTEGER NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS price_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, product_id TEXT NOT NULL, variant_id TEXT NOT NULL,
+    price INTEGER, created INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS price_history_lookup ON price_history(product_id,variant_id,created,id)`,
   `CREATE TABLE IF NOT EXISTS customers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE COLLATE NOCASE,

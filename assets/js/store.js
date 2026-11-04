@@ -3,6 +3,7 @@ import {
   money,
   esc,
   productCard,
+  saleMarkup,
   burnLine,
   renderHeader,
   renderFooter,
@@ -104,7 +105,7 @@ const updateCount = () =>
   document.querySelectorAll(".cart-count").forEach((el) => {
     el.textContent = cart.reduce((s, i) => s + i.qty, 0);
   });
-const lineKey = (i) => i.id + "::" + (i.variant || "mala");
+const lineKey = (i) => i.id + "::" + (i.variant ?? "mala");
 const variantOf = (p, id) =>
   p.variants?.find((v) => v.id === (id || "mala")) || null;
 const stockOf = (p, variantId) => {
@@ -122,7 +123,7 @@ function lines() {
         id: i.id,
         variant: v?.id || "",
         name: p.name + (v ? " — " + v.name : ""),
-        price: v?.price ?? p.price,
+        price: v ? v.price : p.price,
         ...((v?.bulk ?? p.bulk) ? { bulk: v?.bulk ?? p.bulk } : {}),
         qty: i.qty,
       };
@@ -161,7 +162,13 @@ initAnalytics();
 function add(id, qty = 1, variantId = "mala") {
   const product = products.find((p) => p.id === id);
   const variant = variantOf(product || {}, variantId);
-  if (!product || (product.variants?.length && !variant)) return;
+  if (
+    !product ||
+    !Number.isInteger(variant ? variant.price : product.price) ||
+    (product.variants?.length && !variant)
+  )
+    return;
+  if (!product.variants?.length) variantId = "";
   const stock = stockOf(product, variant?.id ?? "");
   const item = cart.find(
     (i) => i.id === id && lineKey(i) === `${id}::${variantId}`,
@@ -185,13 +192,22 @@ function availability(button, product, variantId) {
   if (!button || !product) return;
   const stock = stockOf(product, variantId);
   const soldOut = stock === 0;
-  button.disabled = soldOut || product.price == null;
+  const selected = variantOf(product, variantId);
+  const selectedPrice = selected ? selected.price : product.price;
+  button.disabled = soldOut || selectedPrice == null;
   button.dataset.soldOut = soldOut ? "1" : "";
   const label = button.querySelector(".add-label") || button;
   const plus = button.querySelector(".add-label + span");
-  if (plus) plus.hidden = soldOut;
+  if (plus) {
+    plus.hidden = soldOut || selectedPrice == null;
+    plus.textContent = "＋";
+  }
   if (soldOut) label.textContent = "Vyprodáno";
-  else if (button.dataset.label) label.textContent = button.dataset.label;
+  else if (selectedPrice == null) label.textContent = "Cenu připravujeme";
+  else
+    label.textContent = button.querySelector(".add-label")
+      ? "Přidat do košíku"
+      : "Přidat do košíku ＋";
   const note = button
     .closest(".product-meta, .detail-copy")
     ?.querySelector(".stock-note");
@@ -208,8 +224,10 @@ function refreshCards(root = document) {
     if (!product) return;
     const select = $("[data-card-size]", card);
     const variant = variantOf(product, select?.value);
-    const price = variant?.price ?? product.price;
+    const price = variant ? variant.price : product.price;
     $("[data-card-price]", card).textContent = money(price);
+    const reference = $("[data-sale-reference]", card);
+    if (reference) reference.innerHTML = saleMarkup(variant ?? product);
     const burn = $("[data-card-burn]", card);
     if (burn) burn.textContent = burnLine(variant, price);
     button.dataset.label ||= button.firstChild?.textContent?.trim() || "";
@@ -247,8 +265,10 @@ function updateDetail() {
   const p = products.find((p) => p.id === document.body.dataset.product);
   if (!p) return;
   const v = variantOf(p, $("#size-choice")?.value);
-  const price = v?.price ?? p.price;
+  const price = v ? v.price : p.price;
   $("#detail-price").textContent = money(price);
+  const reference = $(".detail-copy [data-sale-reference]");
+  if (reference) reference.innerHTML = saleMarkup(v ?? p);
   if ($("#detail-burn")) $("#detail-burn").textContent = burnLine(v, price);
   const button = $(".detail-copy [data-add]");
   if (button) {
@@ -893,7 +913,9 @@ async function init() {
     const p = products.find((p) => p.id === i.id);
     return (
       p &&
-      Number.isInteger(p.price) &&
+      Number.isInteger(
+        p.variants?.length ? variantOf(p, i.variant)?.price : p.price,
+      ) &&
       (!p.variants?.length || variantOf(p, i.variant))
     );
   });
@@ -980,9 +1002,12 @@ async function init() {
       const n = list.length;
       const word = n === 1 ? "vůně" : n >= 2 && n <= 4 ? "vůně" : "vůní";
       $("#product-count").textContent =
-        filter === "all"
-          ? `${n} ${word} v nabídce`
-          : `${n} ${word} ${filter === "pro-ni" ? "pro ni" : "pro něj"}`;
+        // No total count by default: the offer keeps growing.
+        filter === "all" && !family
+          ? ""
+          : filter === "all"
+            ? `${n} ${word}`
+            : `${n} ${word} ${filter === "pro-ni" ? "pro ni" : "pro něj"}`;
       refreshCards();
     };
     tabs.forEach((t) =>

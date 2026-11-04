@@ -11,12 +11,7 @@ import {
 } from "./http.js";
 import { now } from "./db.js";
 import { limit, randomToken, readSession } from "./auth.js";
-import {
-  loadCatalog,
-  publicCatalog,
-  resolveItems,
-  stockMap,
-} from "./catalog.js";
+import { publicCatalog, resolveItems, stockMap } from "./catalog.js";
 import {
   priceCart,
   SHIPPING,
@@ -234,7 +229,7 @@ export async function createOrder(db, request, env, ctx) {
   const note = text(data.note, "poznámka", 1000, false);
 
   const member = await currentCustomer(db, request);
-  const lines = resolveItems(data.items, (await loadCatalog(db)).byId);
+  const lines = resolveItems(data.items, await publicCatalog(db));
   const code = await loadCode(db, data.code);
   const pricing = priceCart({ lines, member: Boolean(member), code, shipping });
   if (pricing.codeError) fail(400, pricing.codeError);

@@ -82,8 +82,11 @@ export function priceCart({
 }) {
   const priced = lines.map((line) => {
     // Quantity price (e.g. 175 Kč per piece from 2 pieces) comes before the member discount.
+    // Never above the current price (e.g. while a sale price is lower than the quantity price).
     const base =
-      line.bulk && line.qty >= line.bulk.min_qty ? line.bulk.price : line.price;
+      line.bulk && line.qty >= line.bulk.min_qty
+        ? Math.min(line.bulk.price, line.price)
+        : line.price;
     const unit = member ? memberPrice(base) : base;
     return {
       ...line,

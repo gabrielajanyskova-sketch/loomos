@@ -52,6 +52,7 @@ const adminRoutes = {
   "POST /api/admin/product-reset": products.reset,
   "GET /api/admin/stock": admin.stock,
   "POST /api/admin/stock": admin.setStock,
+  "POST /api/admin/prices": admin.setPrice,
   "GET /api/admin/customers": admin.customers,
   "POST /api/admin/customer": admin.customerAction,
   "GET /api/admin/codes": admin.codes,

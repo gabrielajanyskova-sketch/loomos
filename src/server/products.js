@@ -2,7 +2,7 @@
 import { validateCatalog, SUNCATCHER } from "../../assets/js/catalog.mjs";
 import { assertSameOrigin, fail, json, readJson } from "./http.js";
 import { now } from "./db.js";
-import { bundledProducts, loadCatalog } from "./catalog.js";
+import { bundledProducts, loadCatalog, priceProducts } from "./catalog.js";
 
 const CATEGORIES = ["svicky", SUNCATCHER];
 
@@ -11,8 +11,10 @@ export async function list(db) {
   const { results } = await db.prepare("SELECT id FROM products").all();
   const edited = new Set(results.map((r) => r.id));
   const bundled = new Set(bundledProducts.map((p) => p.id));
+  // Prices shown here are the live ones from D1 (Sklad a ceny), not the catalog defaults.
+  const { priced } = await priceProducts(db, all);
   return json(
-    all.map((p) => ({
+    priced.map((p) => ({
       ...p,
       category: p.category || "svicky",
       edited: edited.has(p.id),

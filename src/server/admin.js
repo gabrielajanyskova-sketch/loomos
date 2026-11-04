@@ -14,7 +14,8 @@ import {
   readSession,
   safeEqual,
 } from "./auth.js";
-import { loadCatalog, variantsOf } from "./catalog.js";
+import { saveProductPrice } from "./product-prices.js";
+import { loadCatalog, priceProducts, variantsOf } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { shippingKind, shippingProvider } from "../../assets/js/pricing.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
@@ -266,7 +267,7 @@ export async function stock(db) {
   );
   const { all } = await loadCatalog(db);
   return json(
-    all.flatMap((p) =>
+    (await priceProducts(db, all)).priced.flatMap((p) =>
       variantsOf(p).map((v) => ({
         product_id: p.id,
         category: p.category || "svicky",
@@ -274,8 +275,25 @@ export async function stock(db) {
         variant_id: v.id,
         name: p.name + (v.name ? ` — ${v.name}` : ""),
         price: v.price,
+        regular_price: p.variants?.length ? v.regular_price : p.regular_price,
+        sale_price: p.variants?.length ? v.sale_price : p.sale_price,
+        lowest_30: p.variants?.length ? v.lowest_30 : p.lowest_30,
+        revision: p.variants?.length ? v.revision : p.revision,
+        tracked_since: p.variants?.length ? v.tracked_since : p.tracked_since,
         quantity: map[`${p.id}::${v.id}`] ?? null,
       })),
+    ),
+  );
+}
+
+export async function setPrice(db, request) {
+  assertSameOrigin(request);
+  return json(
+    await saveProductPrice(
+      db,
+      await readJson(request, 2048),
+      (await loadCatalog(db)).all,
+      variantsOf,
     ),
   );
 }

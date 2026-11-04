@@ -307,17 +307,199 @@
     }
   },
   {
-    "id": "lapac-slunce-pejsek",
-    "name": "Lapač slunce — pejsek",
-    "subtitle": "Duhy po celé místnosti.",
-    "notes": "Kruh Ø 15 cm · pejsek z holografické fólie",
+    "id": "lapac-slunce-rubble",
+    "name": "Rubble",
+    "category": "lapace-slunce",
     "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Rubble a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
     "bulk": {
       "min_qty": 2,
       "price": 175
-    },
+    }
+  },
+  {
+    "id": "lapac-slunce-chase",
+    "name": "Chase",
     "category": "lapace-slunce",
-    "description": "Kulatý lapač slunce o průměru 15 cm s pejskem z holografické fólie. Nalepíte ho na vnitřní stranu okna a jakmile na něj posvítí slunce, rozběhnou se po stěnách a podlaze duhová prasátka. Ručně ho vyřezávám a skládám.",
-    "active": false
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Chase a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-bing",
+    "name": "Bing",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Bing a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-peppa",
+    "name": "Peppa",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Peppa a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-zuma",
+    "name": "Zuma",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Zuma a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-marshall",
+    "name": "Marshall",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Marshall a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-stitch",
+    "name": "Stitch se Scrumpem",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Stitch se Scrumpem a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-mario",
+    "name": "Mario",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Mario a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-sova",
+    "name": "Sova",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Sova a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-vila",
+    "name": "Víla",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Víla a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-medvidek",
+    "name": "Medvídek",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Medvídek a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-skye",
+    "name": "Skye",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Skye a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-traktor",
+    "name": "Traktor",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Traktor a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-pikachu",
+    "name": "Pikachu",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Malá radost do slunečného okna.",
+    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s motivem Pikachu a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
   }
 ]

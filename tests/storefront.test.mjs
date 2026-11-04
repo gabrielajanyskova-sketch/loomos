@@ -9,9 +9,12 @@ const products = JSON.parse(
   readFileSync(new URL("../data/products.json", import.meta.url)),
 );
 test("seven scents on sale (more in Dílnička only) and separate size prices are validated", () => {
-  assert.equal(validateCatalog(products).length, 10);
-  assert.equal(products.filter((p) => p.active).length, 7);
-  for (const p of products.filter((p) => isCandle(p))) {
+  const candles = validateCatalog(products).filter(
+    (p) => p.category !== "lapace-slunce",
+  );
+  assert.equal(candles.length, 9);
+  assert.equal(candles.filter((p) => p.active).length, 7);
+  for (const p of candles) {
     assert.deepEqual(
       p.variants.map((v) => v.id),
       ["mala", "velka"],
@@ -90,5 +93,61 @@ test("JSON-LD cannot break out of its non-executable script", () => {
     JSON.parse(meta.json)["@graph"].find((x) => x["@type"] === "Product")
       .description,
     "</script><script>alert(1)</script>",
+  );
+});
+
+test("fourteen sun catchers (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
+  const catchers = validateCatalog(products).filter(
+    (p) => p.category === "lapace-slunce",
+  );
+  assert.equal(catchers.length, 14);
+  for (const p of catchers) {
+    assert.equal(p.price, 199);
+    assert.deepEqual(p.bulk, { min_qty: 2, price: 175 });
+    const html = productCard(p, 0) + renderProductDetail(p);
+    assert.match(html, /15 cm/i);
+    assert.match(html, /175/);
+    const unpriced = { ...p, price: null, bulk: undefined };
+    const pending = productCard(unpriced, 0) + renderProductDetail(unpriced);
+    assert.match(pending, /disabled/);
+    assert.match(pending, /Cenu připravuji/);
+    assert.doesNotMatch(
+      html,
+      /0 Kč|Sójový vosk|Dřevěný knot|member-price|Vonné tóny|candle-/i,
+    );
+    const meta = metadata({
+      page: "product",
+      product: p,
+      siteUrl: "https://loomos.cz",
+      indexable: false,
+      file: `produkty/${p.id}.html`,
+      products,
+    });
+    const schema = JSON.parse(meta.json)["@graph"].find(
+      (x) => x["@type"] === "Product",
+    );
+    assert.equal(schema.category, "Lapače slunce");
+    assert.equal(schema.offers, undefined);
+    assert.equal(schema.material, undefined);
+    assert.equal(schema.image, undefined);
+  }
+  assert.deepEqual(
+    readCart('[{"id":"lapac-slunce-sova","variant":"","qty":1}]'),
+    [{ id: "lapac-slunce-sova", variant: "", qty: 1 }],
+  );
+});
+
+test("nullable candle variant prices disable only that size, zero remains invalid", () => {
+  const p = {
+    ...products[0],
+    price: null,
+    variants: products[0].variants.map((v, i) => ({
+      ...v,
+      price: i === 0 ? null : v.price,
+    })),
+  };
+  assert.equal(validateCatalog([p])[0].variants[0].price, null);
+  assert.throws(() =>
+    validateCatalog([{ ...p, variants: [{ ...p.variants[0], price: 0 }] }]),
   );
 });

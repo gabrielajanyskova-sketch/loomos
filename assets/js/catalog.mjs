@@ -133,7 +133,6 @@ export function validateCatalog(value) {
                 v.burn_hours > 0 &&
                 v.burn_hours <= 500
               )) ||
-            !Number.isSafeInteger(v.price) ||
             !validPrice(v.price) ||
             !validBulk(v.bulk, v.price),
         ))
@@ -158,7 +157,7 @@ export function readCart(raw) {
         !["", "mala", "velka"].includes(item.variant))
     )
       continue;
-    const variant = item.variant || "mala";
+    const variant = item.variant ?? "mala";
     const key = `${item.id}::${variant}`;
     const previous = result.get(key);
     result.set(key, {
