@@ -9,3 +9,4 @@ Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jede
 - **Pokladna:** výběr výdejního místa / Z-BOXu / Balíkovny nebo adresy se ukáže hned pod zvolenou dopravou (zvolený řádek je zvýrazněný). Připravené místo na loga dopravců — čeká na loga Zásilkovny a Balíkovny od majitelky.
 - Dílnička → Znalosti a tipy: odlepení vosku od skla (wet spots) — příčiny, prevence, oprava.
 - Web: v častých otázkách a na stránce Složení a bezpečnost doplněno, že odlepení vosku od skla se může objevit i při pečlivé výrobě (přirozená vlastnost sójového vosku).
+- Úvodní stránka: karta „Lapače slunce“ má fotku lapače se sovou (nahoře fotka, pod ní text); u připravovaných karet „PŘIPRAVUJI“ místo „PŘIPRAVUJEME“.

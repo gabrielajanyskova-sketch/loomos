@@ -3399,3 +3399,36 @@ span.cart-thumb {
   border: 1px solid var(--copper);
   border-top: 0;
 }
+
+/* Home: sun catcher card with a photo on top and the text below it */
+.category-card.suncatcher {
+  background: #1d1b1a;
+}
+.category-card .category-photo {
+  display: block;
+  width: calc(100% + 50px);
+  max-width: none;
+  height: 190px;
+  margin: -25px -25px 18px;
+  object-fit: cover;
+  object-position: center 32%;
+  transition: transform 0.4s;
+}
+.category-card.suncatcher .pill {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  z-index: 1;
+  background: #171614cc;
+}
+.category-card.suncatcher .category-photo-text {
+  margin-top: auto;
+}
+.category-card.suncatcher:hover .category-photo {
+  transform: scale(1.03);
+}
+@media (max-width: 700px) {
+  .category-card .category-photo {
+    height: 220px;
+  }
+}
