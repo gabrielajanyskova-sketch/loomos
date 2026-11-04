@@ -10,6 +10,8 @@ export const catalog = withSafety(
   validateCatalog(products).filter((p) => p.active),
   labels,
 );
+/** All scents incl. inactive ones (Dílnička can produce scents not yet sold in the e-shop). */
+export const allScents = withSafety(validateCatalog(products), labels);
 const byId = new Map(catalog.map((p) => [p.id, p]));
 
 export const variantsOf = (p) =>

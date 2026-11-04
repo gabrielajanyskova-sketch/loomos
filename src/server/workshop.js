@@ -3,7 +3,7 @@ import oilData from "../../data/oils.json";
 import labelDefaults from "../../data/labels.json";
 import { assertSameOrigin, fail, json, readJson, text } from "./http.js";
 import { now } from "./db.js";
-import { catalog, variantsOf } from "./catalog.js";
+import { allScents as catalog, variantsOf } from "./catalog.js";
 import { calcBatch, DEFAULTS } from "../../assets/js/workshop-calc.mjs";
 
 const oils = oilData.map((o) => ({
@@ -257,7 +257,7 @@ export async function overview(db) {
     oils,
     scents: catalog.map((p) => ({
       id: p.id,
-      name: p.name,
+      name: p.active ? p.name : `${p.name} (zatím není v e-shopu)`,
       variants: variantsOf(p).map((v) => ({ id: v.id, name: v.name })),
     })),
     jars,

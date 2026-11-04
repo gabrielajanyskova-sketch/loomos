@@ -118,5 +118,65 @@
       "heart": "Citronová tráva",
       "base": "Zázvor"
     }
+  },
+  {
+    "id": "jantar-citrusy",
+    "name": "Jantar a citrusy",
+    "subtitle": "Slunce v pryskyřici.",
+    "notes": "Pomeranč · bergamot · pačuli · ambra",
+    "price": 249,
+    "category": "svicky",
+    "description": "Slunečný háj, kde se šťavnaté citrusy potkávají s teplým pryskyřičným dřevem. Pomeranč, mandarinka a bergamot rozzáří prostor, pačuli, santal a vetiver mu dají hloubku a ambra s pižmem ho zahalí do příjemného tepla.",
+    "active": false,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+      }
+    ],
+    "pyramid": {
+      "top": "Pomeranč, tangerinka, mandarinka, bergamot",
+      "heart": "Pačuli, santalové dřevo, vetiver",
+      "base": "Ambra, pižmo"
+    }
+  },
+  {
+    "id": "vanilka-paculi-santal",
+    "name": "Vanilka, pačuli a santal",
+    "subtitle": "Krémové dřevité pohlazení.",
+    "notes": "Vanilka · santal · pačuli · fialka",
+    "price": 249,
+    "category": "svicky",
+    "description": "Pozdní odpoledne u krbu, deka a šálek čaje. Krémová vanilka se snoubí se santalovým dřevem a zemitým pačuli, citronová kůra a bergamot dodají lehkost a fialka s jasmínem jemné srdce. Hřejivá, uklidňující vůně do obýváku i ložnice.",
+    "active": false,
+    "price_provisional": true,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 249,
+        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 349,
+        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+      }
+    ],
+    "pyramid": {
+      "top": "Citron, bergamot, cukr",
+      "heart": "Fialka, jasmín, balzámy",
+      "base": "Vanilka, santalové dřevo, pačuli, pižmo"
+    }
   }
 ]
