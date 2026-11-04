@@ -3546,3 +3546,18 @@ aside nav .ico {
     height: 22px;
   }
 }
+.custom-photo {
+  position: relative;
+  aspect-ratio: 3 / 4;
+}
+.custom-photo .pending-photo-circle {
+  background: linear-gradient(
+    135deg,
+    #ff6b6b1f,
+    #ffb3471f,
+    #fff1761f,
+    #6bd49a1f,
+    #5cb8ff1f,
+    #9b7bff1f
+  );
+}

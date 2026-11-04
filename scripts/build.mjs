@@ -9,6 +9,7 @@ import {
   renderFooter,
   renderProductDetail,
   renderRelated,
+  customSuncatcherCard,
   renderFAQ,
   safetyTable,
   esc,
@@ -225,7 +226,7 @@ for (const [file, page, product] of pages) {
         html = slot(
           html,
           "suncatcher-products",
-          list.map(productCard).join(""),
+          list.map(productCard).join("") + customSuncatcherCard(),
         );
     }
     if (page === "safety")

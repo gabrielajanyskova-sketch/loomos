@@ -7,6 +7,7 @@ import {
   burnLine,
   thumbSrc,
   icon,
+  customSuncatcherCard,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -977,7 +978,7 @@ async function init() {
   if (page === "suncatchers") {
     const list = products.filter((p) => !isCandle(p));
     $("#suncatcher-products").innerHTML = list.length
-      ? list.map(productCard).join("")
+      ? list.map(productCard).join("") + customSuncatcherCard()
       : '<div class="coming-soon"><span class="pill">PŘIPRAVUJEME</span><p>První lapače slunce právě vyrábím. Chcete vědět, až budou? <a href="mailto:info@loomos.cz?subject=Lapa%C4%8De%20slunce">Napište mi</a> a dám vám vědět.</p></div>';
   }
   if (page === "shop") {
