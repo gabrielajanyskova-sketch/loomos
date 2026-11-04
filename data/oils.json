@@ -19,7 +19,8 @@
     "room_spray": true,
     "phthalate_free": false,
     "no_ufi_max_percent": 10,
-    "phthalates": "diethyl phthalate (DEP) jako rozpouštědlo — viz bezpečnostní list"
+    "phthalates": "diethyl phthalate (DEP) jako rozpouštědlo — viz bezpečnostní list",
+    "citrus": true
   },
   {
     "product_id": "morska-sul-paculi",
@@ -55,7 +56,8 @@
     "phthalate_free": false,
     "no_ufi_max_percent": 13.67,
     "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 49174-26): Limonene 7,316 %, Eugenol 6,201 % (Skin Sens. 1B) — H317 až nad 13,67 % oleje ve svíčce.",
-    "phthalates": "diethyl phthalate (DEP) 20–50 % jako rozpouštědlo — viz bezpečnostní list"
+    "phthalates": "diethyl phthalate (DEP) 20–50 % jako rozpouštědlo — viz bezpečnostní list",
+    "citrus": true
   },
   {
     "product_id": "vanilka-paculi-santal",
@@ -79,7 +81,8 @@
     "phthalate_free": true,
     "no_ufi_max_percent": 9.72,
     "clp_note": "Nejvyšší alergen v oleji (deklarace 2023, šarže 27210-26): Linalyl acetate 10,273 % (Skin Sens. 1B) — H317 nad 9,72 % oleje ve svíčce (dodavatelova etiketa pro 10 % už H317 má). Repr. 2 složka (isobutenyl methyltetrahydropyran) pod 1 % v oleji = pod 0,1 % ve svíčce, hranice 3 %.",
-    "phthalates": "bez ftalátů — DEP ani jiné ftaláty v bezpečnostním listu nejsou"
+    "phthalates": "bez ftalátů — DEP ani jiné ftaláty v bezpečnostním listu nejsou",
+    "citrus": true
   },
   {
     "product_id": "more-cedr",
@@ -103,6 +106,7 @@
     "phthalate_free": false,
     "no_ufi_max_percent": 10,
     "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 09652-26): Limonene 9,607 %, pomerančová silice 9,5 % (Skin Sens. 1) — H317 až nad 10 % oleje ve svíčce.",
-    "phthalates": "diethyl phthalate (DEP) 5–10 % jako rozpouštědlo — viz bezpečnostní list"
+    "phthalates": "diethyl phthalate (DEP) 5–10 % jako rozpouštědlo — viz bezpečnostní list",
+    "citrus": true
   }
 ]

@@ -97,6 +97,45 @@ const settings = () => ({
   loss_percent: Number($("#loss").value),
 });
 
+/** Practical know-how collected while setting up production (supplier advice, CLP, claims). */
+const KNOWLEDGE = `<div class="knowledge">
+<details><summary>Teplota vosku — proč a kolik</summary><ul>
+<li><strong>Nature Wax C-3:</strong> zahřát na 65–77 °C (70 °C je ideální), nikdy nad 93 °C. Olej přidat hned, při 65–70 °C. Lít při 55–65 °C.</li>
+<li><strong>Golden Wax 464:</strong> výrobce doporučuje 85 °C, aby se rozpustily všechny krystalky tuku — hladší povrch, lepší přilnutí ke sklu a lepší spojení s olejem.</li>
+<li>464 jde zahřát i jen na 70 °C (taje při 45–48 °C), ale může se objevit bílý povlak (frosting), mokré skvrny u skla nebo slabší vůně. Nejdřív udělejte 2–3 testovací svíčky; když nebudou hezké, zkuste 75–80 °C.</li>
+<li>Nižší teplota šetří citrusové vůně a oleje s nízkým bodem vzplanutí (Kokos a limetka 68 °C, Amalfinské pobřeží 71 °C).</li>
+<li>Teploty si upravíte v části <a href="#waxes">Moje vosky</a> → Upravit; postup výroby se podle nich přepočítá.</li>
+</ul></details>
+<details><summary>Vonné oleje — rady dodavatele</summary><ul>
+<li>Olej vždy <strong>važte v gramech</strong>, ne podle objemu — dodavatel prodává podle ml, ale každý olej má jinou hustotu.</li>
+<li>Doporučená dávka do svíček je 6–8 % z vosku. Kolik u které vůně, je v části <a href="#oleje">Vonné oleje — kolik dát</a>.</li>
+<li><strong>Citrusové vůně</strong> (Pomeranč a vanilka, Jantar a citrusy, Amalfinské pobřeží, Kokos a limetka) přidávejte a lijte při co nejnižší teplotě — jinak mohou při hoření vonět „jako palivo“.</li>
+<li>Svíčky nechte <strong>zrát aspoň 2 týdny</strong>, teprve pak se vůně naplno rozvine (studená i teplá vůně).</li>
+<li>Olej v lahvičce voní jinak než ve svíčce — novou vůni vždy vyzkoušejte v hotové svíčce, než koupíte víc.</li>
+<li>Trvanlivost oleje je 6–12 měsíců. Oleje s vanilinem mohou vosk časem zbarvit do žluta až hněda.</li>
+<li>Olej nikdy na kůži, nepít, mimo dosah dětí a zvířat; při práci podle bezpečnostního listu (rukavice).</li>
+</ul></details>
+<details><summary>UFI, etikety a nová šarže oleje</summary><ul>
+<li><strong>UFI</strong> je kód, který musí mít výrobek nebezpečný pro zdraví (např. H317 alergie) nebo fyzikálně — a k tomu placené nahlášení složení přes ECHA. Když dáte oleje tak málo, že svíčka nevyjde nebezpečná, UFI ani hlášení nepotřebujete. Ekologická věta H412 hlášení nevyžaduje.</li>
+<li>Rozhoduje nejsilnější alergen: ve svíčce ho musí být <strong>pod 1 %</strong> (jinak H317). Alergeny nad 0,1 % se vypisují za „Obsahuje … Může vyvolat alergickou reakci“ (EUH208).</li>
+<li>U <strong>každé nové šarže</strong> oleje si stáhněte aktuální bezpečnostní list a deklaraci alergenů (dodavatel je průběžně mění) a pošlete je ke kontrole — může se změnit hranice i text etikety.</li>
+<li>U nové vůně potřebujeme: bezpečnostní list k samotnému oleji („Fragrance Oil“), deklaraci alergenů 2023, IFRA certifikát a číslo šarže.</li>
+<li>Vůně, kterou chcete prodávat bez UFI, by měla mít u dodavatele „NO UFI up to“ aspoň kolem 8 % — jinak svíčka moc nevoní.</li>
+</ul></details>
+<details><summary>Co smím psát na web a etiketu</summary><ul>
+<li><strong>„Bez ftalátů“ jen u olejů, které ho opravdu splní</strong> (v Dílničce sloupec „Bez ftalátů“). „Phthalate-free“ u dodavatele se týká lahviček; oleje bez ftalátů mají v samostatné kolekci. Diethylftalát (DEP) není zakázaný ani klasifikovaný jako nebezpečný, jen nesmíme tvrdit, že tam není.</li>
+<li>„Veganské“ ano, když je veganské vše (olej, sójový vosk, dřevěný knot, barvivo).</li>
+<li>„Netestováno na zvířatech“ a „splňuje IFRA“ ano — podklady máme od dodavatele.</li>
+<li>„Bez parabenů“ raději ne — ve svíčkách parabeny nikdy nejsou, působilo by to klamavě.</li>
+</ul></details>
+<details><summary>Vůně do auta (do budoucna)</summary><ul>
+<li>Nejjednodušší je tuhý vonný vosk nebo voskový sáček na zavěšení, případně dřevěná či keramická visačka. Tekutým difuzérům se vyhnout (uzávěr proti dětem, hmatová výstraha, UFI).</li>
+<li>Platí stejná pravidla jako u svíček: procento oleje tak, aby nebyl H317, CLP etiketa česky s alergeny.</li>
+<li>Pokyny: nedávat na palubní desku ani na přímé slunce, nesmí bránit ve výhledu, mimo dosah dětí, nedávat do kontaktu s plasty a potahy.</li>
+<li>Nepsat „antibakteriální“ ani „ničí bakterie“ — to by byl biocid s jinými pravidly.</li>
+</ul></details>
+</div>`;
+
 function render() {
   const jars = activeJars();
   $("#workshop").innerHTML = `
@@ -131,7 +170,8 @@ function render() {
   <section class="panel"><h2>Moje sklenice</h2><div id="jars"></div></section>
   <section class="panel"><h2>Testy knotů</h2><div id="wick-tests"></div></section>
   <section class="panel"><h2>Moje vosky</h2><div id="waxes"></div></section>
-  <section class="panel" id="oleje"><h2>Vonné oleje — kolik dát</h2><div id="oils"></div></section>`;
+  <section class="panel" id="oleje"><h2>Vonné oleje — kolik dát</h2><div id="oils"></div></section>
+  <section class="panel" id="znalosti"><h2>Znalosti a tipy</h2>${KNOWLEDGE}</section>`;
   renderRows();
   renderBatches();
   renderJars();
@@ -225,6 +265,12 @@ function renderProcedure(r) {
   const today = new Date();
   const plus = (days) =>
     new Date(today.getTime() + days * 864e5).toLocaleDateString("cs-CZ");
+  const citrusTips = r.scents
+    .filter((s) => data.oils.find((o) => o.product_id === s.product_id)?.citrus)
+    .map(
+      (s) =>
+        `${scentName(s.product_id)}: citrusová vůně — olej přidejte a lijte při co nejnižší teplotě z rozmezí, aby citrusy nevyprchaly a svíčka při hoření nevoněla „jako palivo“.`,
+    );
   const flashWarnings = r.scents
     .filter(
       (s) =>
@@ -255,6 +301,7 @@ function renderProcedure(r) {
     <h3>Navážit pro každou vůni</h3>
     <div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Svíček</th><th>Vosk</th><th>Vonný olej</th><th>Bod vzplanutí oleje</th></tr></thead><tbody>${r.scents.map((s) => `<tr><td>${esc(scentName(s.product_id))}</td><td>${s.candles}</td><td>${grams(s.wax)}</td><td><strong>${grams(s.oil)}</strong></td><td>${s.flashpoint_c ? s.flashpoint_c + " °C" : "—"}</td></tr>`).join("")}</tbody></table></div>
     ${flashWarnings.length ? `<ul class="warnings">${flashWarnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+    ${citrusTips.length ? `<ul class="warnings">${citrusTips.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
     ${wax.note ? `<p class="muted">Poznámka k vosku: ${esc(wax.note)}</p>` : ""}
     <p class="muted">Doporučení dodavatele vosku: max. olej ${esc(wax.max_load || "—")}. Teploty a doby jsou výchozí hodnoty z jeho stránek, upravit je můžete v části Moje vosky.</p>`;
 }
