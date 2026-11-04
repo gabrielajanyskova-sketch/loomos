@@ -69,7 +69,8 @@ test("sitemap points only to real indexable content routes on the future domain"
 
 test("sun catcher collection and all four individual routes are built separately", () => {
   const collection = read("lapace-slunce.html");
-  assert.equal((collection.match(/class="product-card[ "]/g) || []).length, 4);
+  assert.equal((collection.match(/class="product-card[ "]/g) || []).length, 5);
+  assert.match(collection, /Lapač na přání/);
 
   const catalog = JSON.parse(read("data/products.json"));
   for (const p of catalog.filter((p) => p.category === "lapace-slunce")) {

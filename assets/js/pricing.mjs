@@ -15,6 +15,8 @@ export const SHIPPING = {
     kind: "pickup",
   },
   zasilkovna: {
+    short: "Výdejní místo",
+    logo: "/assets/img/carrier-zasilkovna.svg",
     label: "Zásilkovna — výdejní místo",
     price: 109,
     kind: "point",
@@ -22,6 +24,8 @@ export const SHIPPING = {
     packeta: { vendors: [{ country: "cz" }] },
   },
   zbox: {
+    short: "Z-BOX",
+    logo: "/assets/img/carrier-zasilkovna.svg",
     label: "Zásilkovna — Z-BOX",
     price: 109,
     kind: "point",
@@ -29,18 +33,24 @@ export const SHIPPING = {
     packeta: { vendors: [{ country: "cz", group: "zbox" }] },
   },
   domu: {
+    short: "Doručení domů",
+    logo: "/assets/img/carrier-zasilkovna.svg",
     label: "Zásilkovna — doručení domů",
     price: 149,
     kind: "home",
     provider: "packeta",
   },
   balikovna: {
+    short: "Pobočka Balíkovny",
+    logo: "/assets/img/carrier-balikovna.svg",
     label: "Balíkovna — Česká pošta",
     price: 99,
     kind: "point",
     provider: "balikovna",
   },
   balikovna_domu: {
+    short: "Doručení domů",
+    logo: "/assets/img/carrier-balikovna-adresa.webp",
     label: "Česká pošta — doručení domů",
     price: 129,
     kind: "home",

@@ -3375,11 +3375,27 @@ span.cart-thumb {
   margin-left: 0;
   color: inherit;
 }
+.radio .carrier-logo-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 104px;
+  margin-left: 0;
+}
 .carrier-logo {
-  width: 72px;
-  height: 24px;
+  display: block;
+  max-width: 100%;
+  height: 22px;
+  width: auto;
   object-fit: contain;
-  margin-right: 4px;
+}
+/* Česká pošta logos are blue: they sit on a light pill on the dark site. */
+.carrier-logo.on-light {
+  background: #f6f1ea;
+  border-radius: 3px;
+  padding: 3px 6px;
+  height: 26px;
 }
 .shipping-option:has(input:checked) {
   border-color: var(--copper);
@@ -3513,4 +3529,35 @@ aside nav .ico {
     width: 56px;
     height: 56px;
   }
+}
+.carrier-ico {
+  width: 26px;
+  height: 26px;
+  color: var(--copper-light);
+}
+@media (max-width: 700px) {
+  .radio .carrier-logo-box {
+    width: 78px;
+  }
+  .carrier-logo {
+    height: 18px;
+  }
+  .carrier-logo.on-light {
+    height: 22px;
+  }
+}
+.custom-photo {
+  position: relative;
+  aspect-ratio: 3 / 4;
+}
+.custom-photo .pending-photo-circle {
+  background: linear-gradient(
+    135deg,
+    #ff6b6b1f,
+    #ffb3471f,
+    #fff1761f,
+    #6bd49a1f,
+    #5cb8ff1f,
+    #9b7bff1f
+  );
 }

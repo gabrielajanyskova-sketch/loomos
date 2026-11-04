@@ -9,6 +9,7 @@ import {
   renderFooter,
   renderProductDetail,
   renderRelated,
+  customSuncatcherCard,
   renderFAQ,
   safetyTable,
   esc,
@@ -108,7 +109,8 @@ for (const dir of ["img", "fonts"])
         (name.startsWith("favicon-") && name.endsWith(".png")) ||
         name.endsWith("-LICENSE.txt") ||
         name === "og-image.jpg" ||
-        name === "icons.svg"
+        name === "icons.svg" ||
+        /^carrier-[a-z-]+\.svg$/.test(name)
       )
     )
       continue;
@@ -224,7 +226,7 @@ for (const [file, page, product] of pages) {
         html = slot(
           html,
           "suncatcher-products",
-          list.map(productCard).join(""),
+          list.map(productCard).join("") + customSuncatcherCard(),
         );
     }
     if (page === "safety")
