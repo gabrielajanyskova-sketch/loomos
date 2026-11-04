@@ -10,3 +10,4 @@ Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jede
 - Dílnička → Znalosti a tipy: odlepení vosku od skla (wet spots) — příčiny, prevence, oprava.
 - Web: v častých otázkách a na stránce Složení a bezpečnost doplněno, že odlepení vosku od skla se může objevit i při pečlivé výrobě (přirozená vlastnost sójového vosku).
 - Úvodní stránka: karta „Lapače slunce“ má fotku lapače se sovou (nahoře fotka, pod ní text); u připravovaných karet „PŘIPRAVUJI“ místo „PŘIPRAVUJEME“.
+- Karty produktů v obchodě: výběr počtu kusů (− 1 +) vedle „Přidat do košíku“ — bez rozkliknutí produktu; po přidání se počet vrátí na 1.

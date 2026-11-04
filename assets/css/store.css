@@ -3432,3 +3432,22 @@ span.cart-thumb {
     height: 220px;
   }
 }
+
+/* Quantity on product cards */
+.card-buy {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.card-buy .add-button {
+  flex: 1;
+  min-width: 0;
+}
+.card-qty button {
+  min-height: 40px;
+  min-width: 34px;
+  padding: 6px 10px;
+}
+.card-qty output {
+  min-width: 22px;
+}

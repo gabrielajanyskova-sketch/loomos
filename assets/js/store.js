@@ -246,11 +246,34 @@ document.addEventListener("click", (e) => {
   if (b && !b.disabled)
     add(
       b.dataset.add,
-      Number($("#detail-quantity")?.textContent || 1),
+      Number(
+        (
+          b.closest(".product-card")?.querySelector("[data-card-quantity]") ||
+          $("#detail-quantity")
+        )?.textContent || 1,
+      ),
       b.closest(".product-card")?.querySelector("[data-card-size]")?.value ||
         $("#size-choice")?.value ||
         "mala",
     );
+  // After adding from a card, its quantity starts again from 1.
+  if (b && !b.disabled) {
+    const cardQty = b
+      .closest(".product-card")
+      ?.querySelector("[data-card-quantity]");
+    if (cardQty) cardQty.textContent = "1";
+  }
+  const cq = e.target.closest("[data-card-qty]");
+  if (cq) {
+    const output = cq.parentElement.querySelector("[data-card-quantity]");
+    output.textContent = Math.max(
+      1,
+      Math.min(
+        MAX_QTY,
+        Number(output.textContent) + Number(cq.dataset.cardQty),
+      ),
+    );
+  }
   const q = e.target.closest("[data-detail-qty]");
   if (q) {
     const output = $("#detail-quantity");
