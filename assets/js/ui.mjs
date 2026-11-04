@@ -65,32 +65,16 @@ export const saleMarkup = (p) =>
     : "";
 const isSuncatcher = (p) => p.category === "lapace-slunce";
 const suncatcherPhotos = new Set([
-  "lapac-slunce-chase",
-  "lapac-slunce-bing",
-  "lapac-slunce-peppa",
-  "lapac-slunce-zuma",
-  "lapac-slunce-marshall",
-  "lapac-slunce-stitch",
-  "lapac-slunce-mario",
   "lapac-slunce-sova",
   "lapac-slunce-vila",
   "lapac-slunce-medvidek",
-  "lapac-slunce-skye",
   "lapac-slunce-traktor",
-  "lapac-slunce-pikachu",
 ]);
 const suncatcherWindowPhotos = new Set([
   "lapac-slunce-traktor",
-  "lapac-slunce-chase",
-  "lapac-slunce-bing",
-  "lapac-slunce-peppa",
-  "lapac-slunce-zuma",
-  "lapac-slunce-marshall",
-  "lapac-slunce-stitch",
   "lapac-slunce-sova",
   "lapac-slunce-vila",
   "lapac-slunce-medvidek",
-  "lapac-slunce-skye",
 ]);
 const suncatcherPicture = (p) => {
   const href = `/produkty/${esc(p.id)}.html`;
@@ -99,8 +83,6 @@ const suncatcherPicture = (p) => {
     const source = esc(p.id) + (visual ? "-window" : "");
     return `<a class="product-image suncatcher-product-image" href="${href}"><img src="/assets/img/${source}-480.webp" srcset="/assets/img/${source}-480.webp 480w, /assets/img/${source}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="${visual ? 1200 : 1280}" alt="Lapač slunce ${esc(p.name)} — ${visual ? "ilustrační vizualizace na okně" : "skutečná fotografie výrobku v obalu"}" loading="lazy" decoding="async">${visual ? '<span class="photo-note">Ilustrační vizualizace</span>' : ""}</a>`;
   }
-  if (p.id === "lapac-slunce-rubble")
-    return `<a class="product-image suncatcher-product-image" href="${href}"><img src="/assets/img/lapac-slunce-rubble.webp" width="960" height="1200" alt="Lapač slunce Rubble na okně — ilustrační vizualizace" loading="lazy" decoding="async"><span class="photo-note">Ilustrační vizualizace</span></a>`;
   return `<a class="product-image pending-photo" href="${href}" aria-label="${esc(p.name)} — detail produktu"><span class="pending-photo-circle"><span>${esc(p.name)}</span><small>Fotografii připravujeme</small></span></a>`;
 };
 const suncatcherCard = (p) =>

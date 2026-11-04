@@ -284,7 +284,7 @@ async function renderProducts(el) {
     list
       .map(
         (p) =>
-          `<tr><td><strong>${esc(p.name)}</strong>${p.badge ? ` <small class="status-label">${esc(p.badge)}</small>` : ""}<br><small class="muted">${esc(p.id)}${p.edited ? " · upraveno v adminu" : ""}</small></td><td>${p.variants?.length ? p.variants.map((v) => `${esc(v.name)} ${money(v.price)}`).join("<br>") : money(p.price)}${p.bulk || p.variants?.some((v) => v.bulk) ? '<br><small class="muted">s množstevní cenou</small>' : ""}</td><td>${p.active ? "Ano" : "Ne"}</td><td><button type="button" class="inline-button" data-product-edit="${esc(p.id)}">Upravit</button></td></tr>`,
+          `<tr><td><strong>${esc(p.name)}</strong>${p.badge ? ` <small class="status-label">${esc(p.badge)}</small>` : ""}<br><small class="muted">${esc(p.id)}${p.edited ? " · upraveno v adminu" : ""}</small></td><td>${p.variants?.length ? p.variants.map((v) => `${esc(v.name)} ${money(v.price)}`).join("<br>") : money(p.price)}${p.bulk || p.variants?.some((v) => v.bulk) ? '<br><small class="muted">s množstevní cenou</small>' : ""}</td><td>${p.deleted ? '<span class="status-label">Smazáno</span>' : p.active ? "Ano" : "Ne"}</td><td>${p.deleted ? `<button type="button" class="inline-button" data-product-restore="${esc(p.id)}">Obnovit</button>` : `<button type="button" class="inline-button" data-product-edit="${esc(p.id)}">Upravit</button> <button type="button" class="inline-button danger" data-product-delete="${esc(p.id)}">Smazat</button>`}</td></tr>`,
       )
       .join("") ||
     '<tr><td colspan="4">V této kategorii zatím nic není.</td></tr>'
@@ -539,6 +539,33 @@ document.addEventListener("click", (e) => {
       products.find((p) => p.id === edit.dataset.productEdit),
       false,
     );
+  const productDelete = e.target.closest("[data-product-delete]");
+  if (productDelete) {
+    const product = products.find(
+      (p) => p.id === productDelete.dataset.productDelete,
+    );
+    if (
+      !confirm(
+        `Smazat produkt „${product?.name}“? Zmizí z e-shopu i ze skladu.${product?.bundled ? " Půjde ho obnovit." : ""}`,
+      )
+    )
+      return;
+    guard(async () => {
+      await api("product-delete", { id: productDelete.dataset.productDelete });
+      status(`Produkt „${product?.name}“ je smazaný.`);
+      await show("products");
+    });
+    return;
+  }
+  const restore = e.target.closest("[data-product-restore]");
+  if (restore) {
+    guard(async () => {
+      await api("product-reset", { id: restore.dataset.productRestore });
+      status("Produkt je obnovený (v e-shopu ho zapnete v Upravit).");
+      await show("products");
+    });
+    return;
+  }
   if (e.target.closest("[data-product-close]"))
     $("#product-editor").hidden = true;
   const reset = e.target.closest("[data-product-reset]");

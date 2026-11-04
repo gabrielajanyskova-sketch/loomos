@@ -15,3 +15,7 @@ Slevy: zlevněná cena je samostatná od běžné ceny. Před slevou se uloží 
 
 
 Doplnění vizualizací: 11 motivů ze ZIPu je převedeno do stejné scény na okně jako Rubble (Chase, Bing, Peppa, Zuma, Marshall, Stitch, sova, víla, medvídek, Skye a traktor). Hlavní obrázky používají nové názvy `-window-480.webp` a `-window-960.webp`, aby je neblokovala mezipaměť starších souborů. Celkem je tedy 12 vizualizací včetně Rubblea. U Maria a Pikachu generátor odmítl úpravu; nadále používají skutečné fotky v obalu. Tyto dvě úpravy nejsou hotové. Všechny nové vizualizace jsou označené a v detailu je dostupný odkaz na původní skutečnou fotku.
+
+## Aktualizace 4. 11. 2026
+
+Motivy s chráněnými postavičkami (Rubble, Chase, Marshall, Skye, Zuma, Peppa, Bing, Stitch, Mario, Pikachu) byly na přání majitelky z e-shopu odstraněny včetně fotografií — kvůli autorským právům a ochranným známkám je nelze nabízet k prodeji. V nabídce zůstávají vlastní motivy: sova, víla, medvídek a traktor (199 Kč, od 2 ks 175 Kč/ks). Lapač s motivem na přání přes poptávku od 299 Kč.
