@@ -143,7 +143,20 @@ const pages = [
 ];
 const sitemap = [];
 for (const [file, page, product] of pages) {
-  let html = await fs.readFile(path.join(root, file), "utf8");
+  // A product without its own page file is built from produkty/_sablona.html.
+  let html = await fs
+    .readFile(path.join(root, file), "utf8")
+    .catch(async (error) => {
+      if (page !== "product" || error.code !== "ENOENT") throw error;
+      return (
+        await fs.readFile(path.join(root, "produkty/_sablona.html"), "utf8")
+      )
+        .replace("__PRODUCT_ID__", product.id)
+        .replace(
+          "<title>Sójová svíčka — LOOMOS</title>",
+          `<title>${esc(product.name)} — LOOMOS</title>`,
+        );
+    });
   html = html.replace(/<head>[\s\S]*?<\/head>/, () =>
     renderHead({
       meta: metadata({ page, product, siteUrl, indexable, file, products }),

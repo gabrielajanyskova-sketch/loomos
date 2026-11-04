@@ -38,7 +38,7 @@ try {
   page.on("request", (r) => requests.push(r.url()));
   await page.goto(base);
   await page.locator(".product-card").nth(3).waitFor();
-  assert.equal(await page.locator(".product-card").count(), 4);
+  assert.equal(await page.locator(".product-card").count(), 7);
   // Wait until the catalog script has loaded (stock and member price are filled in).
   await page.locator(".product-card [data-add][data-label]").first().waitFor();
   assert.match(
@@ -91,7 +91,7 @@ try {
   const noJs = await browser.newContext({ javaScriptEnabled: false });
   const plain = await noJs.newPage();
   await plain.goto(base);
-  assert.equal(await plain.locator(".product-card").count(), 4);
+  assert.equal(await plain.locator(".product-card").count(), 7);
   assert.match(await plain.locator(".footer-legal").textContent(), /19616295/);
   await plain.goto(base + "/obchodni-podminky");
   assert.match(await plain.locator("h1").textContent(), /Obchodní/);

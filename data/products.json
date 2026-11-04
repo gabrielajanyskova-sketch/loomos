@@ -132,7 +132,7 @@
     "price": 249,
     "category": "svicky",
     "description": "Slunečný háj, kde se šťavnaté citrusy potkávají s teplým pryskyřičným dřevem. Pomeranč, mandarinka a bergamot rozzáří prostor, pačuli, santal a vetiver mu dají hloubku a ambra s pižmem ho zahalí do příjemného tepla.",
-    "active": false,
+    "active": true,
     "price_provisional": true,
     "variants": [
       {
@@ -163,7 +163,7 @@
     "price": 249,
     "category": "svicky",
     "description": "Pozdní odpoledne u krbu, deka a šálek čaje. Krémová vanilka se snoubí se santalovým dřevem a zemitým pačuli, citronová kůra a bergamot dodají lehkost a fialka s jasmínem jemné srdce. Hřejivá, uklidňující vůně do obýváku i ložnice.",
-    "active": false,
+    "active": true,
     "price_provisional": true,
     "variants": [
       {
@@ -225,7 +225,7 @@
     "price": 249,
     "category": "svicky",
     "description": "Svěží mořský vánek s citrusy a zeleným jablkem, v srdci mořské tóny, květy a bylinky. Cedr, santal, pačuli a ambra dávají vůni sebevědomý, dlouhý dřevitý závěr.",
-    "active": false,
+    "active": true,
     "price_provisional": true,
     "variants": [
       {

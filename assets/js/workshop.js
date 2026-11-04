@@ -615,13 +615,25 @@ document.addEventListener(
     } else if (t.dataset.done) {
       if (!confirm("Označit výrobu jako hotovou a přičíst svíčky na sklad?"))
         return;
+      const batch = data.batches.find((b) => b.id === Number(t.dataset.done));
+      const hidden = [
+        ...new Set(
+          (batch?.items || [])
+            .map((i) => data.scents.find((x) => x.id === i.product_id))
+            .filter((x) => x && !x.active)
+            .map((x) => x.name.replace(" (zatím není v e-shopu)", "")),
+        ),
+      ];
       const r = await api("workshop/batch-done", {
         id: Number(t.dataset.done),
       });
       status(
-        r.stocked.length
+        (r.stocked.length
           ? `Hotovo. Na sklad přibylo ${r.stocked.reduce((s, x) => s + x.count, 0)} svíček.`
-          : "Hotovo. Sklenice nemají nastavenou velikost v e-shopu, sklad se nezměnil.",
+          : "Hotovo. Sklenice nemají nastavenou velikost v e-shopu, sklad se nezměnil.") +
+          (hidden.length
+            ? ` Pozor: ${hidden.join(", ")} zatím není v e-shopu vidět — sklad je připravený, ale vůni je potřeba v e-shopu zapnout.`
+            : ""),
       );
       await load();
       return;

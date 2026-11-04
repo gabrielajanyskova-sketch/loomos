@@ -21,7 +21,7 @@ const privatePages = new Set([
 ]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
-  shop: "Sójové svíčky — čtyři vůně, dvě velikosti | LOOMOS",
+  shop: "Sójové svíčky — vůně pro vaše chvíle, dvě velikosti | LOOMOS",
   wholesale: "Spolupráce a zakázková tvorba | LOOMOS",
   suncatchers: "Lapače slunce — duhové nálepky na okno | LOOMOS",
   cart: "Váš košík | LOOMOS",
@@ -40,7 +40,7 @@ const titles = {
 const descriptions = {
   safety:
     "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používáme, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
-  shop: "Vyberte si ze čtyř vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
+  shop: "Vyberte si z vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
   suncatchers:
     "Lapače slunce LOOMOS: nálepky na okno z hranolové fólie, které ze slunečních paprsků vykouzlí duhy na stěnách i podlaze. Jak fungují, kam je nalepit a nabídka.",
   wholesale:
