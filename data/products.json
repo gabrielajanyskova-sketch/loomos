@@ -305,5 +305,19 @@
       "heart": "Broskev, květy",
       "base": "Vanilkový cukr, pižmo"
     }
+  },
+  {
+    "id": "lapac-slunce-pejsek",
+    "name": "Lapač slunce — pejsek",
+    "subtitle": "Duhy po celé místnosti.",
+    "notes": "Kruh Ø 15 cm · pejsek z holografické fólie",
+    "price": 199,
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    },
+    "category": "lapace-slunce",
+    "description": "Kulatý lapač slunce o průměru 15 cm s pejskem z holografické fólie. Nalepíte ho na vnitřní stranu okna a jakmile na něj posvítí slunce, rozběhnou se po stěnách a podlaze duhová prasátka. Ručně ho vyřezávám a skládám.",
+    "active": false
   }
 ]

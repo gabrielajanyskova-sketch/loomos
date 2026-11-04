@@ -124,6 +124,7 @@ function lines() {
         variant: v?.id || "",
         name: p.name + (v ? " — " + v.name : ""),
         price: v?.price ?? p.price,
+        ...((v?.bulk ?? p.bulk) ? { bulk: v?.bulk ?? p.bulk } : {}),
         qty: i.qty,
       };
     })
@@ -292,6 +293,9 @@ function summary({ checkout = false, shipping = null } = {}) {
   const memberRow = member
     ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(t.memberSavings)}</span></div>`
     : `<p class="member-hint"><a href="/ucet.html?navrat=${checkout ? "pokladna" : "kosik"}">Přihlaste se nebo se zaregistrujte</a> a ušetříte ${money(t.itemsOriginal - priceCart({ lines: lines(), member: true }).items)} (5 % na vše).</p>`;
+  const bulkRow = t.bulkSavings
+    ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(t.bulkSavings)}</span></div>`
+    : "";
   const codeRow = t.code
     ? `<div class="summary-row saving"><span>Kód ${esc(t.code)} <button type="button" class="link-button" data-remove-code>odebrat</button></span><span>−${money(t.codeDiscount)}</span></div>`
     : "";
@@ -309,7 +313,7 @@ function summary({ checkout = false, shipping = null } = {}) {
           )
           .join("")
       : ""
-  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal)}</span></div>${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
+  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal + t.bulkSavings)}</span></div>${bulkRow}${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
 }
 async function applyCode(form, rerender) {
   const error = $("#code-error");
@@ -347,7 +351,7 @@ function renderCart() {
   el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${t.lines
     .map(
       (l) =>
-        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.originalUnit ? ` <s>${money(l.originalUnit)}</s>` : ""}</p><div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.originalTotal ? `<s class="old-price">${money(l.originalTotal)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
+        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
     )
     .join(
       "",
@@ -605,7 +609,7 @@ async function renderOrderPage() {
   try {
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
-    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
+    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.bulkSavings ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(p.bulkSavings)}</span></div>` : ""}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }

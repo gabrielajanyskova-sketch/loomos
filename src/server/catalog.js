@@ -15,7 +15,9 @@ export const allScents = withSafety(validateCatalog(products), labels);
 const byId = new Map(catalog.map((p) => [p.id, p]));
 
 export const variantsOf = (p) =>
-  p.variants?.length ? p.variants : [{ id: "", name: "", price: p.price }];
+  p.variants?.length
+    ? p.variants
+    : [{ id: "", name: "", price: p.price, bulk: p.bulk }];
 
 /** Map "id::variant" → quantity, or undefined when stock is not tracked. */
 export async function stockMap(db) {
@@ -65,6 +67,7 @@ export function resolveItems(items) {
       variant: variant.id,
       name: product.name + (variant.name ? ` — ${variant.name}` : ""),
       price: variant.price,
+      ...(variant.bulk ? { bulk: variant.bulk } : {}),
       qty,
     };
   });

@@ -100,7 +100,11 @@ export async function sendMail(
 export const shopEmail = (env) => env.SHOP_EMAIL || seller.email;
 
 export function orderRows(order) {
-  const rows = order.items.map((i) => [`${i.qty}× ${i.name}`, czk(i.total)]);
+  // Items at their (quantity) price before the member discount, which follows as its own row.
+  const rows = order.items.map((i) => [
+    `${i.qty}× ${i.name}${i.price ? ` (${czk(i.price)}/ks)` : ""}`,
+    czk((i.price ?? i.unit) * i.qty),
+  ]);
   if (order.pricing.memberSavings)
     rows.push([
       "Sleva pro registrované (5 %)",

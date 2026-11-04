@@ -60,6 +60,16 @@ const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const validPrice = (price) =>
   price === null ||
   (Number.isSafeInteger(price) && price > 0 && price <= 100000);
+/** Quantity price: from min_qty pieces every piece costs price (lower than the normal price). */
+const validBulk = (bulk, price) =>
+  bulk === undefined ||
+  (bulk &&
+    Number.isInteger(bulk.min_qty) &&
+    bulk.min_qty >= 2 &&
+    bulk.min_qty <= 100 &&
+    Number.isSafeInteger(bulk.price) &&
+    bulk.price > 0 &&
+    (price == null || bulk.price < price));
 export function validateCatalog(value) {
   if (!Array.isArray(value) || value.length > 1000)
     throw new TypeError("Neplatná nabídka.");
@@ -73,6 +83,7 @@ export function validateCatalog(value) {
       typeof p.name !== "string" ||
       p.name.length > 120 ||
       !validPrice(p.price) ||
+      !validBulk(p.bulk, p.price) ||
       typeof p.active !== "boolean"
     )
       throw new TypeError("Neplatný produkt.");
@@ -123,7 +134,8 @@ export function validateCatalog(value) {
                 v.burn_hours <= 500
               )) ||
             !Number.isSafeInteger(v.price) ||
-            !validPrice(v.price),
+            !validPrice(v.price) ||
+            !validBulk(v.bulk, v.price),
         ))
     )
       throw new TypeError("Neplatná velikost.");

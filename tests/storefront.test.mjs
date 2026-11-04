@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { readCart, validateCatalog } from "../assets/js/catalog.mjs";
+import { readCart, validateCatalog, isCandle } from "../assets/js/catalog.mjs";
 import { productCard, renderProductDetail, esc } from "../assets/js/ui.mjs";
 import { metadata } from "../scripts/seo.mjs";
 
@@ -9,9 +9,9 @@ const products = JSON.parse(
   readFileSync(new URL("../data/products.json", import.meta.url)),
 );
 test("seven scents on sale (more in Dílnička only) and separate size prices are validated", () => {
-  assert.equal(validateCatalog(products).length, 9);
+  assert.equal(validateCatalog(products).length, 10);
   assert.equal(products.filter((p) => p.active).length, 7);
-  for (const p of products) {
+  for (const p of products.filter((p) => isCandle(p))) {
     assert.deepEqual(
       p.variants.map((v) => v.id),
       ["mala", "velka"],
