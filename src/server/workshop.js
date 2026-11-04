@@ -286,6 +286,7 @@ export async function overview(db) {
     scents: catalog.map((p) => ({
       id: p.id,
       name: p.active ? p.name : `${p.name} (zatím není v e-shopu)`,
+      active: p.active,
       variants: variantsOf(p).map((v) => ({ id: v.id, name: v.name })),
     })),
     jars,

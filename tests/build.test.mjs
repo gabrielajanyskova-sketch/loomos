@@ -10,10 +10,10 @@ execFileSync(process.execPath, ["scripts/build.mjs"], {
 });
 const read = (file) =>
   readFileSync(new URL("../dist/" + file, import.meta.url), "utf8");
-test("public build includes searchable HTML and exactly four selectable cards", () => {
+test("public build includes searchable HTML and exactly seven selectable cards", () => {
   const home = read("index.html");
-  assert.equal((home.match(/class="product-card"/g) || []).length, 4);
-  assert.equal((home.match(/data-card-size=/g) || []).length, 4);
+  assert.equal((home.match(/class="product-card"/g) || []).length, 7);
+  assert.equal((home.match(/data-card-size=/g) || []).length, 7);
   assert.match(home, /Okurka, zázvor a máta/);
   assert.match(home, /FAQPage/);
   assert.match(home, /imagesrcset=/);
@@ -56,7 +56,7 @@ test("deployment output never contains source, database, tests, secrets or old i
 });
 test("sitemap points only to real indexable content routes on the future domain", () => {
   const xml = read("sitemap.xml");
-  assert.equal((xml.match(/<loc>/g) || []).length, 11);
+  assert.equal((xml.match(/<loc>/g) || []).length, 14);
   assert.match(xml, /https:\/\/loomos.cz\/lapace-slunce</);
   assert.ok(!xml.includes("ucet") && !xml.includes("objednavka"));
   assert.ok(!xml.includes("kosik"));
