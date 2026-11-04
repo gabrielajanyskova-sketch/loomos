@@ -2,6 +2,7 @@ import {
   calcBatch,
   fillFromWater,
   maxLoadWithoutUfi,
+  recommendedLoad,
   SUPPLIER_LOAD,
 } from "./workshop-calc.mjs";
 import {
@@ -115,7 +116,7 @@ function render() {
       <label class="check wide"><input type="checkbox" id="no-ufi" ${data.settings.no_ufi ? "checked" : ""}>Bez UFI — u každé vůně držet olej pod hranicí, do které dodavatel uvádí „bez UFI“ (s 5% rezervou)</label>
       <label class="wide">Název výroby (nepovinné)<input id="batch-name" maxlength="120" placeholder="např. Vánoční várka"></label>
     </div>
-    <p class="muted">Dodavatel doporučuje ${SUPPLIER_LOAD.min}–${SUPPLIER_LOAD.max} % vonného oleje. Rezerva pokryje vosk, který zůstane v konvičce.</p>
+    <p class="muted">Dodavatel doporučuje ${SUPPLIER_LOAD.min}–${SUPPLIER_LOAD.max} % vonného oleje. Rezerva pokryje vosk, který zůstane v konvičce. Kolik oleje dát u které vůně, najdete v části <a href="#oleje">Vonné oleje — kolik dát</a>.</p>
     <div class="table-wrap"><table class="plan"><thead><tr><th>Vůně</th><th>Sklenice</th><th>Kusů</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
     <div class="workshop-actions">
       <button type="button" class="inline-button" id="add-row" ${jars.length ? "" : "disabled"}>＋ Přidat řádek</button>
@@ -130,7 +131,7 @@ function render() {
   <section class="panel"><h2>Moje sklenice</h2><div id="jars"></div></section>
   <section class="panel"><h2>Testy knotů</h2><div id="wick-tests"></div></section>
   <section class="panel"><h2>Moje vosky</h2><div id="waxes"></div></section>
-  <section class="panel"><h2>Vonné oleje (údaje dodavatele)</h2><div id="oils"></div></section>`;
+  <section class="panel" id="oleje"><h2>Vonné oleje — kolik dát</h2><div id="oils"></div></section>`;
   renderRows();
   renderBatches();
   renderJars();
@@ -478,11 +479,14 @@ function renderJars() {
 
 function renderOils() {
   $("#oils").innerHTML =
-    `<div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Olej od dodavatele</th><th>Bod vzplanutí</th><th>Vanilin</th><th>Difuzéry max.</th><th>Bez UFI do</th><th>Max. olej bez UFI</th></tr></thead><tbody>${data.oils
-      .map(
-        (o) =>
-          `<tr><td>${esc(o.name)}</td><td><small>${esc(o.supplier_name)}</small></td><td>${o.flashpoint_c} °C</td><td>${o.vanillin_percent ? num(o.vanillin_percent, 2) + " %" : "ne"}</td><td>${o.diffuser_max_percent ? o.diffuser_max_percent + " %" : "nevhodný"}</td><td>${num(o.no_ufi_max_percent, 2)} % ve svíčce${o.clp_max_percent ? `<br><small title="${esc(o.clp_note || "")}">přísněji ${num(o.clp_max_percent, 2)} % (citral)</small>` : ""}</td><td>${num(maxLoadWithoutUfi(Math.min(o.no_ufi_max_percent, o.clp_max_percent ?? Infinity)))} % z vosku</td></tr>`,
-      )
+    `<p class="muted">„Kolik dát“ = doporučených 8 % z vosku, nebo méně, když by svíčka jinak potřebovala UFI. Olej vždy navažte na váze (v gramech), ne podle objemu.</p><div class="table-wrap"><table><thead><tr><th>Vůně</th><th>Kolik dát</th><th>Bez ftalátů</th><th>Bod vzplanutí</th><th>Vanilin</th><th>Difuzéry max.</th><th>Bez UFI do</th><th>Olej od dodavatele</th></tr></thead><tbody>${data.oils
+      .map((o) => {
+        const load = recommendedLoad(o);
+        const max = maxLoadWithoutUfi(
+          Math.min(o.no_ufi_max_percent, o.clp_max_percent ?? Infinity),
+        );
+        return `<tr><td><strong>${esc(o.name)}</strong></td><td><strong>${num(load)} % z vosku</strong><br><small>${num(load * 10)} g oleje na 1 kg vosku${max > load ? ` · bez UFI až ${num(max)} %` : " · víc ne"}</small></td><td>${o.phthalate_free ? "ano" : "ne"}</td><td>${o.flashpoint_c} °C</td><td>${o.vanillin_percent ? num(o.vanillin_percent, 2) + " %" : "ne"}</td><td>${o.diffuser_max_percent ? o.diffuser_max_percent + " %" : "nevhodný"}</td><td>${num(o.no_ufi_max_percent, 2)} % ve svíčce${o.clp_max_percent ? `<br><small>přísněji ${num(o.clp_max_percent, 2)} % podle alergenů</small>` : ""}${o.clp_note ? `<br><small class="muted">${esc(o.clp_note)}</small>` : ""}</td><td><small>${esc(o.supplier_name)}</small></td></tr>`;
+      })
       .join("")}</tbody></table></div>`;
 }
 

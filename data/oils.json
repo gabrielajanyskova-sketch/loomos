@@ -44,5 +44,29 @@
     "clp_max_percent": 6.86,
     "clp_note": "Citral 14,566 % v oleji (deklarace alergenů 2023, šarže 47672-26) — Skin Sens. 1 (H317) od 1 % ve svíčce, tedy nad 6,86 % oleje ve svíčce.",
     "phthalates": "diethyl phthalate (DEP) jako rozpouštědlo — viz bezpečnostní list"
+  },
+  {
+    "product_id": "jantar-citrusy",
+    "supplier_name": "Amber & Citrus Fragrance Oil",
+    "flashpoint_c": 79,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": false,
+    "no_ufi_max_percent": 13.67,
+    "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 49174-26): Limonene 7,316 %, Eugenol 6,201 % (Skin Sens. 1B) — H317 až nad 13,67 % oleje ve svíčce.",
+    "phthalates": "diethyl phthalate (DEP) 20–50 % jako rozpouštědlo — viz bezpečnostní list"
+  },
+  {
+    "product_id": "vanilka-paculi-santal",
+    "supplier_name": "Vanilla, Patchouli & Sandalwood Fragrance Oil",
+    "flashpoint_c": 77,
+    "vanillin_percent": 0.018,
+    "diffuser_max_percent": 9,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 15.14,
+    "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 53005-26, 60302-26): Limonene 6,586 %, Linalool 6,165 %, Coumarin 5,7 % (Skin Sens. 1B) — H317 až nad 15,14 % oleje ve svíčce. Repr. 2 složky (isobornyl cyclohexanol, gamma-terpinene) max. 6 % v oleji = pod 0,5 % ve svíčce, hranice 3 %.",
+    "phthalates": "bez ftalátů — DEP ani jiné ftaláty v bezpečnostním listu nejsou"
   }
 ]

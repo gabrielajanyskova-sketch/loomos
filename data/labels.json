@@ -26,5 +26,19 @@
     "pictogram": false,
     "extra": "Na vyžádání je k dispozici bezpečnostní list.",
     "contains": "Limonene, Linalool"
+  },
+  {
+    "product_id": "jantar-citrusy",
+    "supplier": "Podle CLP etikety dodavatele pro svíčku s 10 % oleje (šarže 49174-26); při 8 % oleje z vosku (7,4 % ve svíčce) platí s rezervou — Limonene 0,54 %, Eugenol 0,46 % ve svíčce, pod 1 %, bez H317",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": "Eugenol, Limonene, Linalool, Linalyl acetate, Tetramethyl acetylocathydronaphthalenes"
+  },
+  {
+    "product_id": "vanilka-paculi-santal",
+    "supplier": "Podle CLP etikety dodavatele pro svíčku s 10 % oleje (šarže 53005-26, 60302-26); při 8 % oleje z vosku (7,4 % ve svíčce) platí s rezervou — Limonene 0,49 %, Linalool 0,46 %, Coumarin 0,42 % ve svíčce, pod 1 %, bez H317",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": "Acetyl cedrene, Alpha-Isomethyl ionone, Citronellol, Coumarin, Geraniol, Limonene, Linalool, Linalyl acetate, beta-Pinene"
   }
 ]
