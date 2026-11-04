@@ -7,20 +7,26 @@ import { bundledProducts, loadCatalog, priceProducts } from "./catalog.js";
 const CATEGORIES = ["svicky", SUNCATCHER];
 
 export async function list(db) {
-  const { all } = await loadCatalog(db);
+  const { all, deleted } = await loadCatalog(db);
   const { results } = await db.prepare("SELECT id FROM products").all();
   const edited = new Set(results.map((r) => r.id));
   const bundled = new Set(bundledProducts.map((p) => p.id));
   // Prices shown here are the live ones from D1 (Sklad a ceny), not the catalog defaults.
   const { priced } = await priceProducts(db, all);
-  return json(
-    priced.map((p) => ({
+  return json([
+    ...priced.map((p) => ({
       ...p,
       category: p.category || "svicky",
       edited: edited.has(p.id),
       bundled: bundled.has(p.id),
     })),
-  );
+    ...deleted.map((p) => ({
+      ...p,
+      category: p.category || "svicky",
+      edited: true,
+      bundled: bundled.has(p.id),
+    })),
+  ]);
 }
 
 export async function save(db, request) {
@@ -87,5 +93,33 @@ export async function reset(db, request) {
     .bind(id)
     .run();
   if (!result.meta.changes) fail(404, "Produkt nemá uložené změny.");
+  return json({ ok: true });
+}
+
+/**
+ * Delete: a product added in admin disappears; a product from the original catalog is hidden
+ * for good (stored as deleted) and can be restored with "Obnovit" (product-reset).
+ */
+export async function remove(db, request) {
+  assertSameOrigin(request);
+  const data = await readJson(request, 512);
+  const id = String(data.id || "");
+  const { all } = await loadCatalog(db);
+  const product = all.find((p) => p.id === id);
+  if (!product) fail(404, "Produkt neexistuje.");
+  if (bundledProducts.some((p) => p.id === id)) {
+    const original = bundledProducts.find((p) => p.id === id);
+    await db
+      .prepare(
+        `INSERT INTO products (id, data, position, updated) VALUES (?,?,1000,?)
+         ON CONFLICT(id) DO UPDATE SET data=excluded.data, updated=excluded.updated`,
+      )
+      .bind(
+        id,
+        JSON.stringify({ ...original, active: false, deleted: true }),
+        now(),
+      )
+      .run();
+  } else await db.prepare("DELETE FROM products WHERE id=?").bind(id).run();
   return json({ ok: true });
 }

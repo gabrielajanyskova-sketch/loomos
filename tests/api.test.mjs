@@ -866,7 +866,29 @@ test("admin adds and edits products; quantity price and dynamic product page wor
   // Prices stay in Sklad a ceny (D1 price history), not in the product editor.
   assert.equal(shown.variants[0].price, 349);
   await a("/api/admin/product-reset", { id: "okurka-zazvor-mata" });
-  await a("/api/admin/product-reset", { id: sun.id });
+  // Deleting a product from the file hides it everywhere until it is restored.
+  assert.equal(
+    (await a("/api/admin/product-delete", { id: "kokos-limetka" })).status,
+    200,
+  );
+  const afterDelete = (await a("/api/admin/products")).body.find(
+    (p) => p.id === "kokos-limetka",
+  );
+  assert.equal(afterDelete.deleted, true);
+  assert.ok(
+    !(await a("/api/admin/stock")).body.some(
+      (r) => r.product_id === "kokos-limetka",
+    ),
+  );
+  await a("/api/admin/product-reset", { id: "kokos-limetka" });
+  assert.ok(
+    !(await a("/api/admin/products")).body.find((p) => p.id === "kokos-limetka")
+      .deleted,
+  );
+  assert.equal(
+    (await a("/api/admin/product-delete", { id: sun.id })).status,
+    200,
+  );
   shown = (await call("/api/products")).body.find(
     (p) => p.id === "okurka-zazvor-mata",
   );

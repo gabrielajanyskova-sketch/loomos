@@ -31,13 +31,15 @@ export async function loadCatalog(db) {
     const product = valid(JSON.parse(row.data));
     if (product && product.id === row.id) saved.set(row.id, product);
   }
+  // A product deleted in admin is kept as {deleted: true} so it can be restored.
   const merged = [
     ...bundled.map((p) => saved.get(p.id) || p),
     ...[...saved.values()].filter((p) => !bundled.some((b) => b.id === p.id)),
-  ];
+  ].filter((p) => !p.deleted);
   const all = withSafety(merged, labels);
   const active = all.filter((p) => p.active);
-  return { all, active, byId: new Map(active.map((p) => [p.id, p])) };
+  const deleted = [...saved.values()].filter((p) => p.deleted);
+  return { all, active, deleted, byId: new Map(active.map((p) => [p.id, p])) };
 }
 export const bundledProducts = bundled;
 
