@@ -131,6 +131,7 @@ const pages = [
   ["lapace-slunce.html", "suncatchers"],
   ["darek-pro-ni.html", "gifts-her"],
   ["darek-pro-nej.html", "gifts-him"],
+  ["poptavka.html", "inquiry"],
   ["kosik.html", "cart"],
   ["pokladna.html", "checkout"],
   ["admin/index.html", "admin"],
@@ -244,6 +245,7 @@ for (const [file, page, product] of pages) {
       "suncatchers",
       "gifts-her",
       "gifts-him",
+      "inquiry",
       "product",
       "terms",
       "privacy",
@@ -273,7 +275,7 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Dárek pro ni — vonné svíčky pro ženy](${siteUrl}/darek-pro-ni)\n- [Dárek pro něj — pánské vonné svíčky](${siteUrl}/darek-pro-nej)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Dárek pro ni — vonné svíčky pro ženy](${siteUrl}/darek-pro-ni)\n- [Dárek pro něj — pánské vonné svíčky](${siteUrl}/darek-pro-nej)\n- [Tvorba na míru — lapače slunce, samolepky a loga podle vašeho motivu](${siteUrl}/poptavka)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
     .filter(isCandle)
     .map(
       (p) =>

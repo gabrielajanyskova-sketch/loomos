@@ -874,3 +874,64 @@ test("admin adds and edits products; quantity price and dynamic product page wor
   assert.equal(shown.variants[0].price, 349);
   assert.ok(!(await call("/api/products")).body.some((p) => p.id === sun.id));
 });
+
+test("individual inquiry: validated, stored with its file, e-mailed and handled in admin", async () => {
+  const call = client(shop.url);
+  const base = {
+    type: "lapac-slunce",
+    size: "kruh 15 cm",
+    quantity: 3,
+    material: "Duhová (lapač slunce)",
+    motif: "Náš jezevčík Ferda",
+    name: "Eva Dvořáková",
+    email: "poptavka@example.com",
+    consent: true,
+  };
+  assert.equal(
+    (await call("/api/inquiry", { ...base, consent: false })).status,
+    400,
+  );
+  assert.equal(
+    (
+      await call("/api/inquiry", {
+        ...base,
+        file: { name: "x.exe", type: "application/x-msdownload", data: "QUJD" },
+      })
+    ).status,
+    400,
+  );
+  const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>').toString(
+    "base64",
+  );
+  const sent = await call("/api/inquiry", {
+    ...base,
+    file: { name: "ferda.svg", type: "image/svg+xml", data: svg },
+  });
+  assert.equal(sent.status, 201, JSON.stringify(sent.body));
+  const shopMail = await mailTo("info@loomos.cz", /Poptávka č\. \d+/);
+  assert.equal(shopMail.body.attachments[0].filename, "ferda.svg");
+  assert.equal(shopMail.body.reply_to, "poptavka@example.com");
+  await mailTo("poptavka@example.com", /Poptávku jsem přijala/);
+
+  const a = await admin();
+  const list = (await a("/api/admin/inquiries")).body;
+  const mine = list.find((i) => i.id === sent.body.id);
+  assert.equal(mine.motif, "Náš jezevčík Ferda");
+  assert.equal(mine.file_name, "ferda.svg");
+  const file = await fetch(`${shop.url}/api/admin/inquiry-file?id=${mine.id}`, {
+    headers: { Cookie: "" },
+  });
+  assert.equal(file.status, 401);
+  assert.equal(
+    (await a("/api/admin/inquiry", { id: mine.id, status: "vyrizena" })).status,
+    200,
+  );
+  assert.equal(
+    (await a("/api/admin/inquiries")).body.find((i) => i.id === mine.id).status,
+    "vyrizena",
+  );
+  await a("/api/admin/inquiry", { id: mine.id, action: "delete" });
+  assert.ok(
+    !(await a("/api/admin/inquiries")).body.some((i) => i.id === mine.id),
+  );
+});

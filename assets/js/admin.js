@@ -364,6 +364,21 @@ function productFromForm(form) {
   return product;
 }
 
+/* ---------- inquiries ---------- */
+async function renderInquiries(el) {
+  const list = await api("inquiries");
+  el.innerHTML = `<div class="admin-toolbar"><h2>Poptávky na míru</h2><span class="muted">${list.filter((i) => i.status === "nova").length} nových</span></div>${
+    list.length
+      ? list
+          .map(
+            (i) =>
+              `<section class="panel inquiry ${i.status}"><div class="admin-toolbar"><h3>č. ${i.id} · ${esc(i.type_label)}${i.status === "nova" ? ' <span class="status-label">Nová</span>' : ""}</h3><small class="muted">${date(i.created)}</small></div><p><strong>${esc(i.name)}</strong> · <a href="mailto:${esc(i.email)}?subject=${encodeURIComponent("Vaše poptávka č. " + i.id + " — LOOMOS")}">${esc(i.email)}</a>${i.phone ? " · " + esc(i.phone) : ""}</p><p class="muted">Velikost: ${esc(i.size || "—")} · Počet: ${i.quantity} ks · Fólie: ${esc(i.material || "nevím")} · Termín: ${esc(i.deadline || "—")}</p><p class="pre">${esc(i.motif)}</p><div class="order-actions">${i.file_name ? `<a class="inline-button" href="/api/admin/inquiry-file?id=${i.id}">Stáhnout přílohu (${esc(i.file_name)})</a>` : '<span class="muted">Bez přílohy</span>'}<button type="button" class="inline-button" data-inquiry="${i.id}" data-status="${i.status === "nova" ? "vyrizena" : "nova"}">${i.status === "nova" ? "Označit jako vyřízenou" : "Vrátit mezi nové"}</button><button type="button" class="inline-button danger" data-inquiry="${i.id}" data-delete>Smazat</button></div></section>`,
+          )
+          .join("")
+      : '<div class="panel">Zatím žádné poptávky. Formulář je na stránce <a href="/poptavka.html" target="_blank" rel="noopener">Tvorba na míru</a>.</div>'
+  }<p class="muted">Poptávka vám přijde i e-mailem (s přílohou); odpovědět můžete přímo na něj.</p>`;
+}
+
 /* ---------- customers ---------- */
 async function renderCustomers(el) {
   const list = await api("customers");
@@ -434,6 +449,7 @@ const views = {
   overview: renderOverview,
   orders: renderOrders,
   products: renderProducts,
+  inquiries: renderInquiries,
   stock: renderStock,
   customers: renderCustomers,
   codes: renderCodes,
@@ -480,6 +496,20 @@ document.addEventListener("click", (e) => {
   if (chip) {
     filter = chip.dataset.filter;
     show("orders");
+  }
+  const inq = e.target.closest("[data-inquiry]");
+  if (inq) {
+    if (inq.hasAttribute("data-delete") && !confirm("Smazat poptávku?")) return;
+    guard(async () => {
+      await api("inquiry", {
+        id: Number(inq.dataset.inquiry),
+        ...(inq.hasAttribute("data-delete")
+          ? { action: "delete" }
+          : { status: inq.dataset.status }),
+      });
+      await show("inquiries");
+    });
+    return;
   }
   const cat = e.target.closest("[data-category]");
   if (cat && cat.tagName === "BUTTON") {

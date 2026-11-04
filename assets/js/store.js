@@ -292,6 +292,86 @@ function renderProduct() {
   track("view_item", p, variantOf(p, $("#size-choice")?.value), 1);
 }
 
+/* ---------- individual inquiry ---------- */
+const MAX_UPLOAD = 1_400_000;
+/** Photos are scaled down in the browser (max. 2000 px) so they fit the upload limit. */
+async function prepareFile(file) {
+  const resizable = ["image/jpeg", "image/png", "image/webp"].includes(
+    file.type,
+  );
+  let blob = file;
+  if (resizable && file.size > 500_000) {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas
+      .getContext("2d")
+      .drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const type = file.type === "image/png" ? "image/png" : "image/jpeg";
+    blob = await new Promise((resolve) => canvas.toBlob(resolve, type, 0.85));
+    if (blob.size > MAX_UPLOAD && type === "image/png")
+      blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.85),
+      );
+  }
+  if (blob.size > MAX_UPLOAD)
+    throw new Error(
+      "Soubor je příliš velký (max. 1,4 MB). Pošlete prosím menší nebo mi ho pošlete e-mailem.",
+    );
+  const data = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  const name =
+    blob.type === file.type
+      ? file.name
+      : file.name.replace(/\.[^.]+$/, "") + ".jpg";
+  return { name, type: blob.type || file.type, data };
+}
+function renderInquiry() {
+  const form = $("#inquiry-form");
+  if (!form) return;
+  const type = new URLSearchParams(location.search).get("typ");
+  if (
+    type &&
+    form.elements.type.querySelector(`option[value="${CSS.escape(type)}"]`)
+  )
+    form.elements.type.value = type;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const btn = $("#inquiry-send");
+    const error = $("#inquiry-error");
+    error.textContent = "";
+    btn.disabled = true;
+    try {
+      const f = form.elements;
+      const file = f.file.files[0] ? await prepareFile(f.file.files[0]) : null;
+      await api("inquiry", {
+        type: f.type.value,
+        size: f.size.value,
+        quantity: Number(f.quantity.value),
+        material: f.material.value,
+        motif: f.motif.value,
+        deadline: f.deadline.value,
+        name: f.name.value,
+        email: f.email.value,
+        phone: f.phone.value,
+        consent: f.consent.checked,
+        file,
+      });
+      form.outerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem a cenou.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
+    } catch (err) {
+      error.textContent = err.message;
+      btn.disabled = false;
+    }
+  });
+}
+
 /* ---------- cart ---------- */
 function summary({ checkout = false, shipping = null } = {}) {
   const t = pricing(shipping);
@@ -924,6 +1004,7 @@ async function init() {
     render();
   }
   refreshCards();
+  if (page === "inquiry") renderInquiry();
   if (page === "product") renderProduct();
   if (page === "cart") renderCart();
   if (page === "checkout") renderCheckout();

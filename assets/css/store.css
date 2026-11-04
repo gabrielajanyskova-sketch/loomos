@@ -3177,3 +3177,33 @@ a.category-card {
   color: var(--copper-light);
   margin: 0 0 8px;
 }
+
+/* Individual inquiry */
+.inquiry-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  margin-top: 30px;
+}
+.inquiry-form label:not(.check) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.inquiry-form .full {
+  grid-column: 1 / -1;
+}
+.inquiry-form small {
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .inquiry-form {
+    grid-template-columns: 1fr;
+  }
+}
+.inquiry.vyrizena {
+  opacity: 0.65;
+}
+.pre {
+  white-space: pre-wrap;
+}
