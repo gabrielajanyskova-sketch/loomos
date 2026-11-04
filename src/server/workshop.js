@@ -3,14 +3,19 @@ import oilData from "../../data/oils.json";
 import labelDefaults from "../../data/labels.json";
 import { assertSameOrigin, fail, json, readJson, text } from "./http.js";
 import { now } from "./db.js";
-import { allScents as catalog, variantsOf } from "./catalog.js";
+import { loadCatalog, variantsOf } from "./catalog.js";
+import { isCandle } from "../../assets/js/catalog.mjs";
 import { calcBatch, DEFAULTS } from "../../assets/js/workshop-calc.mjs";
 
-const oils = oilData.map((o) => ({
-  ...o,
-  name: catalog.find((p) => p.id === o.product_id)?.name || o.supplier_name,
-}));
-const scentIds = new Set(catalog.map((p) => p.id));
+/** Candles (incl. inactive ones) the workshop can produce, with their oil data. */
+async function scentsOf(db) {
+  const catalog = (await loadCatalog(db)).all.filter(isCandle);
+  const oils = oilData.map((o) => ({
+    ...o,
+    name: catalog.find((p) => p.id === o.product_id)?.name || o.supplier_name,
+  }));
+  return { catalog, oils, scentIds: new Set(catalog.map((p) => p.id)) };
+}
 
 async function settings(db) {
   const { results } = await db
@@ -90,7 +95,7 @@ async function labelSettings(db) {
 }
 
 /** Label texts from the supplier's CLP documents; never overwrites the owner's edits. */
-const seedLabels = (db) =>
+const seedLabels = (db, scentIds) =>
   db.batch(
     labelDefaults
       .filter((l) => scentIds.has(l.product_id))
@@ -249,10 +254,11 @@ export async function saveWax(db, request) {
 }
 
 export async function overview(db) {
+  const { catalog, oils, scentIds } = await scentsOf(db);
   await seedJars(db);
   await seedWaxes(db);
   await updateWaxNotes(db);
-  await seedLabels(db);
+  await seedLabels(db, scentIds);
   const [jars, config, batches, labels, label] = await Promise.all([
     jarsOf(db, true),
     settings(db),
@@ -386,7 +392,7 @@ export async function saveJar(db, request) {
   return json({ ok: true });
 }
 
-function parseItems(items) {
+function parseItems(items, scentIds) {
   if (!Array.isArray(items) || !items.length || items.length > 100)
     fail(400, "Přidejte alespoň jeden řádek výroby.");
   return items.map((i) => {
@@ -406,7 +412,8 @@ function parseItems(items) {
 export async function saveBatch(db, request) {
   assertSameOrigin(request);
   const data = await readJson(request, 16384);
-  const items = parseItems(data.items);
+  const { oils, scentIds } = await scentsOf(db);
+  const items = parseItems(data.items, scentIds);
   const config = {
     load_percent: percent(data.load_percent, "vonný olej %", 20),
     loss_percent: percent(data.loss_percent, "rezerva %", 30),
@@ -444,6 +451,7 @@ export async function saveBatch(db, request) {
 export async function finishBatch(db, request) {
   assertSameOrigin(request);
   const data = await readJson(request, 512);
+  const { catalog } = await scentsOf(db);
   const batch = await db
     .prepare("SELECT * FROM workshop_batches WHERE id=?")
     .bind(Number(data.id))
@@ -498,6 +506,7 @@ export async function deleteBatch(db, request) {
 export async function saveLabel(db, request) {
   assertSameOrigin(request);
   const data = await readJson(request, 8192);
+  const { scentIds } = await scentsOf(db);
   if (!scentIds.has(data.product_id)) fail(400, "Neznámá vůně.");
   await db
     .prepare(
@@ -569,6 +578,7 @@ export async function saveWickTest(db, request) {
     return n;
   };
   const productId = data.product_id || "";
+  const { scentIds } = await scentsOf(db);
   if (productId && !scentIds.has(productId)) fail(400, "Neznámá vůně.");
   if (!["", "mala", "dobra", "velka", "nestabilni"].includes(data.flame || ""))
     fail(400, "Neplatný plamen.");

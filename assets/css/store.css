@@ -3134,3 +3134,46 @@ a.category-card {
 .small-note a {
   color: var(--copper-light);
 }
+
+/* Admin: products */
+.admin-cats {
+  margin-right: auto;
+  margin-left: 20px;
+}
+.product-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px 20px;
+  align-items: start;
+}
+.product-admin label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.product-admin .wide,
+.product-admin .variant-fields {
+  grid-column: 1 / -1;
+}
+.product-admin .variant-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 16px;
+  border: 1px solid var(--line);
+  padding: 12px;
+}
+.product-admin small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.bulk-note {
+  font-size: 12px;
+  color: var(--copper-light);
+  margin: 0 0 8px;
+}

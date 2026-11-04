@@ -272,8 +272,13 @@ function renderProduct() {
       '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
     return;
   }
-  document.title = p.name + " — sójová svíčka | LOOMOS";
+  document.title = `${p.name} — ${isCandle(p) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`;
   $("#product-breadcrumb").textContent = p.name;
+  const parent = $("#product-breadcrumb")?.previousElementSibling;
+  if (parent && !isCandle(p)) {
+    parent.href = "/lapace-slunce.html";
+    parent.textContent = "Lapače slunce";
+  }
   $("#product-detail").innerHTML = renderProductDetail(p);
   const related = $("#product-related");
   if (related) {

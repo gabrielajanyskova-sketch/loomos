@@ -5,6 +5,7 @@ import * as shop from "./shop.js";
 import * as account from "./account.js";
 import * as admin from "./admin.js";
 import * as workshop from "./workshop.js";
+import * as products from "./products.js";
 import * as withdrawal from "./withdrawal.js";
 
 const routes = {
@@ -41,6 +42,9 @@ const adminRoutes = {
   "GET /api/admin/withdrawals": admin.withdrawals,
   "POST /api/admin/withdrawal-resolved": admin.resolveWithdrawal,
   "POST /api/admin/packeta-packet": admin.packet,
+  "GET /api/admin/products": products.list,
+  "POST /api/admin/product": products.save,
+  "POST /api/admin/product-reset": products.reset,
   "GET /api/admin/stock": admin.stock,
   "POST /api/admin/stock": admin.setStock,
   "GET /api/admin/customers": admin.customers,

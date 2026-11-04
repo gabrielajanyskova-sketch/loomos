@@ -18,6 +18,7 @@ const privatePages = new Set([
   "order",
   "workshop",
   "withdrawal",
+  "product-template",
 ]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
@@ -34,6 +35,7 @@ const titles = {
   reset: "Obnovení hesla | LOOMOS",
   order: "Vaše objednávka | LOOMOS",
   workshop: "Dílnička | LOOMOS",
+  "product-template": "LOOMOS",
   withdrawal: "Odstoupení od smlouvy | LOOMOS",
   terms: "Obchodní podmínky | LOOMOS",
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",
@@ -84,7 +86,7 @@ export function metadata({
   const path = publicPath(file);
   const canonical = new URL(path, siteUrl).href;
   const title = product
-    ? `${product.name} — sójová svíčka | LOOMOS`
+    ? `${product.name} — ${isCandle(product) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`
     : titles[page];
   const description = product
     ? shorten(product.description, 158)

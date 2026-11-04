@@ -143,6 +143,8 @@ const pages = [
   ["slozeni-a-bezpecnost.html", "safety"],
   ["odstoupeni.html", "withdrawal"],
   ...products.map((p) => [`produkty/${p.id}.html`, "product", p]),
+  // Template for products added in admin (served by functions/produkty/[id].js).
+  ["produkty/_sablona.html", "product-template"],
 ];
 const sitemap = [];
 for (const [file, page, product] of pages) {

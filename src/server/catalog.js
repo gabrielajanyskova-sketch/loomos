@@ -6,13 +6,39 @@ import labels from "../../data/labels.json";
 import { fail } from "./http.js";
 import { MAX_QTY } from "../../assets/js/pricing.mjs";
 
-export const catalog = withSafety(
-  validateCatalog(products).filter((p) => p.active),
-  labels,
-);
-/** All scents incl. inactive ones (Dílnička can produce scents not yet sold in the e-shop). */
-export const allScents = withSafety(validateCatalog(products), labels);
-const byId = new Map(catalog.map((p) => [p.id, p]));
+const bundled = validateCatalog(products);
+
+/** Accept one product from the admin only if it passes the same validation as the bundled file. */
+function valid(product) {
+  try {
+    return validateCatalog([product])[0];
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Catalog = data/products.json, overridden and extended by products saved in admin (D1 table products).
+ * Returns every product (incl. inactive) plus the active ones and a lookup by id.
+ */
+export async function loadCatalog(db) {
+  const { results } = await db
+    .prepare("SELECT id, data, position FROM products ORDER BY position, id")
+    .all();
+  const saved = new Map();
+  for (const row of results) {
+    const product = valid(JSON.parse(row.data));
+    if (product && product.id === row.id) saved.set(row.id, product);
+  }
+  const merged = [
+    ...bundled.map((p) => saved.get(p.id) || p),
+    ...[...saved.values()].filter((p) => !bundled.some((b) => b.id === p.id)),
+  ];
+  const all = withSafety(merged, labels);
+  const active = all.filter((p) => p.active);
+  return { all, active, byId: new Map(active.map((p) => [p.id, p])) };
+}
+export const bundledProducts = bundled;
 
 export const variantsOf = (p) =>
   p.variants?.length
@@ -31,7 +57,8 @@ export async function stockMap(db) {
 
 export async function publicCatalog(db) {
   const stock = await stockMap(db);
-  return catalog.map((p) => ({
+  const { active } = await loadCatalog(db);
+  return active.map((p) => ({
     ...p,
     stock: Object.fromEntries(
       variantsOf(p).map((v) => [v.id, stock[`${p.id}::${v.id}`] ?? null]),
@@ -40,7 +67,7 @@ export async function publicCatalog(db) {
 }
 
 /** Validate cart items against the catalog and return priced lines. */
-export function resolveItems(items) {
+export function resolveItems(items, byId) {
   if (!Array.isArray(items) || items.length < 1 || items.length > 50)
     fail(400, "Košík je prázdný.");
   const seen = new Set();

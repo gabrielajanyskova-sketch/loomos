@@ -41,13 +41,16 @@ const order = (extra = {}) => ({
   items: [{ id: "okurka-zazvor-mata", variant: "mala", qty: 2 }],
   ...extra,
 });
+// One admin session for all tests: logging in is rate limited.
+let adminSession;
 async function admin() {
+  if (adminSession) return adminSession;
   const call = client(shop.url);
   const login = await call("/api/admin/login", {
     password: shop.env.ADMIN_PASSWORD,
   });
   assert.equal(login.status, 200);
-  return call;
+  return (adminSession = call);
 }
 
 test("API refuses cross-site writes, non-JSON and anonymous admin access", async () => {
@@ -802,4 +805,72 @@ test("Česká pošta home delivery needs an address, not a Balíkovna", async ()
   assert.equal(res.body.pricing.shippingPrice, 129);
   assert.equal(res.body.balikovna, null);
   assert.equal(res.body.address.zip, "11000");
+});
+
+test("admin adds and edits products; quantity price and dynamic product page work", async () => {
+  const a = await admin();
+  const sun = {
+    id: "lapac-slunce-kocka",
+    name: "Lapač slunce — kočička",
+    subtitle: "Duhy na zdi.",
+    notes: "Kruh Ø 15 cm · kočička",
+    description: "Test.",
+    category: "lapace-slunce",
+    active: true,
+    price: 199,
+    bulk: { min_qty: 2, price: 175 },
+  };
+  const created = await a("/api/admin/product", { product: sun, new: true });
+  assert.equal(created.status, 200, JSON.stringify(created.body));
+  assert.equal(
+    (await a("/api/admin/product", { product: sun, new: true })).status,
+    409,
+  );
+  assert.equal(
+    (
+      await a("/api/admin/product", {
+        product: { ...sun, bulk: { min_qty: 2, price: 250 } },
+      })
+    ).status,
+    400,
+  );
+  const call = client(shop.url);
+  const listed = (await call("/api/products")).body;
+  assert.ok(listed.some((p) => p.id === sun.id));
+  const bought = await call(
+    "/api/orders",
+    order({
+      email: "lapac@example.com",
+      items: [{ id: sun.id, qty: 2 }],
+    }),
+  );
+  assert.equal(bought.status, 201, JSON.stringify(bought.body));
+  assert.equal(bought.body.pricing.items, 350);
+  assert.equal(bought.body.pricing.bulkSavings, 48);
+  const page = await fetch(`${shop.url}/produkty/${sun.id}`);
+  assert.equal(page.status, 200);
+  assert.match(await page.text(), /data-product="lapac-slunce-kocka"/);
+  assert.equal((await fetch(`${shop.url}/produkty/neexistuje`)).status, 200);
+
+  // Editing a product from the file overrides it; reset brings the original back.
+  const all = (await a("/api/admin/products")).body;
+  const okurka = all.find((p) => p.id === "okurka-zazvor-mata");
+  const edited = await a("/api/admin/product", {
+    product: {
+      ...okurka,
+      variants: okurka.variants.map((v) => ({ ...v, price: v.price + 10 })),
+    },
+  });
+  assert.equal(edited.status, 200, JSON.stringify(edited.body));
+  let shown = (await call("/api/products")).body.find(
+    (p) => p.id === "okurka-zazvor-mata",
+  );
+  assert.equal(shown.variants[0].price, 359);
+  await a("/api/admin/product-reset", { id: "okurka-zazvor-mata" });
+  await a("/api/admin/product-reset", { id: sun.id });
+  shown = (await call("/api/products")).body.find(
+    (p) => p.id === "okurka-zazvor-mata",
+  );
+  assert.equal(shown.variants[0].price, 349);
+  assert.ok(!(await call("/api/products")).body.some((p) => p.id === sun.id));
 });

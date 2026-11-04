@@ -42,11 +42,11 @@ test("deployment output never contains source, database, tests, secrets or old i
       false,
       path,
     );
-  assert.ok(
-    !readdirSync(new URL("../dist/produkty", import.meta.url)).includes(
-      "_sablona.html",
-    ),
-  );
+  // The product template (for products added in admin) is published, but never indexed.
+  const template = read("produkty/_sablona.html");
+  assert.match(template, /data-product="__PRODUCT_ID__"/);
+  assert.match(template, /name="robots" content="noindex,follow"/);
+  assert.ok(!read("sitemap.xml").includes("_sablona"));
   assert.match(read("_headers"), /frame-ancestors 'none'/);
   // Only checkout allows inline styles (the Packeta widget sets style attributes); never inline scripts.
   const headers = read("_headers");

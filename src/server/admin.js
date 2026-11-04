@@ -14,7 +14,7 @@ import {
   readSession,
   safeEqual,
 } from "./auth.js";
-import { catalog, variantsOf } from "./catalog.js";
+import { loadCatalog, variantsOf } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { shippingKind, shippingProvider } from "../../assets/js/pricing.mjs";
 import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
@@ -264,10 +264,13 @@ export async function stock(db) {
   const map = Object.fromEntries(
     results.map((r) => [`${r.product_id}::${r.variant_id}`, r.quantity]),
   );
+  const { all } = await loadCatalog(db);
   return json(
-    catalog.flatMap((p) =>
+    all.flatMap((p) =>
       variantsOf(p).map((v) => ({
         product_id: p.id,
+        category: p.category || "svicky",
+        active: p.active,
         variant_id: v.id,
         name: p.name + (v.name ? ` — ${v.name}` : ""),
         price: v.price,
@@ -280,7 +283,9 @@ export async function stock(db) {
 export async function setStock(db, request) {
   assertSameOrigin(request);
   const data = await readJson(request, 1024);
-  const product = catalog.find((p) => p.id === data.product_id);
+  const product = (await loadCatalog(db)).all.find(
+    (p) => p.id === data.product_id,
+  );
   const variant =
     product && variantsOf(product).find((v) => v.id === data.variant_id);
   if (!variant) fail(400, "Neznámý produkt.");

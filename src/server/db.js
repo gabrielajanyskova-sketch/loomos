@@ -142,6 +142,22 @@ const SCHEMA = [
     result TEXT NOT NULL,
     finished INTEGER
   )`,
+  // Products added or edited in admin; they override data/products.json by id.
+  `CREATE TABLE IF NOT EXISTS products (
+    id TEXT PRIMARY KEY,
+    data TEXT NOT NULL,
+    position INTEGER NOT NULL DEFAULT 1000,
+    updated INTEGER NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS inquiries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'nova',
+    data TEXT NOT NULL,
+    file_name TEXT,
+    file_type TEXT,
+    file_data TEXT
+  )`,
   "CREATE INDEX IF NOT EXISTS orders_customer ON orders (customer_id)",
   "CREATE INDEX IF NOT EXISTS sessions_expires ON sessions (expires)",
 ];
