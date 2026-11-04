@@ -15,13 +15,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -46,13 +48,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -77,13 +81,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -108,13 +114,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -139,13 +147,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -170,13 +180,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -201,13 +213,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -232,13 +246,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -263,13 +279,15 @@
         "id": "mala",
         "name": "Malá",
         "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {

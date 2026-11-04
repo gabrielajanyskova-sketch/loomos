@@ -53,6 +53,12 @@ export function validateCatalog(value) {
             !["mala", "velka"].includes(v.id) ||
             typeof v.name !== "string" ||
             (v.detail !== undefined && typeof v.detail !== "string") ||
+            (v.burn_hours !== undefined &&
+              !(
+                Number.isInteger(v.burn_hours) &&
+                v.burn_hours > 0 &&
+                v.burn_hours <= 500
+              )) ||
             !Number.isSafeInteger(v.price) ||
             !validPrice(v.price),
         ))
