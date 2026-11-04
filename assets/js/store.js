@@ -19,7 +19,6 @@ import {
   scentFamilies,
 } from "./catalog.mjs";
 import {
-  memberPrice,
   priceCart,
   SHIPPING,
   PAYMENT,
@@ -213,11 +212,6 @@ function refreshCards(root = document) {
     $("[data-card-price]", card).textContent = money(price);
     const burn = $("[data-card-burn]", card);
     if (burn) burn.textContent = burnLine(variant, price);
-    const memberEl = $("[data-card-member]", card);
-    if (memberEl && price != null)
-      memberEl.innerHTML = member
-        ? `Vaše cena s účtem: <strong>${money(memberPrice(price))}</strong>`
-        : `S účtem o 5 % levněji: <strong>${money(memberPrice(price))}</strong>`;
     button.dataset.label ||= button.firstChild?.textContent?.trim() || "";
     availability(button, product, variant?.id ?? "");
   });
@@ -256,8 +250,6 @@ function updateDetail() {
   const price = v?.price ?? p.price;
   $("#detail-price").textContent = money(price);
   if ($("#detail-burn")) $("#detail-burn").textContent = burnLine(v, price);
-  const memberEl = $("#detail-member-price");
-  if (memberEl) memberEl.textContent = money(memberPrice(price));
   const button = $(".detail-copy [data-add]");
   if (button) {
     button.dataset.label ||= "Přidat do košíku ＋";

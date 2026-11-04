@@ -289,7 +289,7 @@ function productForm(p, isNew) {
   const editor = $("#product-editor");
   editor.hidden = false;
   editor.innerHTML = `<h3>${isNew ? "Nový produkt" : "Upravit: " + esc(p.name)}</h3><form id="product-form" class="product-admin" data-new="${isNew ? "1" : ""}" data-category="${candle ? "svicky" : "lapace-slunce"}">
-    <label>Kód produktu (do adresy)<input name="id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="60" value="${v(p.id)}" ${isNew ? "" : "readonly"} placeholder="např. lapac-slunce-kocka"><small>malá písmena bez diakritiky a pomlčky; později nejde změnit</small></label>
+    <label>Kód produktu (do adresy)<input name="product_id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="60" value="${v(p.id)}" ${isNew ? "" : "readonly"} placeholder="např. lapac-slunce-kocka"><small>malá písmena bez diakritiky a pomlčky; později nejde změnit</small></label>
     <label>Název<input name="name" required maxlength="120" value="${v(p.name)}"></label>
     <label>Podnadpis<input name="subtitle" maxlength="160" value="${v(p.subtitle)}"></label>
     <label>Krátký popis na kartě<input name="notes" maxlength="160" value="${v(p.notes)}" placeholder="${candle ? "např. Vanilka · santal · pačuli" : "např. Kruh Ø 15 cm · kočička"}"></label>
@@ -316,7 +316,7 @@ function productFromForm(form) {
   const f = form.elements;
   const candle = form.dataset.category === "svicky";
   const product = {
-    id: f.id.value.trim(),
+    id: f.product_id.value.trim(),
     name: f.name.value.trim(),
     subtitle: f.subtitle.value.trim(),
     notes: f.notes.value.trim(),
@@ -367,7 +367,7 @@ function productFromForm(form) {
 /* ---------- inquiries ---------- */
 async function renderInquiries(el) {
   const list = await api("inquiries");
-  el.innerHTML = `<div class="admin-toolbar"><h2>Poptávky na míru</h2><span class="muted">${list.filter((i) => i.status === "nova").length} nových</span></div>${
+  el.innerHTML = `<div class="admin-toolbar"><h2>Poptávky na míru</h2><span class="muted">${((n) => (n === 1 ? "1 nová" : n >= 2 && n <= 4 ? `${n} nové` : `${n} nových`))(list.filter((i) => i.status === "nova").length)}</span></div>${
     list.length
       ? list
           .map(
@@ -605,7 +605,8 @@ guard(async () => {
 });
 
 document.addEventListener("submit", (e) => {
-  if (e.target.id !== "product-form") return;
+  // Not e.target.id: a form field named "id" would shadow it.
+  if (!e.target.matches("#product-form")) return;
   e.preventDefault();
   const form = e.target;
   guard(async () => {

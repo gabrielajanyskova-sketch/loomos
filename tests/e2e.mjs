@@ -41,10 +41,8 @@ try {
   assert.equal(await page.locator(".product-card").count(), 7);
   // Wait until the catalog script has loaded (stock and member price are filled in).
   await page.locator(".product-card [data-add][data-label]").first().waitFor();
-  assert.match(
-    await page.locator(".product-card .member-price").first().textContent(),
-    /332/,
-  );
+  assert.equal(await page.locator(".product-card .member-price").count(), 0);
+  assert.match(await page.locator(".member-info").textContent(), /5 %/);
   await page
     .locator('[data-card-size="okurka-zazvor-mata"]')
     .selectOption("velka");
