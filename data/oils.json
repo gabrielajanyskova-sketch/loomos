@@ -68,5 +68,41 @@
     "no_ufi_max_percent": 15.14,
     "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 53005-26, 60302-26): Limonene 6,586 %, Linalool 6,165 %, Coumarin 5,7 % (Skin Sens. 1B) — H317 až nad 15,14 % oleje ve svíčce. Repr. 2 složky (isobornyl cyclohexanol, gamma-terpinene) max. 6 % v oleji = pod 0,5 % ve svíčce, hranice 3 %.",
     "phthalates": "bez ftalátů — DEP ani jiné ftaláty v bezpečnostním listu nejsou"
+  },
+  {
+    "product_id": "amalfinske-pobrezi",
+    "supplier_name": "Amalfi Coast Fragrance Oil",
+    "flashpoint_c": 71,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 24,
+    "room_spray": true,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 9.72,
+    "clp_note": "Nejvyšší alergen v oleji (deklarace 2023, šarže 27210-26): Linalyl acetate 10,273 % (Skin Sens. 1B) — H317 nad 9,72 % oleje ve svíčce (dodavatelova etiketa pro 10 % už H317 má). Repr. 2 složka (isobutenyl methyltetrahydropyran) pod 1 % v oleji = pod 0,1 % ve svíčce, hranice 3 %.",
+    "phthalates": "bez ftalátů — DEP ani jiné ftaláty v bezpečnostním listu nejsou"
+  },
+  {
+    "product_id": "more-cedr",
+    "supplier_name": "55 Shades Fragrance Oil",
+    "flashpoint_c": 82,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 25,
+    "room_spray": true,
+    "phthalate_free": false,
+    "no_ufi_max_percent": 10,
+    "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 57446-26): Linalyl acetate 5,845 %, Limonene 5,169 % (Skin Sens. 1B) — ve svíčce s 7,4 % oleje pod 0,5 %, hranice 1 %.",
+    "phthalates": "diethyl phthalate (DEP) 20–50 % jako rozpouštědlo — viz bezpečnostní list"
+  },
+  {
+    "product_id": "kokos-limetka",
+    "supplier_name": "Coconut Lime Fragrance Oil",
+    "flashpoint_c": 68,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 23,
+    "room_spray": true,
+    "phthalate_free": false,
+    "no_ufi_max_percent": 10,
+    "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 09652-26): Limonene 9,607 %, pomerančová silice 9,5 % (Skin Sens. 1) — H317 až nad 10 % oleje ve svíčce.",
+    "phthalates": "diethyl phthalate (DEP) 5–10 % jako rozpouštědlo — viz bezpečnostní list"
   }
 ]

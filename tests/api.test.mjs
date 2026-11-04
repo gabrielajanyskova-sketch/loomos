@@ -359,7 +359,7 @@ test("Dílnička: jars, saved batch, finished candles go to stock; supplier data
     200,
   );
   const ws = (await a("/api/admin/workshop")).body;
-  assert.equal(ws.oils.length, 6);
+  assert.equal(ws.oils.length, 9);
   assert.deepEqual(
     ws.jars
       .filter((j) => /Oxford|Kimberley/.test(j.name))
