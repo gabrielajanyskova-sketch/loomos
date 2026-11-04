@@ -2974,3 +2974,25 @@ a.category-card {
 .coming-soon p {
   margin: 14px 0 0;
 }
+
+/* Dílnička: Znalosti a tipy */
+.knowledge details {
+  border: 1px solid var(--line);
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+.knowledge summary {
+  cursor: pointer;
+  color: var(--copper-light);
+}
+.knowledge ul {
+  margin: 12px 0 4px;
+  padding-left: 20px;
+}
+.knowledge li {
+  margin-bottom: 8px;
+}
+.knowledge a {
+  color: var(--copper-light);
+  text-decoration: underline;
+}
