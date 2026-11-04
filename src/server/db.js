@@ -166,6 +166,18 @@ const SCHEMA = [
     position INTEGER NOT NULL DEFAULT 1000,
     updated INTEGER NOT NULL
   )`,
+  // Product photos uploaded in admin (resized in the browser); served by GET /api/img?id=…
+  `CREATE TABLE IF NOT EXISTS product_images (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id TEXT NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0,
+    type TEXT NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    data TEXT NOT NULL,
+    created INTEGER NOT NULL
+  )`,
+  "CREATE INDEX IF NOT EXISTS product_images_product ON product_images (product_id, position)",
   `CREATE TABLE IF NOT EXISTS inquiries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,

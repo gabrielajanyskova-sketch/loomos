@@ -999,3 +999,48 @@ test("single-size sun catcher: admin stock, and it cannot be ordered without a p
     await isolated.stop();
   }
 });
+
+test("product photos: upload, serve, main photo, delete", async () => {
+  const a = await admin();
+  // 1×1 px PNG
+  const png =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+  const up = (extra = {}) =>
+    a("/api/admin/product-image", {
+      product_id: "morska-sul-paculi",
+      type: "image/png",
+      data: png,
+      width: 1,
+      height: 1,
+      ...extra,
+    });
+  assert.equal((await up({ product_id: "neexistuje" })).status, 400);
+  assert.equal((await up({ type: "image/svg+xml" })).status, 400);
+  const first = await up();
+  const second = await up();
+  assert.equal(first.status, 201, JSON.stringify(first.body));
+  const img = await fetch(`${shop.url}/api/img?id=${first.body.id}`);
+  assert.equal(img.status, 200);
+  assert.equal(img.headers.get("content-type"), "image/png");
+  assert.match(img.headers.get("cache-control"), /immutable/);
+  const shown = () =>
+    client(shop.url)("/api/products").then(
+      (r) => r.body.find((p) => p.id === "morska-sul-paculi").images,
+    );
+  assert.deepEqual(
+    (await shown()).map((i) => i.id),
+    [first.body.id, second.body.id],
+  );
+  await a("/api/admin/product-image-update", {
+    id: second.body.id,
+    action: "main",
+  });
+  assert.equal((await shown())[0].id, second.body.id);
+  for (const id of [first.body.id, second.body.id])
+    await a("/api/admin/product-image-update", { id, action: "delete" });
+  assert.equal(await shown(), undefined);
+  assert.equal(
+    (await fetch(`${shop.url}/api/img?id=${first.body.id}`)).status,
+    404,
+  );
+});

@@ -36,12 +36,30 @@ export async function loadCatalog(db) {
     ...bundled.map((p) => saved.get(p.id) || p),
     ...[...saved.values()].filter((p) => !bundled.some((b) => b.id === p.id)),
   ].filter((p) => !p.deleted);
-  const all = withSafety(merged, labels);
+  const photos = await imagesByProduct(db);
+  const all = withSafety(merged, labels).map((p) =>
+    photos.has(p.id) ? { ...p, images: photos.get(p.id) } : p,
+  );
   const active = all.filter((p) => p.active);
   const deleted = [...saved.values()].filter((p) => p.deleted);
   return { all, active, deleted, byId: new Map(active.map((p) => [p.id, p])) };
 }
 export const bundledProducts = bundled;
+
+/** Photos uploaded in admin: product id → [{id, width, height}], main photo first. */
+async function imagesByProduct(db) {
+  const { results } = await db
+    .prepare(
+      "SELECT id, product_id, width, height FROM product_images ORDER BY product_id, position, id",
+    )
+    .all();
+  const map = new Map();
+  for (const r of results) {
+    if (!map.has(r.product_id)) map.set(r.product_id, []);
+    map.get(r.product_id).push({ id: r.id, width: r.width, height: r.height });
+  }
+  return map;
+}
 
 export const variantsOf = (p) =>
   p.variants?.length

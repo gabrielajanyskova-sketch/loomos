@@ -3296,3 +3296,76 @@ a.category-card {
   display: block;
   margin-top: 6px;
 }
+
+/* Uploaded product photos */
+.uploaded-photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+.photo-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.photo-gallery button {
+  padding: 0;
+  border: 1px solid var(--line);
+  background: none;
+  cursor: pointer;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+}
+.photo-gallery button.active {
+  border-color: var(--copper);
+}
+.photo-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+span.cart-thumb {
+  display: block;
+  width: 90px;
+  height: 105px;
+  opacity: 0.5;
+}
+.cart-thumb {
+  object-fit: cover;
+}
+.photo-admin {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.photo-admin-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0;
+}
+.photo-admin-grid figure {
+  margin: 0;
+  width: 140px;
+}
+.photo-admin-grid img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--line);
+}
+.photo-admin-grid figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.photo-upload {
+  cursor: pointer;
+}

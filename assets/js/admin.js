@@ -322,8 +322,45 @@ function productForm(p, isNew) {
     <label>Štítek (nepovinné)<input name="badge" maxlength="40" value="${v(p.badge)}" placeholder="např. Nejoblíbenější vůně, Novinka"></label>
     <label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Zobrazit v e-shopu</label>
     <div class="wide product-actions"><button class="button">Uložit produkt</button>${!isNew && p.edited ? `<button type="button" class="inline-button danger" data-product-reset="${v(p.id)}">${p.bundled ? "Vrátit původní údaje" : "Smazat produkt"}</button>` : ""}<button type="button" class="inline-button" data-product-close>Zavřít</button></div>
-  </form>`;
+  </form>${isNew ? '<p class="muted">Fotky přidáte po uložení produktu.</p>' : photoAdmin(p)}`;
   editor.scrollIntoView({ behavior: "smooth" });
+}
+function photoAdmin(p) {
+  const images = p.images || [];
+  return `<section class="photo-admin" data-photo-product="${esc(p.id)}"><h3>Fotky</h3><p class="muted">První fotka je hlavní — ukáže se v obchodě, v košíku i nahoře v detailu. Fotky se před nahráním samy zmenší.</p><div class="photo-admin-grid">${
+    images
+      .map(
+        (img, i) =>
+          `<figure><img src="/api/img?id=${img.id}" alt="" width="120" height="120" loading="lazy"><figcaption>${i === 0 ? '<span class="status-label">Hlavní</span>' : `<button type="button" class="inline-button" data-photo-main="${img.id}">Nastavit jako hlavní</button>`}<button type="button" class="inline-button danger" data-photo-delete="${img.id}">Smazat</button></figcaption></figure>`,
+      )
+      .join("") ||
+    '<p class="muted">Zatím bez vlastních fotek — zobrazuje se ilustrační obrázek.</p>'
+  }</div><label class="inline-button photo-upload">＋ Přidat fotky<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-photo-upload hidden></label></section>`;
+}
+/** Scale a photo to max. 1600 px and encode it as WebP (JPEG where WebP is not supported). */
+async function preparePhoto(file) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const encode = (type) =>
+    new Promise((resolve) => canvas.toBlob(resolve, type, 0.85));
+  let blob = await encode("image/webp");
+  if (!blob || blob.type !== "image/webp") blob = await encode("image/jpeg");
+  const data = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  return { type: blob.type, data, width: canvas.width, height: canvas.height };
+}
+async function reopenProduct(id) {
+  products = await api("products");
+  const product = products.find((p) => p.id === id);
+  if (product) productForm(product, false);
 }
 function productFromForm(form) {
   const f = form.elements;
@@ -566,6 +603,26 @@ document.addEventListener("click", (e) => {
     });
     return;
   }
+  const photoButton = e.target.closest(
+    "[data-photo-main], [data-photo-delete]",
+  );
+  if (photoButton) {
+    const id = Number(
+      photoButton.dataset.photoMain || photoButton.dataset.photoDelete,
+    );
+    const productId = photoButton.closest("[data-photo-product]").dataset
+      .photoProduct;
+    if (photoButton.dataset.photoDelete && !confirm("Smazat fotku?")) return;
+    guard(async () => {
+      await api("product-image-update", {
+        id,
+        action: photoButton.dataset.photoMain ? "main" : "delete",
+      });
+      status("Fotky jsou uložené.");
+      await reopenProduct(productId);
+    });
+    return;
+  }
   if (e.target.closest("[data-product-close]"))
     $("#product-editor").hidden = true;
   const reset = e.target.closest("[data-product-reset]");
@@ -656,5 +713,27 @@ document.addEventListener("submit", (e) => {
     status(`Produkt „${product.name}“ je uložený.`);
     category = product.category;
     await show("products");
+  });
+});
+
+document.addEventListener("change", (e) => {
+  const input = e.target.closest("[data-photo-upload]");
+  if (!input?.files.length) return;
+  const productId = input.closest("[data-photo-product]").dataset.photoProduct;
+  guard(async () => {
+    const files = [...input.files];
+    for (const [i, file] of files.entries()) {
+      status(`Nahrávám fotku ${i + 1} z ${files.length}…`);
+      await api("product-image", {
+        product_id: productId,
+        ...(await preparePhoto(file)),
+      });
+    }
+    status(
+      files.length === 1
+        ? "Fotka je nahraná."
+        : `Nahráno ${files.length} fotek.`,
+    );
+    await reopenProduct(productId);
   });
 });

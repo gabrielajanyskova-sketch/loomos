@@ -5,6 +5,7 @@ import {
   productCard,
   saleMarkup,
   burnLine,
+  thumbSrc,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -262,6 +263,15 @@ document.addEventListener("click", (e) => {
     );
   }
 });
+document.addEventListener("click", (e) => {
+  const thumb = e.target.closest("[data-photo]");
+  if (!thumb) return;
+  const main = $(".detail-photo [data-main-photo]");
+  if (main) main.src = thumb.dataset.photo;
+  thumb.parentElement
+    .querySelectorAll("[data-photo]")
+    .forEach((b) => b.classList.toggle("active", b === thumb));
+});
 document.addEventListener("change", (e) => {
   if (e.target.matches("[data-card-size]"))
     refreshCards(e.target.closest(".product-card").parentElement);
@@ -447,11 +457,11 @@ function renderCart() {
   el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${t.lines
     .map(
       (l) =>
-        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
+        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(products.find((p) => p.id === l.id) || {}))}</a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
     )
     .join(
       "",
-    )}<a class="text-link spaced-top" href="/obchod.html">← Zpět ke svíčkám</a></section>${summary()}</div>`;
+    )}<a class="text-link spaced-top" href="/obchod.html">← Pokračovat v nákupu</a></section>${summary()}</div>`;
 }
 $("#cart-content")?.addEventListener("click", (e) => {
   const b = e.target.closest("[data-qty],[data-remove]");
