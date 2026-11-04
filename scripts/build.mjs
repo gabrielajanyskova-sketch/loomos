@@ -126,6 +126,7 @@ await write("data/products.json", JSON.stringify(products));
 const pages = [
   ["index.html", "home"],
   ["obchod.html", "shop"],
+  ["lapace-slunce.html", "suncatchers"],
   ["velkoobchod.html", "wholesale"],
   ["kosik.html", "cart"],
   ["pokladna.html", "checkout"],
@@ -142,7 +143,20 @@ const pages = [
 ];
 const sitemap = [];
 for (const [file, page, product] of pages) {
-  let html = await fs.readFile(path.join(root, file), "utf8");
+  let html;
+  try {
+    html = await fs.readFile(path.join(root, file), "utf8");
+  } catch (error) {
+    if (!product || error.code !== "ENOENT") throw error;
+    html = (
+      await fs.readFile(path.join(root, "produkty/_sablona.html"), "utf8")
+    ).replaceAll("__PRODUCT_ID__", product.id);
+  }
+  if (product?.category === "lapace-slunce")
+    html = html.replace(
+      '<a href="/obchod.html">Svíčky</a>',
+      '<a href="/lapace-slunce.html">Lapače slunce</a>',
+    );
   html = html.replace(/<head>[\s\S]*?<\/head>/, () =>
     renderHead({
       meta: metadata({ page, product, siteUrl, indexable, file, products }),
@@ -162,17 +176,27 @@ for (const [file, page, product] of pages) {
     html = slot(html, "site-header", renderHeader(page, { live }));
     html = slot(html, "site-footer", renderFooter());
     if (page === "home") {
-      html = slot(html, "home-products", products.map(productCard).join(""));
+      html = slot(
+        html,
+        "home-products",
+        products
+          .filter((p) => p.category !== "lapace-slunce")
+          .map(productCard)
+          .join(""),
+      );
       html = html.replace(
         /(<section[^>]*id="otazky"[^>]*>)[\s\S]*?(<\/section>)/,
         (_, open, close) => open + renderFAQ(faqs) + close,
       );
     }
-    if (page === "shop") {
-      html = slot(html, "shop-products", products.map(productCard).join(""));
+    if (["shop", "suncatchers"].includes(page)) {
+      const listed = products.filter(
+        (p) => (p.category === "lapace-slunce") === (page === "suncatchers"),
+      );
+      html = slot(html, "shop-products", listed.map(productCard).join(""));
       html = html.replace(
         /(<p id="product-count"[^>]*>).*?(<\/p>)/,
-        `$1${products.length} vůní v nabídce$2`,
+        `$1${listed.length} ${page === "suncatchers" ? "motivů" : "vůní"} v nabídce$2`,
       );
     }
     if (page === "safety")
@@ -191,6 +215,7 @@ for (const [file, page, product] of pages) {
       "home",
       "shop",
       "wholesale",
+      "suncatchers",
       "product",
       "terms",
       "privacy",

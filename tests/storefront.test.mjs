@@ -9,8 +9,11 @@ const products = JSON.parse(
   readFileSync(new URL("../data/products.json", import.meta.url)),
 );
 test("four real scents and separate size prices are validated", () => {
-  assert.equal(validateCatalog(products).length, 4);
-  for (const p of products) {
+  const candles = validateCatalog(products).filter(
+    (p) => p.category !== "lapace-slunce",
+  );
+  assert.equal(candles.length, 4);
+  for (const p of candles) {
     assert.deepEqual(
       p.variants.map((v) => v.id),
       ["mala", "velka"],
@@ -89,5 +92,42 @@ test("JSON-LD cannot break out of its non-executable script", () => {
     JSON.parse(meta.json)["@graph"].find((x) => x["@type"] === "Product")
       .description,
     "</script><script>alert(1)</script>",
+  );
+});
+
+test("fifteen unpriced sun catchers render without wax claims or zero prices", () => {
+  const catchers = validateCatalog(products).filter(
+    (p) => p.category === "lapace-slunce",
+  );
+  assert.equal(catchers.length, 15);
+  for (const p of catchers) {
+    assert.equal(p.price, null);
+    const html = productCard(p, 0) + renderProductDetail(p);
+    assert.match(html, /15 cm/i);
+    assert.match(html, /disabled/);
+    assert.match(html, /Cenu připravujeme/);
+    assert.doesNotMatch(
+      html,
+      /0 Kč|Sójový vosk|Dřevěný knot|member-price|Vonné tóny|candle-/i,
+    );
+    const meta = metadata({
+      page: "product",
+      product: p,
+      siteUrl: "https://loomos.cz",
+      indexable: false,
+      file: `produkty/${p.id}.html`,
+      products,
+    });
+    const schema = JSON.parse(meta.json)["@graph"].find(
+      (x) => x["@type"] === "Product",
+    );
+    assert.equal(schema.category, "Lapače slunce");
+    assert.equal(schema.offers, undefined);
+    assert.equal(schema.material, undefined);
+    assert.equal(schema.image, undefined);
+  }
+  assert.deepEqual(
+    readCart('[{"id":"lapac-slunce-sova","variant":"","qty":1}]'),
+    [{ id: "lapac-slunce-sova", variant: "", qty: 1 }],
   );
 });

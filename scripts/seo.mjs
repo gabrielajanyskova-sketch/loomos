@@ -19,6 +19,7 @@ const privatePages = new Set([
   "withdrawal",
 ]);
 const titles = {
+  suncatchers: "Lapače slunce na okno · 15 cm | LOOMOS",
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
   shop: "Sójové svíčky — čtyři vůně, dvě velikosti | LOOMOS",
   wholesale: "Spolupráce a zakázková tvorba | LOOMOS",
@@ -36,6 +37,8 @@ const titles = {
   safety: "Složení a bezpečnost svíček | LOOMOS",
 };
 const descriptions = {
+  suncatchers:
+    "Lapače slunce s duhovými odlesky. Průměr 15 cm, statické přilnutí na čisté hladké sklo po sejmutí zadní ochranné fólie.",
   safety:
     "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používáme, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si ze čtyř vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
@@ -47,6 +50,7 @@ const descriptions = {
     "Jak LOOMOS zpracovává osobní údaje zákazníků, jaké používá cookies a jak můžete uplatnit svá práva podle GDPR.",
 };
 const crumbs = {
+  suncatchers: "Lapače slunce",
   shop: "Svíčky",
   wholesale: "Spolupráce",
   terms: "Obchodní podmínky",
@@ -71,7 +75,7 @@ export function metadata({
   const path = publicPath(file);
   const canonical = new URL(path, siteUrl).href;
   const title = product
-    ? `${product.name} — sójová svíčka | LOOMOS`
+    ? `${product.name} — ${product.category === "lapace-slunce" ? "lapač slunce" : "sójová svíčka"} | LOOMOS`
     : titles[page];
   const description = product
     ? shorten(product.description, 158)
@@ -116,14 +120,13 @@ export function metadata({
     publisher: { "@id": organization["@id"] },
   };
   const webPage = {
-    "@type":
-      page === "shop"
-        ? "CollectionPage"
-        : page === "home"
-          ? "WebPage"
-          : product
-            ? "ItemPage"
-            : "WebPage",
+    "@type": ["shop", "suncatchers"].includes(page)
+      ? "CollectionPage"
+      : page === "home"
+        ? "WebPage"
+        : product
+          ? "ItemPage"
+          : "WebPage",
     "@id": canonical + "#webpage",
     url: canonical,
     name: title,
@@ -150,17 +153,23 @@ export function metadata({
         acceptedAnswer: { "@type": "Answer", text: f.answer },
       })),
     });
-  if (page === "shop")
+  if (["shop", "suncatchers"].includes(page))
     graph.push({
       "@type": "ItemList",
       "@id": canonical + "#nabidka",
-      numberOfItems: products.length,
-      itemListElement: products.map((p, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: p.name,
-        url: siteUrl + "/produkty/" + p.id,
-      })),
+      numberOfItems: products.filter(
+        (p) => (p.category === "lapace-slunce") === (page === "suncatchers"),
+      ).length,
+      itemListElement: products
+        .filter(
+          (p) => (p.category === "lapace-slunce") === (page === "suncatchers"),
+        )
+        .map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.name,
+          url: siteUrl + "/produkty/" + p.id,
+        })),
     });
   if (product) {
     // Prices are provisional and checkout is a preview: do not publish Offer or availability claims.
@@ -171,42 +180,75 @@ export function metadata({
       description: product.description,
       url: canonical,
       sku: product.id,
-      category: "Vonné svíčky",
-      image: [siteUrl + "/assets/img/candle-1536.webp", siteUrl + ogImage.path],
+      category:
+        product.category === "lapace-slunce" ? "Lapače slunce" : "Vonné svíčky",
+      ...(product.category === "lapace-slunce"
+        ? {}
+        : {
+            image: [
+              siteUrl + "/assets/img/candle-1536.webp",
+              siteUrl + ogImage.path,
+            ],
+          }),
       brand: { "@type": "Brand", name: brand.name },
-      manufacturer: { "@id": organization["@id"] },
-      material: "Sójový vosk; čiré sklo; dřevěný knot",
-      additionalProperty: [
-        {
-          "@type": "PropertyValue",
-          name: "Velikosti",
-          value: product.variants?.length
-            ? product.variants
-                .map((v) => (v.detail ? `${v.name} (${v.detail})` : v.name))
-                .join(", ")
-            : "Malá, velká",
-        },
-        { "@type": "PropertyValue", name: "Vonné tóny", value: product.notes },
-        ...(product.pyramid
-          ? Object.entries({
-              "Hlava vůně": product.pyramid.top,
-              "Srdce vůně": product.pyramid.heart,
-              "Základ vůně": product.pyramid.base,
-            })
-              .filter(([, value]) => value)
-              .map(([name, value]) => ({
+      ...(product.category === "lapace-slunce"
+        ? {}
+        : {
+            manufacturer: { "@id": organization["@id"] },
+            material: "Sójový vosk; čiré sklo; dřevěný knot",
+          }),
+      additionalProperty:
+        product.category === "lapace-slunce"
+          ? [
+              { "@type": "PropertyValue", name: "Průměr", value: "15 cm" },
+              {
                 "@type": "PropertyValue",
-                name,
-                value,
-              }))
-          : []),
-      ],
+                name: "Uchycení",
+                value: "Statické přilnutí, bez lepidla",
+              },
+            ]
+          : [
+              {
+                "@type": "PropertyValue",
+                name: "Velikosti",
+                value: product.variants?.length
+                  ? product.variants
+                      .map((v) =>
+                        v.detail ? `${v.name} (${v.detail})` : v.name,
+                      )
+                      .join(", ")
+                  : "Malá, velká",
+              },
+              {
+                "@type": "PropertyValue",
+                name: "Vonné tóny",
+                value: product.notes,
+              },
+              ...(product.pyramid
+                ? Object.entries({
+                    "Hlava vůně": product.pyramid.top,
+                    "Srdce vůně": product.pyramid.heart,
+                    "Základ vůně": product.pyramid.base,
+                  })
+                    .filter(([, value]) => value)
+                    .map(([name, value]) => ({
+                      "@type": "PropertyValue",
+                      name,
+                      value,
+                    }))
+                : []),
+            ],
     });
     webPage.mainEntity = { "@id": canonical + "#product" };
   }
   if (page !== "home" && !privatePages.has(page)) {
     const items = [{ name: "Domů", item: siteUrl + "/" }];
-    if (product) items.push({ name: "Svíčky", item: siteUrl + "/obchod" });
+    if (product)
+      items.push(
+        product.category === "lapace-slunce"
+          ? { name: "Lapače slunce", item: siteUrl + "/lapace-slunce" }
+          : { name: "Svíčky", item: siteUrl + "/obchod" },
+      );
     items.push({
       name: product?.name || crumbs[page] || title,
       item: canonical,

@@ -56,7 +56,7 @@ test("deployment output never contains source, database, tests, secrets or old i
 });
 test("sitemap points only to real indexable content routes on the future domain", () => {
   const xml = read("sitemap.xml");
-  assert.equal((xml.match(/<loc>/g) || []).length, 10);
+  assert.equal((xml.match(/<loc>/g) || []).length, 26);
   assert.ok(!xml.includes("ucet") && !xml.includes("objednavka"));
   assert.ok(!xml.includes("kosik"));
   assert.ok(!xml.includes("pages.dev"));
@@ -64,4 +64,22 @@ test("sitemap points only to real indexable content routes on the future domain"
   const manifest = JSON.parse(read("site.webmanifest"));
   assert.equal(manifest.icons.length, 2);
   assert.equal(manifest.name, "LOOMOS");
+});
+
+test("sun catcher collection and all fifteen individual routes are built separately", () => {
+  const collection = read("lapace-slunce.html");
+  assert.equal((collection.match(/class="product-card"/g) || []).length, 15);
+  assert.match(collection, /15 motivů v nabídce/);
+  const catalog = JSON.parse(read("data/products.json"));
+  for (const p of catalog.filter((p) => p.category === "lapace-slunce")) {
+    const detail = read(`produkty/${p.id}.html`);
+    assert.match(detail, /data-page="product"/);
+    assert.ok(detail.includes(`data-product="${p.id}"`));
+    assert.ok(detail.includes(`<h1>${p.name}</h1>`));
+    assert.match(detail, /Cenu připravujeme/);
+  }
+  assert.equal(
+    (read("obchod.html").match(/class="product-card"/g) || []).length,
+    4,
+  );
 });

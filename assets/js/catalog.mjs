@@ -66,7 +66,7 @@ export function readCart(raw) {
         !["", "mala", "velka"].includes(item.variant))
     )
       continue;
-    const variant = item.variant || "mala";
+    const variant = item.variant ?? "mala";
     const key = `${item.id}::${variant}`;
     const previous = result.get(key);
     result.set(key, {

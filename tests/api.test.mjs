@@ -803,3 +803,38 @@ test("Česká pošta home delivery needs an address, not a Balíkovna", async ()
   assert.equal(res.body.balikovna, null);
   assert.equal(res.body.address.zip, "11000");
 });
+
+test("unpriced single-size sun catcher supports admin stock but cannot be ordered", async () => {
+  const isolated = await startShop();
+  try {
+    const a = client(isolated.url);
+    assert.equal(
+      (await a("/api/admin/login", { password: isolated.env.ADMIN_PASSWORD }))
+        .status,
+      200,
+    );
+    const product_id = "lapac-slunce-sova";
+    assert.equal(
+      (await a("/api/admin/stock", { product_id, variant_id: "", quantity: 7 }))
+        .status,
+      200,
+    );
+    const row = (await a("/api/admin/stock")).body.find(
+      (p) => p.product_id === product_id && p.variant_id === "",
+    );
+    assert.equal(row.quantity, 7);
+    assert.equal(row.price, null);
+    const call = client(isolated.url);
+    assert.equal(
+      (
+        await call(
+          "/api/orders",
+          order({ items: [{ id: product_id, variant: "", qty: 1 }] }),
+        )
+      ).status,
+      400,
+    );
+  } finally {
+    await isolated.stop();
+  }
+});

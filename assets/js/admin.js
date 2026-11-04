@@ -11,11 +11,13 @@ const esc = (s) =>
       ],
   );
 const money = (n) =>
-  new Intl.NumberFormat("cs-CZ", {
-    style: "currency",
-    currency: "CZK",
-    maximumFractionDigits: 0,
-  }).format(n || 0);
+  n == null
+    ? "Cena bude doplněna"
+    : new Intl.NumberFormat("cs-CZ", {
+        style: "currency",
+        currency: "CZK",
+        maximumFractionDigits: 0,
+      }).format(n || 0);
 const date = (t, time = true) =>
   t
     ? new Date(t * 1000).toLocaleString("cs-CZ", {

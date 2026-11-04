@@ -96,7 +96,7 @@ const updateCount = () =>
   document.querySelectorAll(".cart-count").forEach((el) => {
     el.textContent = cart.reduce((s, i) => s + i.qty, 0);
   });
-const lineKey = (i) => i.id + "::" + (i.variant || "mala");
+const lineKey = (i) => i.id + "::" + (i.variant ?? "mala");
 const variantOf = (p, id) =>
   p.variants?.find((v) => v.id === (id || "mala")) || null;
 const stockOf = (p, variantId) => {
@@ -152,7 +152,13 @@ initAnalytics();
 function add(id, qty = 1, variantId = "mala") {
   const product = products.find((p) => p.id === id);
   const variant = variantOf(product || {}, variantId);
-  if (!product || (product.variants?.length && !variant)) return;
+  if (
+    !product ||
+    !Number.isInteger(variant?.price ?? product.price) ||
+    (product.variants?.length && !variant)
+  )
+    return;
+  if (!product.variants?.length) variantId = "";
   const stock = stockOf(product, variant?.id ?? "");
   const item = cart.find(
     (i) => i.id === id && lineKey(i) === `${id}::${variantId}`,
@@ -182,6 +188,7 @@ function availability(button, product, variantId) {
   const plus = button.querySelector(".add-label + span");
   if (plus) plus.hidden = soldOut;
   if (soldOut) label.textContent = "Vyprodáno";
+  else if (product.price == null) label.textContent = "Cenu připravujeme";
   else if (button.dataset.label) label.textContent = button.dataset.label;
   const note = button
     .closest(".product-meta, .detail-copy")
@@ -259,7 +266,11 @@ function renderProduct() {
       '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
     return;
   }
-  document.title = p.name + " — sójová svíčka | LOOMOS";
+  document.title =
+    p.name +
+    (p.category === "lapace-slunce"
+      ? " — lapač slunce | LOOMOS"
+      : " — sójová svíčka | LOOMOS");
   $("#product-breadcrumb").textContent = p.name;
   $("#product-detail").innerHTML = renderProductDetail(p);
   const size = new URLSearchParams(location.search).get("velikost");
@@ -761,6 +772,7 @@ async function init() {
   const needsMember = [
     "home",
     "shop",
+    "suncatchers",
     "product",
     "cart",
     "checkout",
@@ -804,10 +816,15 @@ async function init() {
     toast("Košík byl aktualizován podle aktuální nabídky.");
   }
   if (page === "home")
-    $("#home-products").innerHTML = products.map(productCard).join("");
-  if (page === "shop") {
+    $("#home-products").innerHTML = products
+      .filter((p) => p.category !== "lapace-slunce")
+      .map(productCard)
+      .join("");
+  if (["shop", "suncatchers"].includes(page)) {
     const render = () => {
-      const list = [...products];
+      const list = products.filter(
+        (p) => (p.category === "lapace-slunce") === (page === "suncatchers"),
+      );
       const sort = $("#sort").value;
       if (sort === "price-up") list.sort((a, b) => a.price - b.price);
       if (sort === "price-down") list.sort((a, b) => b.price - a.price);
@@ -816,7 +833,8 @@ async function init() {
       $("#shop-products").innerHTML = list.length
         ? list.map(productCard).join("")
         : "<p>Nové vůně právě připravujeme.</p>";
-      $("#product-count").textContent = `${list.length} vůní v nabídce`;
+      $("#product-count").textContent =
+        `${list.length} ${page === "suncatchers" ? "motivů" : "vůní"} v nabídce`;
       refreshCards();
     };
     $("#sort").addEventListener("change", render);
