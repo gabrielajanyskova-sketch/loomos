@@ -2996,3 +2996,15 @@ a.category-card {
   color: var(--copper-light);
   text-decoration: underline;
 }
+
+/* Burn time and price per hour */
+.burn-time {
+  margin: -4px 0 10px;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.detail-copy .burn-time {
+  margin: 4px 0 12px;
+  font-size: 13px;
+}

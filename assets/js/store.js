@@ -3,6 +3,7 @@ import {
   money,
   esc,
   productCard,
+  burnLine,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -201,6 +202,8 @@ function refreshCards(root = document) {
     const variant = variantOf(product, select?.value);
     const price = variant?.price ?? product.price;
     $("[data-card-price]", card).textContent = money(price);
+    const burn = $("[data-card-burn]", card);
+    if (burn) burn.textContent = burnLine(variant, price);
     const memberEl = $("[data-card-member]", card);
     if (memberEl && price != null)
       memberEl.innerHTML = member
@@ -243,6 +246,7 @@ function updateDetail() {
   const v = variantOf(p, $("#size-choice")?.value);
   const price = v?.price ?? p.price;
   $("#detail-price").textContent = money(price);
+  if ($("#detail-burn")) $("#detail-burn").textContent = burnLine(v, price);
   const memberEl = $("#detail-member-price");
   if (memberEl) memberEl.textContent = money(memberPrice(price));
   const button = $(".detail-copy [data-add]");
