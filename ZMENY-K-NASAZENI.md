@@ -4,6 +4,8 @@ Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jede
 
 Poslední hromadné nasazení: 4. 11. 2026.
 
-Čeká na podklady:
+- **Loga dopravců v pokladně:** Zásilkovna (oficiální logo z jejího modulu pro e-shopy), Balíkovna a Balíkovna na adresu (z bannerů České pošty); u osobního odběru ikona. Text vedle loga zkrácený (např. „Z-BOX“, „Doručení domů“).
 
-- Loga dopravců (Zásilkovna, Balíkovna, případně Česká pošta ve větším rozlišení) — místo v pokladně je připravené (`logo` u dopravy v `assets/js/pricing.mjs`).
+Ke kontrole majitelkou:
+
+- Logo Balíkovny (pobočka) je z veřejného modulu jiného autora — ověřit, že odpovídá aktuálnímu logu; případně poslat oficiální.

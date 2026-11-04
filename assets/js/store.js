@@ -541,7 +541,7 @@ function renderCheckout() {
   const shippingOptions = Object.entries(SHIPPING)
     .map(
       ([id, s], i) =>
-        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}>${s.logo ? `<img class="carrier-logo" src="${esc(s.logo)}" alt="" width="72" height="24" loading="lazy">` : ""}<span class="shipping-label">${esc(s.label)}</span><span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
+        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}><span class="carrier-logo-box">${s.logo ? `<img class="carrier-logo${s.logo.includes("balikovna") ? " on-light" : ""}" src="${esc(s.logo)}" alt="" width="96" height="24" loading="lazy">` : icon("hand", "carrier-ico")}</span><span class="shipping-label">${esc(s.logo && s.short ? s.short : s.label)}</span><span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
     )
     .join("");
   const paymentOptions = Object.entries(PAYMENT)
