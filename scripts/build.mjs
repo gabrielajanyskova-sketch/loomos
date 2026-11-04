@@ -240,7 +240,7 @@ const notFoundMeta = metadata({
 });
 await write(
   "404.html",
-  `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste naši aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
+  `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste moji aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
 );
 await write(
   "sitemap.xml",
@@ -252,7 +252,7 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
     .filter(isCandle)
     .map(
       (p) =>

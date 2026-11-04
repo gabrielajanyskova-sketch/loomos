@@ -354,19 +354,19 @@ async function sendOrderEmails(env, request, number, token, order, test) {
             "QR kód pro platbu",
           ],
         },
-        "Objednávku odešleme po připsání platby na účet.",
+        "Objednávku odešlu po připsání platby na účet.",
       ]
-    : ["Platební údaje vám zašleme v samostatném e-mailu."];
+    : ["Platební údaje vám zašlu v samostatném e-mailu."];
   await Promise.all([
     sendMail(env, {
       to: order.customer.email,
       subject: `${test ? "[ZKUŠEBNÍ] " : ""}Potvrzení objednávky ${number} | LOOMOS`,
-      title: "Děkujeme za objednávku",
+      title: "Děkuji za objednávku",
       key: `order-${number}-customer`,
       replyTo: shopEmail(env),
       blocks: [
         ...testNote,
-        `Dobrý den, ${order.customer.name},\nděkujeme za objednávku ručně vyráběných svíček LOOMOS. Číslo objednávky je ${number}.`,
+        `Dobrý den, ${order.customer.name},\nděkuji za objednávku ručně vyráběných svíček LOOMOS. Číslo objednávky je ${number}.`,
         { rows: orderRows(order) },
         ...payBlocks,
         { button: ["Zobrazit objednávku", orderUrl(request, token)] },

@@ -39,12 +39,12 @@ const titles = {
 };
 const descriptions = {
   safety:
-    "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používáme, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
+    "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používám, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si z vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
   suncatchers:
     "Lapače slunce LOOMOS: nálepky na okno z hranolové fólie, které ze slunečních paprsků vykouzlí duhy na stěnách i podlaze. Jak fungují, kam je nalepit a nabídka.",
   wholesale:
-    "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište nám a domluvíme se osobně.",
+    "Máte zájem o spolupráci s LOOMOS nebo vlastní nápad? Napište mi a domluvíme se osobně.",
   terms:
     "Obchodní podmínky e-shopu LOOMOS: objednávka, platba převodem s QR kódem, doprava Zásilkovnou, odstoupení od smlouvy a reklamace.",
   privacy:

@@ -51,7 +51,7 @@ export async function withdraw(db, request, env, ctx) {
       {
         status: row.status,
         at: created,
-        note: "Přijali jsme vaše odstoupení od smlouvy.",
+        note: "Přijala jsem vaše odstoupení od smlouvy.",
       },
     ];
     statements.push(
@@ -76,17 +76,17 @@ export async function withdraw(db, request, env, ctx) {
       sendMail(env, {
         to: address,
         subject: `Potvrzení odstoupení od smlouvy — objednávka ${orderNumber} | LOOMOS`,
-        title: "Odstoupení od smlouvy jsme přijali",
+        title: "Odstoupení od smlouvy jsem přijala",
         key: `withdrawal-${orderNumber}-${created}`,
         replyTo: shopEmail(env),
         blocks: [
-          `Dobrý den, ${name},\npotvrzujeme, že jsme ${stamp(created)} přijali vaše odstoupení od smlouvy.`,
+          `Dobrý den, ${name},\npotvrzuji, že jsem ${stamp(created)} přijala vaše odstoupení od smlouvy.`,
           summary,
-          `Zboží nám prosím pošlete zpět do 14 dnů na adresu ${seller.name}, ${sellerAddress} (ne na dobírku). Peníze vrátíme do 14 dnů od odstoupení, nejdříve však po obdržení zboží, stejným způsobem, jakým jste platili.`,
+          `Zboží mi prosím pošlete zpět do 14 dnů na adresu ${seller.name}, ${sellerAddress} (ne na dobírku). Peníze vrátím do 14 dnů od odstoupení, nejdříve však po obdržení zboží, stejným způsobem, jakým jste platili.`,
           ...(row
             ? []
             : [
-                "Objednávku s tímto číslem a e-mailem jsme automaticky nenašli — ozveme se vám, abychom ji dohledali.",
+                "Objednávku s tímto číslem a e-mailem jsem automaticky nenašla — ozvu se vám, abych ji dohledala.",
               ]),
           "Tento e-mail si prosím uschovejte jako potvrzení.",
         ],

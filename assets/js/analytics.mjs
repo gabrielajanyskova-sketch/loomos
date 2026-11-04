@@ -48,7 +48,7 @@ function banner() {
   el.className = "consent";
   el.setAttribute("aria-label", "Souhlas s cookies");
   el.innerHTML =
-    '<p>Rádi bychom pomocí Google Analytics anonymně měřili návštěvnost, abychom e-shop mohli zlepšovat. Nezbytné funkce (košík, přihlášení) fungují i bez souhlasu. <a href="/ochrana-osobnich-udaju.html#cookies">Více informací</a></p><div><button type="button" class="inline-button" data-consent="denied">Jen nezbytné</button><button type="button" class="button" data-consent="granted">Povolit měření</button></div>';
+    '<p>Ráda bych pomocí Google Analytics anonymně měřila návštěvnost, abych e-shop mohla zlepšovat. Nezbytné funkce (košík, přihlášení) fungují i bez souhlasu. <a href="/ochrana-osobnich-udaju.html#cookies">Více informací</a></p><div><button type="button" class="inline-button" data-consent="denied">Jen nezbytné</button><button type="button" class="button" data-consent="granted">Povolit měření</button></div>';
   el.addEventListener("click", (e) => {
     const choice = e.target.closest("[data-consent]")?.dataset.consent;
     if (!choice) return;

@@ -29,12 +29,12 @@ export const faqs = [
   {
     question: "Jsou vonné oleje ve svíčkách bezpečné?",
     answer:
-      "Ano. Používáme vonné oleje určené přímo pro svíčky s certifikátem IFRA, podle kterého je jejich použití ve svíčkách bez omezení. Dávkujeme je v množství doporučeném výrobcem (6–8 %) a každou várku vážíme. Látky uvedené na etiketě jsou většinou přirozené složky vůní, jaké najdete i v kosmetice; povinně se uvádějí kvůli lidem s alergií. Podrobnosti najdete na stránce Složení a bezpečnost.",
+      "Ano. Používám vonné oleje určené přímo pro svíčky s certifikátem IFRA, podle kterého je jejich použití ve svíčkách bez omezení. Dávkuji je v množství doporučeném výrobcem (6–8 %) a každou várku vážím. Látky uvedené na etiketě jsou většinou přirozené složky vůní, jaké najdete i v kosmetice; povinně se uvádějí kvůli lidem s alergií. Podrobnosti najdete na stránce Složení a bezpečnost.",
   },
   {
     question: "Z čeho jsou svíčky LOOMOS vyrobené?",
     answer:
-      "Svíčky vyrábíme ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používáme vonné oleje dovážené z Velké Británie s certifikátem IFRA.",
+      "Svíčky vyrábím ručně ze sójového vosku. Mají dřevěný knot a čiré sklo. Používám vonné oleje dovážené z Velké Británie s certifikátem IFRA.",
   },
   {
     question: "Jaké vůně si mohu vybrat?",
@@ -44,16 +44,16 @@ export const faqs = [
   {
     question: "Jaké velikosti svíček připravujete?",
     answer:
-      "Každou vůni nabízíme ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot. Uvedené ceny jsou zatím pracovní.",
+      "Každou vůni nabízím ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot. ",
   },
   {
     question: "Mohu už odeslat objednávku?",
     answer:
-      "E-shop právě připravujeme. Nabídku i košík si můžete prohlédnout a vyzkoušet. Platby a skutečné odesílání objednávek zatím nejsou spuštěné. S dotazy nám napište na info@loomos.cz.",
+      "E-shop právě připravuji. Nabídku i košík si můžete prohlédnout a vyzkoušet. Platby a skutečné odesílání objednávek zatím nejsou spuštěné. S dotazy mi napište na info@loomos.cz.",
   },
   {
     question: "Budou v nabídce i jiné výrobky?",
     answer:
-      "Ano, připravujeme vůně do auta, výrobky z 3D tisku, potisky oblečení a samolepky. Tyto kategorie zatím nejsou v prodeji.",
+      "Ano, připravuji vůně do auta, výrobky z 3D tisku, potisky oblečení a samolepky. Tyto kategorie zatím nejsou v prodeji.",
   },
 ];
