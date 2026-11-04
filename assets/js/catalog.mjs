@@ -24,6 +24,13 @@ export function validateCatalog(value) {
       if (typeof p[key] !== "string")
         throw new TypeError("Neplatný popis produktu.");
     if (
+      p.character !== undefined &&
+      (!Array.isArray(p.character) ||
+        p.character.length > 4 ||
+        p.character.some((t) => typeof t !== "string" || !t || t.length > 20))
+    )
+      throw new TypeError("Neplatný charakter vůně.");
+    if (
       p.pyramid !== undefined &&
       (!p.pyramid ||
         typeof p.pyramid.top !== "string" ||
