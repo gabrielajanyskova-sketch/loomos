@@ -48,10 +48,11 @@ try {
   await page
     .locator('[data-card-size="okurka-zazvor-mata"]')
     .selectOption("velka");
-  await page.waitForFunction(() =>
-    /449/.test(document.querySelector("[data-card-price]")?.textContent),
-  );
-  await page.locator(".product-card").first().locator("[data-add]").click();
+  const okurka = page.locator(".product-card", {
+    has: page.locator('[data-card-size="okurka-zazvor-mata"]'),
+  });
+  await okurka.locator("[data-card-price]", { hasText: "449" }).waitFor();
+  await okurka.locator("[data-add]").click();
   await page.screenshot({ path: path.join(artifacts, "home-desktop.png") });
 
   await page.goto(base + "/kosik");

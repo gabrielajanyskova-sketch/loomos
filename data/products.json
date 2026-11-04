@@ -1,5 +1,40 @@
 [
   {
+    "id": "morska-sul-paculi",
+    "name": "Mořská sůl a pačuli",
+    "subtitle": "Chvíle, která patří jen vám.",
+    "badge": "Nejoblíbenější vůně",
+    "notes": "Mořská sůl · citrusy · jasmín · pačuli · ambra",
+    "character": ["exotická", "pryskyřičná", "svěží"],
+    "gift": ["pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Exotická, lehce pryskyřičná vůně s nádechem dálek. Otevírá ji mořská sůl s grapefruitem, mandarinkou a pomerančem, v srdci se snoubí jasmín s vavřínem a bobkovým listem. Základ tvoří hřejivá ambra, guajakové dřevo, pačuli, dubový mech a labdanum. Vůně pro večery, kdy chcete zpomalit.",
+    "active": true,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Mořská sůl, grapefruit, mandarinka, pomeranč",
+      "heart": "Jasmín, vavřínový list, bobkový list",
+      "base": "Ambra, guajakové dřevo, pačuli, dubový mech, labdanum"
+    }
+  },
+  {
     "id": "okurka-zazvor-mata",
     "name": "Okurka, zázvor a máta",
     "subtitle": "Svěží chvíle pro sebe.",
@@ -65,40 +100,6 @@
       "top": "Pomeranč",
       "heart": "Čokoláda",
       "base": "Vanilka"
-    }
-  },
-  {
-    "id": "morska-sul-paculi",
-    "name": "Mořská sůl a pačuli",
-    "subtitle": "Chvíle, která patří jen vám.",
-    "notes": "Mořská sůl · citrusy · jasmín · pačuli · ambra",
-    "character": ["exotická", "pryskyřičná", "svěží"],
-    "gift": ["pro-nej"],
-    "price": 349,
-    "category": "svicky",
-    "description": "Exotická, lehce pryskyřičná vůně s nádechem dálek. Otevírá ji mořská sůl s grapefruitem, mandarinkou a pomerančem, v srdci se snoubí jasmín s vavřínem a bobkovým listem. Základ tvoří hřejivá ambra, guajakové dřevo, pačuli, dubový mech a labdanum. Vůně pro večery, kdy chcete zpomalit.",
-    "active": true,
-    "price_provisional": false,
-    "variants": [
-      {
-        "id": "mala",
-        "name": "Malá",
-        "price": 349,
-        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
-        "burn_hours": 50
-      },
-      {
-        "id": "velka",
-        "name": "Velká",
-        "price": 449,
-        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
-        "burn_hours": 60
-      }
-    ],
-    "pyramid": {
-      "top": "Mořská sůl, grapefruit, mandarinka, pomeranč",
-      "heart": "Jasmín, vavřínový list, bobkový list",
-      "base": "Ambra, guajakové dřevo, pačuli, dubový mech, labdanum"
     }
   },
   {

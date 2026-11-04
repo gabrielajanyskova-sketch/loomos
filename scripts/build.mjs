@@ -8,6 +8,7 @@ import {
   renderHeader,
   renderFooter,
   renderProductDetail,
+  renderRelated,
   renderFAQ,
   safetyTable,
   esc,
@@ -225,6 +226,7 @@ for (const [file, page, product] of pages) {
       html = slot(html, "safety-table", safetyTable(products.filter(isCandle)));
     if (product) {
       html = slot(html, "product-detail", renderProductDetail(product));
+      html = slot(html, "product-related", renderRelated(product, products));
       html = html.replace(
         '<span id="product-breadcrumb"></span>',
         `<span id="product-breadcrumb">${esc(product.name)}</span>`,

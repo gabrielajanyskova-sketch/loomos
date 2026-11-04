@@ -12,7 +12,7 @@ const read = (file) =>
   readFileSync(new URL("../dist/" + file, import.meta.url), "utf8");
 test("public build includes searchable HTML and exactly seven selectable cards", () => {
   const home = read("index.html");
-  assert.equal((home.match(/class="product-card"/g) || []).length, 7);
+  assert.equal((home.match(/class="product-card[ "]/g) || []).length, 7);
   assert.equal((home.match(/data-card-size=/g) || []).length, 7);
   assert.match(home, /Okurka, zázvor a máta/);
   assert.match(home, /FAQPage/);
