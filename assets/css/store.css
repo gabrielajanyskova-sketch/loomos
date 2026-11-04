@@ -3127,3 +3127,10 @@ a.category-card {
 .related h2 {
   margin: 6px 0 24px;
 }
+.small-note {
+  font-size: 12px;
+  margin-top: 10px;
+}
+.small-note a {
+  color: var(--copper-light);
+}

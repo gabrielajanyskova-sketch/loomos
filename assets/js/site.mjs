@@ -39,12 +39,17 @@ export const faqs = [
   {
     question: "Jaké vůně si mohu vybrat?",
     answer:
-      "V nabídce je Okurka, zázvor a máta; Pomeranč a vanilka; Mořská sůl a pačuli; Zázvor a zelený čaj.",
+      "Nejoblíbenější je Mořská sůl a pačuli. Dál nabízím Okurku, zázvor a mátu; Pomeranč a vanilku; Zázvor a zelený čaj; Jantar a citrusy; Vanilku, pačuli a santal a Moře a cedr. V obchodě si je můžete vyfiltrovat podle oblíbených tónů (vanilka, pižmo, dřevo…) nebo podle toho, jestli hledáte dárek pro ni, nebo pro něj.",
   },
   {
     question: "Jaké velikosti svíček připravujete?",
     answer:
-      "Každou vůni nabízím ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot. ",
+      "Každou vůni nabízím ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot.",
+  },
+  {
+    question: "Svíčka má na skle světlejší skvrny nebo bílý povlak. Je vadná?",
+    answer:
+      "Není. Každou svíčku před odesláním zkontroluji a posílám ji hladkou a hezkou. Sójový vosk je ale přírodní a reaguje na teplotu: když balík cestou prochladne v autě nebo v depu a pak se zase ohřeje, vosk se smrští a může se místy odlepit od skla. Na skle pak vypadá jako světlejší „mokré“ skvrny. Může se objevit i jemný bílý povlak (krystalky vosku) nebo drobná prasklinka na povrchu. Na hoření ani vůni to nemá žádný vliv a svíčka je úplně v pořádku. Pokud ale dorazí rozbitá sklenice nebo jiné poškození, pošlete mi fotku na info@loomos.cz a vyřeším to s vámi.",
   },
   {
     question: "Mohu už odeslat objednávku?",
@@ -54,6 +59,6 @@ export const faqs = [
   {
     question: "Budou v nabídce i jiné výrobky?",
     answer:
-      "Ano, připravuji vůně do auta, výrobky z 3D tisku, potisky oblečení a samolepky. Tyto kategorie zatím nejsou v prodeji.",
+      "Ano. Chystám lapače slunce — nálepky na okno, které ze slunce udělají duhu — a dále vůně do auta, výrobky z 3D tisku, potisky oblečení a samolepky. Tyto kategorie zatím nejsou v prodeji.",
   },
 ];
