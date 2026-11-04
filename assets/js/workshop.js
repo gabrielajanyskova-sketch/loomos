@@ -106,6 +106,12 @@ const KNOWLEDGE = `<div class="knowledge">
 <li>Nižší teplota šetří citrusové vůně a oleje s nízkým bodem vzplanutí (Kokos a limetka 68 °C, Amalfinské pobřeží 71 °C).</li>
 <li>Teploty si upravíte v části <a href="#waxes">Moje vosky</a> → Upravit; postup výroby se podle nich přepočítá.</li>
 </ul></details>
+<details><summary>Chyby při lití a jak je opravit</summary><ul>
+<li><strong>Díra nebo propadlina u knotu:</strong> sójový vosk se při chladnutí smršťuje, střed kolem knotu tuhne poslední a pod povrchem vznikne dutina (u dřevěného knotu častěji). Před prodejem opravit — knot by se při hoření mohl propadnout nebo čadit.</li>
+<li><strong>Oprava:</strong> po ztuhnutí udělat špejlí 2–3 hluboké díry asi 1 cm od knotu (skoro ke dnu), dolít trochou stejného vosku jen do roviny a nakonec povrch přejet horkovzdušnou pistolí.</li>
+<li><strong>Praskliny na povrchu:</strong> svíčka chladla moc rychle nebo nerovnoměrně (průvan, okno, studená deska, moc horký vosk). Stačí přejet povrch horkovzdušnou pistolí.</li>
+<li><strong>Prevence:</strong> lít chladnější (55–60 °C), sklenice předehřát, chladnout pomalu v pokoji 20–22 °C bez průvanu, volně přikryté krabicí, podložené dřevem, korkem nebo mřížkou — ne na studené desce. Lít pomalu, aby nevznikaly bublinky.</li>
+</ul></details>
 <details><summary>Vonné oleje — rady dodavatele</summary><ul>
 <li>Olej vždy <strong>važte v gramech</strong>, ne podle objemu — dodavatel prodává podle ml, ale každý olej má jinou hustotu.</li>
 <li>Doporučená dávka do svíček je 6–8 % z vosku. Kolik u které vůně, je v části <a href="#oleje">Vonné oleje — kolik dát</a>.</li>
