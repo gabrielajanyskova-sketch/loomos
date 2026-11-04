@@ -3296,3 +3296,221 @@ a.category-card {
   display: block;
   margin-top: 6px;
 }
+
+/* Uploaded product photos */
+.uploaded-photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+.photo-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.photo-gallery button {
+  padding: 0;
+  border: 1px solid var(--line);
+  background: none;
+  cursor: pointer;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+}
+.photo-gallery button.active {
+  border-color: var(--copper);
+}
+.photo-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+span.cart-thumb {
+  display: block;
+  width: 90px;
+  height: 105px;
+  opacity: 0.5;
+}
+.cart-thumb {
+  object-fit: cover;
+}
+.photo-admin {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.photo-admin-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0;
+}
+.photo-admin-grid figure {
+  margin: 0;
+  width: 140px;
+}
+.photo-admin-grid img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--line);
+}
+.photo-admin-grid figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.photo-upload {
+  cursor: pointer;
+}
+
+/* Checkout: carrier logos and point/address fields right under the chosen option */
+.radio .shipping-label {
+  margin-left: 0;
+  color: inherit;
+}
+.carrier-logo {
+  width: 72px;
+  height: 24px;
+  object-fit: contain;
+  margin-right: 4px;
+}
+.shipping-option:has(input:checked) {
+  border-color: var(--copper);
+}
+.shipping-option:has(input:checked):has(
+    + #delivery-fields:not([hidden]),
+    + #home-fields:not([hidden]),
+    + #pickup-address:not([hidden])
+  ) {
+  border-bottom-color: transparent;
+}
+.shipping-option + #delivery-fields,
+.shipping-option + #home-fields,
+.shipping-option + #pickup-address {
+  margin: -13px 0 12px;
+  padding: 14px 15px;
+  border: 1px solid var(--copper);
+  border-top: 0;
+}
+
+/* Home: sun catcher card with a photo on top and the text below it */
+.category-card.suncatcher {
+  background: #1d1b1a;
+}
+.category-card .category-photo {
+  display: block;
+  width: calc(100% + 50px);
+  max-width: none;
+  height: 190px;
+  margin: -25px -25px 18px;
+  object-fit: cover;
+  object-position: center 32%;
+  transition: transform 0.4s;
+}
+.category-card.suncatcher .pill {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  z-index: 1;
+  background: #171614cc;
+}
+.category-card.suncatcher .category-photo-text {
+  margin-top: auto;
+}
+.category-card.suncatcher:hover .category-photo {
+  transform: scale(1.03);
+}
+@media (max-width: 700px) {
+  .category-card .category-photo {
+    height: 220px;
+  }
+}
+
+/* Quantity on product cards */
+.card-buy {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.card-buy .add-button {
+  flex: 1;
+  min-width: 0;
+}
+.card-qty button {
+  min-height: 40px;
+  min-width: 34px;
+  padding: 6px 10px;
+}
+.card-qty output {
+  min-width: 22px;
+}
+
+/* Line icons from /assets/img/icons.svg */
+.ico {
+  display: inline-block;
+  width: 1.35em;
+  height: 1.35em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.3em;
+}
+.ico-inline {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+}
+.announcement .ico-inline {
+  margin: 0 10px;
+  color: var(--copper);
+}
+.detail-facts span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.detail-facts .ico {
+  width: 26px;
+  height: 26px;
+  color: var(--copper-light);
+}
+.tiny-star .ico,
+.shop-bottom > span .ico {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  stroke-width: 1.4;
+}
+.category-graphic .ico {
+  width: 76px;
+  height: 76px;
+  stroke-width: 1.2;
+}
+.badge-pill .ico-inline,
+.product-tag .ico-inline {
+  fill: currentColor;
+  stroke-width: 1.2;
+}
+.admin-sidebar nav .ico,
+aside nav .ico {
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  vertical-align: -4px;
+}
+@media (max-width: 700px) {
+  .category-graphic .ico {
+    width: 56px;
+    height: 56px;
+  }
+}

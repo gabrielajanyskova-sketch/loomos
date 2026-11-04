@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="hand" viewBox="0 0 32 32">
+    <path d="M3.5 20.5h4l5-4a3 3 0 0 1 3.4-.2l4.2 2.3a2 2 0 0 1-1.9 3.5l-3.4-1.6M3.5 27h5l6.9 1.1a5 5 0 0 0 3.7-.9l9.1-6.4a2 2 0 0 0-2.2-3.3l-4.5 2.9M7.5 20.5V27"/>
+    <path d="M17.5 12.5 12 7.3a3.4 3.4 0 0 1 5.5-4 3.4 3.4 0 0 1 5.5 4z"/>
+  </symbol>
+  <symbol id="soy" viewBox="0 0 32 32">
+    <path d="M8.1 24C1 15.2 7.6 6.7 25.5 4.5 25.2 21.5 18 28 8.1 24ZM5 28 21 10M12 20l-.5-6M12 20l6 .5"/>
+  </symbol>
+  <symbol id="wick" viewBox="0 0 32 32">
+    <path d="M8 18.5h16v8.7a2.3 2.3 0 0 1-2.3 2.3H10.3A2.3 2.3 0 0 1 8 27.2ZM13.5 18.5v-5h5v5M11.5 29.5h9"/>
+    <path d="M16 2.5c.5 3.8 4.5 4.5 4.5 8a4.5 4.5 0 0 1-9 0c0-2.5 2-4.7 4.5-8ZM11.5 23h9"/>
+  </symbol>
+  <symbol id="fragrance" viewBox="0 0 32 32">
+    <path d="M10 13.5h12a3 3 0 0 1 3 3V27a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 7 27V16.5a3 3 0 0 1 3-3ZM12 8.5h8v5h-8ZM12 8.5V5h8v3.5M11.5 19h9v5h-9"/>
+    <path d="M25 3.5c-2 2 2 3 0 5M29 5c-2 2 2 3 0 5"/>
+  </symbol>
+  <!-- Brand sparkle (replaces ✧) -->
+  <symbol id="sparkle" viewBox="0 0 32 32">
+    <path d="M14 4c.9 6.4 3.6 9.1 10 10-6.4.9-9.1 3.6-10 10-.9-6.4-3.6-9.1-10-10 6.4-.9 9.1-3.6 10-10Z"/>
+    <path d="M25 20c.4 2.4 1.6 3.6 4 4-2.4.4-3.6 1.6-4 4-.4-2.4-1.6-3.6-4-4 2.4-.4 3.6-1.6 4-4Z"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 32 32">
+    <path d="m16 4 3.6 7.6 8.2 1-6 5.7 1.6 8.2L16 22.5l-7.4 4 1.6-8.2-6-5.7 8.2-1Z"/>
+  </symbol>
+  <!-- Sun catchers -->
+  <symbol id="rainbow" viewBox="0 0 32 32">
+    <path d="M3.5 25a12.5 12.5 0 0 1 25 0M8 25a8 8 0 0 1 16 0M12.5 25a3.5 3.5 0 0 1 7 0"/>
+  </symbol>
+  <symbol id="window" viewBox="0 0 32 32">
+    <path d="M6.5 4.5h19v23h-19ZM16 4.5v23M6.5 16h19M3.5 27.5h25"/>
+    <circle cx="11.2" cy="10.2" r="2"/>
+  </symbol>
+  <symbol id="sun" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="5.5"/>
+    <path d="M16 3v3.5M16 25.5V29M3 16h3.5M25.5 16H29M6.8 6.8l2.5 2.5M22.7 22.7l2.5 2.5M6.8 25.2l2.5-2.5M22.7 9.3l2.5-2.5"/>
+  </symbol>
+  <symbol id="sticker" viewBox="0 0 32 32">
+    <path d="M5.5 5.5h21v12l-9 9h-12Z"/>
+    <path d="M26.5 17.5h-6.5a2.5 2.5 0 0 0-2.5 2.5v6.5"/>
+  </symbol>
+  <!-- Coming soon -->
+  <symbol id="car" viewBox="0 0 32 32">
+    <path d="M4.5 22v-4.3l2.6-6.4A3 3 0 0 1 9.9 9.5h12.2a3 3 0 0 1 2.8 1.8l2.6 6.4V22a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 22ZM4.5 17.5h23"/>
+    <circle cx="10" cy="23.5" r="2.5"/>
+    <circle cx="22" cy="23.5" r="2.5"/>
+  </symbol>
+  <symbol id="cube" viewBox="0 0 32 32">
+    <path d="m16 3.5 11 6.2v12.6L16 28.5 5 22.3V9.7Z"/>
+    <path d="M5 9.7 16 16l11-6.3M16 16v12.5"/>
+  </symbol>
+  <symbol id="shirt" viewBox="0 0 32 32">
+    <path d="M11.5 4.5 5 8l2.8 5.5 3.2-1.6V27.5h10V11.9l3.2 1.6L27 8l-6.5-3.5a4.5 4.5 0 0 1-9 0Z"/>
+    <path d="M13.5 17.5h5"/>
+  </symbol>
+  <!-- Admin -->
+  <symbol id="grid" viewBox="0 0 32 32">
+    <path d="M5 5h9v9H5ZM18 5h9v9h-9ZM5 18h9v9H5ZM18 18h9v9h-9Z"/>
+  </symbol>
+  <symbol id="receipt" viewBox="0 0 32 32">
+    <path d="M7.5 3.5h17v25l-3-2-2.7 2-2.8-2-2.8 2-2.7-2-3 2ZM11.5 10h9M11.5 15h9M11.5 20h5"/>
+  </symbol>
+  <symbol id="tag" viewBox="0 0 32 32">
+    <path d="M4.5 16.2V5.5a1 1 0 0 1 1-1h10.7l11.3 11.3a1.5 1.5 0 0 1 0 2.1L18 27.4a1.5 1.5 0 0 1-2.1 0Z"/>
+    <circle cx="10.5" cy="10.5" r="2"/>
+  </symbol>
+  <symbol id="mail" viewBox="0 0 32 32">
+    <path d="M4.5 7.5h23v17h-23Z"/>
+    <path d="m4.5 8 11.5 9 11.5-9"/>
+  </symbol>
+  <symbol id="boxes" viewBox="0 0 32 32">
+    <path d="M4.5 16.5h11v11h-11ZM16.5 16.5h11v11h-11ZM10.5 4.5h11v12h-11ZM8.5 16.5v3M20.5 16.5v3M14.5 4.5v3"/>
+  </symbol>
+  <symbol id="user" viewBox="0 0 32 32">
+    <circle cx="16" cy="11" r="5.5"/>
+    <path d="M5.5 27.5c1.6-5.2 5.5-8 10.5-8s8.9 2.8 10.5 8"/>
+  </symbol>
+  <symbol id="percent" viewBox="0 0 32 32">
+    <path d="m8 24 16-16"/>
+    <circle cx="9.5" cy="9.5" r="3"/>
+    <circle cx="22.5" cy="22.5" r="3"/>
+  </symbol>
+  <symbol id="flask" viewBox="0 0 32 32">
+    <path d="M12.5 4.5h7M13.5 4.5v8.2L6.3 24.6a2 2 0 0 0 1.7 2.9h16a2 2 0 0 0 1.7-2.9l-7.2-11.9V4.5M9.5 19.5h13"/>
+  </symbol>
+  <symbol id="external" viewBox="0 0 32 32">
+    <path d="M18.5 5.5h8v8M26.5 5.5 15 17M23.5 18.5v7a1.5 1.5 0 0 1-1.5 1.5H7a1.5 1.5 0 0 1-1.5-1.5V10A1.5 1.5 0 0 1 7 8.5h7"/>
+  </symbol>
+</svg>

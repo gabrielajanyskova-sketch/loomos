@@ -49,7 +49,7 @@ export const faqs = [
   {
     question: "Svíčka má na skle světlejší skvrny nebo bílý povlak. Je vadná?",
     answer:
-      "Není. Každou svíčku před odesláním zkontroluji a posílám ji hladkou a hezkou. Sójový vosk je ale přírodní a reaguje na teplotu: když balík cestou prochladne v autě nebo v depu a pak se zase ohřeje, vosk se smrští a může se místy odlepit od skla. Na skle pak vypadá jako světlejší „mokré“ skvrny. Může se objevit i jemný bílý povlak (krystalky vosku) nebo drobná prasklinka na povrchu. Na hoření ani vůni to nemá žádný vliv a svíčka je úplně v pořádku. Pokud ale dorazí rozbitá sklenice nebo jiné poškození, pošlete mi fotku na info@loomos.cz a vyřeším to s vámi.",
+      "Není. Každou svíčku před odesláním zkontroluji a posílám ji hladkou a hezkou. Sójový vosk je ale přírodní materiál, který se při chladnutí přirozeně smršťuje — světlejší skvrny se proto mohou objevit i při pečlivé výrobě a mají je i velké značky sójových svíček. Výrobci vosku to uvádějí jako jeho přirozenou vlastnost; správným postupem se dá omezit, ale úplně mu zabránit nejde. Vosk navíc reaguje na teplotu: když balík cestou prochladne v autě nebo v depu a pak se zase ohřeje, vosk se smrští a může se místy odlepit od skla. Na skle pak vypadá jako světlejší „mokré“ skvrny. Může se objevit i jemný bílý povlak (krystalky vosku) nebo drobná prasklinka na povrchu. Na hoření ani vůni to nemá žádný vliv a svíčka je úplně v pořádku. Pokud ale dorazí rozbitá sklenice nebo jiné poškození, pošlete mi fotku na info@loomos.cz a vyřeším to s vámi.",
   },
   {
     question: "Mohu už odeslat objednávku?",

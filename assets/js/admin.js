@@ -322,8 +322,45 @@ function productForm(p, isNew) {
     <label>Štítek (nepovinné)<input name="badge" maxlength="40" value="${v(p.badge)}" placeholder="např. Nejoblíbenější vůně, Novinka"></label>
     <label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Zobrazit v e-shopu</label>
     <div class="wide product-actions"><button class="button">Uložit produkt</button>${!isNew && p.edited ? `<button type="button" class="inline-button danger" data-product-reset="${v(p.id)}">${p.bundled ? "Vrátit původní údaje" : "Smazat produkt"}</button>` : ""}<button type="button" class="inline-button" data-product-close>Zavřít</button></div>
-  </form>`;
+  </form>${isNew ? '<p class="muted">Fotky přidáte po uložení produktu.</p>' : photoAdmin(p)}`;
   editor.scrollIntoView({ behavior: "smooth" });
+}
+function photoAdmin(p) {
+  const images = p.images || [];
+  return `<section class="photo-admin" data-photo-product="${esc(p.id)}"><h3>Fotky</h3><p class="muted">První fotka je hlavní — ukáže se v obchodě, v košíku i nahoře v detailu. Fotky se před nahráním samy zmenší.</p><div class="photo-admin-grid">${
+    images
+      .map(
+        (img, i) =>
+          `<figure><img src="/api/img?id=${img.id}" alt="" width="120" height="120" loading="lazy"><figcaption>${i === 0 ? '<span class="status-label">Hlavní</span>' : `<button type="button" class="inline-button" data-photo-main="${img.id}">Nastavit jako hlavní</button>`}<button type="button" class="inline-button danger" data-photo-delete="${img.id}">Smazat</button></figcaption></figure>`,
+      )
+      .join("") ||
+    '<p class="muted">Zatím bez vlastních fotek — zobrazuje se ilustrační obrázek.</p>'
+  }</div><label class="inline-button photo-upload">＋ Přidat fotky<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-photo-upload hidden></label></section>`;
+}
+/** Scale a photo to max. 1600 px and encode it as WebP (JPEG where WebP is not supported). */
+async function preparePhoto(file) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const encode = (type) =>
+    new Promise((resolve) => canvas.toBlob(resolve, type, 0.85));
+  let blob = await encode("image/webp");
+  if (!blob || blob.type !== "image/webp") blob = await encode("image/jpeg");
+  const data = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  return { type: blob.type, data, width: canvas.width, height: canvas.height };
+}
+async function reopenProduct(id) {
+  products = await api("products");
+  const product = products.find((p) => p.id === id);
+  if (product) productForm(product, false);
 }
 function productFromForm(form) {
   const f = form.elements;
@@ -381,7 +418,7 @@ function productFromForm(form) {
 /* ---------- inquiries ---------- */
 async function renderInquiries(el) {
   const list = await api("inquiries");
-  el.innerHTML = `<div class="admin-toolbar"><h2>Poptávky na míru</h2><span class="muted">${((n) => (n === 1 ? "1 nová" : n >= 2 && n <= 4 ? `${n} nové` : `${n} nových`))(list.filter((i) => i.status === "nova").length)}</span></div>${
+  el.innerHTML = `<div class="admin-toolbar"><h2>Lapače na přání — poptávky</h2><span class="muted">${((n) => (n === 1 ? "1 nová" : n >= 2 && n <= 4 ? `${n} nové` : `${n} nových`))(list.filter((i) => i.status === "nova").length)}</span></div>${
     list.length
       ? list
           .map(
@@ -389,7 +426,7 @@ async function renderInquiries(el) {
               `<section class="panel inquiry ${i.status}"><div class="admin-toolbar"><h3>č. ${i.id} · ${esc(i.type_label)}${i.status === "nova" ? ' <span class="status-label">Nová</span>' : ""}</h3><small class="muted">${date(i.created)}</small></div><p><strong>${esc(i.name)}</strong> · <a href="mailto:${esc(i.email)}?subject=${encodeURIComponent("Vaše poptávka č. " + i.id + " — LOOMOS")}">${esc(i.email)}</a>${i.phone ? " · " + esc(i.phone) : ""}</p><p class="muted">Velikost: ${esc(i.size || "—")} · Počet: ${i.quantity} ks · Fólie: ${esc(i.material || "nevím")} · Termín: ${esc(i.deadline || "—")}</p><p class="pre">${esc(i.motif)}</p><div class="order-actions">${i.file_name ? `<a class="inline-button" href="/api/admin/inquiry-file?id=${i.id}">Stáhnout přílohu (${esc(i.file_name)})</a>` : '<span class="muted">Bez přílohy</span>'}<button type="button" class="inline-button" data-inquiry="${i.id}" data-status="${i.status === "nova" ? "vyrizena" : "nova"}">${i.status === "nova" ? "Označit jako vyřízenou" : "Vrátit mezi nové"}</button><button type="button" class="inline-button danger" data-inquiry="${i.id}" data-delete>Smazat</button></div></section>`,
           )
           .join("")
-      : '<div class="panel">Zatím žádné poptávky. Formulář je na stránce <a href="/poptavka.html" target="_blank" rel="noopener">Tvorba na míru</a>.</div>'
+      : '<div class="panel">Zatím žádné poptávky. Formulář je na stránce <a href="/poptavka.html" target="_blank" rel="noopener">Lapač na přání</a>.</div>'
   }<p class="muted">Poptávka vám přijde i e-mailem (s přílohou); odpovědět můžete přímo na něj.</p>`;
 }
 
@@ -566,6 +603,26 @@ document.addEventListener("click", (e) => {
     });
     return;
   }
+  const photoButton = e.target.closest(
+    "[data-photo-main], [data-photo-delete]",
+  );
+  if (photoButton) {
+    const id = Number(
+      photoButton.dataset.photoMain || photoButton.dataset.photoDelete,
+    );
+    const productId = photoButton.closest("[data-photo-product]").dataset
+      .photoProduct;
+    if (photoButton.dataset.photoDelete && !confirm("Smazat fotku?")) return;
+    guard(async () => {
+      await api("product-image-update", {
+        id,
+        action: photoButton.dataset.photoMain ? "main" : "delete",
+      });
+      status("Fotky jsou uložené.");
+      await reopenProduct(productId);
+    });
+    return;
+  }
   if (e.target.closest("[data-product-close]"))
     $("#product-editor").hidden = true;
   const reset = e.target.closest("[data-product-reset]");
@@ -656,5 +713,27 @@ document.addEventListener("submit", (e) => {
     status(`Produkt „${product.name}“ je uložený.`);
     category = product.category;
     await show("products");
+  });
+});
+
+document.addEventListener("change", (e) => {
+  const input = e.target.closest("[data-photo-upload]");
+  if (!input?.files.length) return;
+  const productId = input.closest("[data-photo-product]").dataset.photoProduct;
+  guard(async () => {
+    const files = [...input.files];
+    for (const [i, file] of files.entries()) {
+      status(`Nahrávám fotku ${i + 1} z ${files.length}…`);
+      await api("product-image", {
+        product_id: productId,
+        ...(await preparePhoto(file)),
+      });
+    }
+    status(
+      files.length === 1
+        ? "Fotka je nahraná."
+        : `Nahráno ${files.length} fotek.`,
+    );
+    await reopenProduct(productId);
   });
 });

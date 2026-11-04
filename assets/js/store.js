@@ -5,6 +5,8 @@ import {
   productCard,
   saleMarkup,
   burnLine,
+  thumbSrc,
+  icon,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -177,15 +179,21 @@ function add(id, qty = 1, variantId = "mala") {
   if (stock !== null && wanted > stock) {
     toast(
       stock
-        ? `Skladem jsou jen ${stock} ks této velikosti.`
-        : "Tahle velikost je bohužel vyprodaná.",
+        ? `Skladem ${product.variants?.length ? "této velikosti " : ""}jsou jen ${stock} ks.`
+        : product.variants?.length
+          ? "Tahle velikost je bohužel vyprodaná."
+          : "Tohle je bohužel vyprodané.",
     );
     return;
   }
   if (item) item.qty = wanted;
   else cart.push({ id, variant: variantId, qty: wanted });
   persist();
-  toast("Máte přidáno. Vaše vůně čeká v košíku.");
+  toast(
+    isCandle(product)
+      ? "Máte přidáno. Vaše vůně čeká v košíku."
+      : `Máte přidáno. ${product.name} čeká v košíku.`,
+  );
   track("add_to_cart", product, variant, qty);
 }
 function availability(button, product, variantId) {
@@ -239,11 +247,34 @@ document.addEventListener("click", (e) => {
   if (b && !b.disabled)
     add(
       b.dataset.add,
-      Number($("#detail-quantity")?.textContent || 1),
+      Number(
+        (
+          b.closest(".product-card")?.querySelector("[data-card-quantity]") ||
+          $("#detail-quantity")
+        )?.textContent || 1,
+      ),
       b.closest(".product-card")?.querySelector("[data-card-size]")?.value ||
         $("#size-choice")?.value ||
         "mala",
     );
+  // After adding from a card, its quantity starts again from 1.
+  if (b && !b.disabled) {
+    const cardQty = b
+      .closest(".product-card")
+      ?.querySelector("[data-card-quantity]");
+    if (cardQty) cardQty.textContent = "1";
+  }
+  const cq = e.target.closest("[data-card-qty]");
+  if (cq) {
+    const output = cq.parentElement.querySelector("[data-card-quantity]");
+    output.textContent = Math.max(
+      1,
+      Math.min(
+        MAX_QTY,
+        Number(output.textContent) + Number(cq.dataset.cardQty),
+      ),
+    );
+  }
   const q = e.target.closest("[data-detail-qty]");
   if (q) {
     const output = $("#detail-quantity");
@@ -255,6 +286,15 @@ document.addEventListener("click", (e) => {
       ),
     );
   }
+});
+document.addEventListener("click", (e) => {
+  const thumb = e.target.closest("[data-photo]");
+  if (!thumb) return;
+  const main = $(".detail-photo [data-main-photo]");
+  if (main) main.src = thumb.dataset.photo;
+  thumb.parentElement
+    .querySelectorAll("[data-photo]")
+    .forEach((b) => b.classList.toggle("active", b === thumb));
 });
 document.addEventListener("change", (e) => {
   if (e.target.matches("[data-card-size]"))
@@ -281,7 +321,7 @@ function renderProduct() {
   const p = products.find((p) => p.id === id);
   if (!p) {
     $("#product-detail").innerHTML =
-      '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
+      '<div class="empty-state"><h2>Tenhle produkt právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
     return;
   }
   document.title = `${p.name} — ${isCandle(p) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`;
@@ -347,12 +387,6 @@ async function prepareFile(file) {
 function renderInquiry() {
   const form = $("#inquiry-form");
   if (!form) return;
-  const type = new URLSearchParams(location.search).get("typ");
-  if (
-    type &&
-    form.elements.type.querySelector(`option[value="${CSS.escape(type)}"]`)
-  )
-    form.elements.type.value = type;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -365,9 +399,8 @@ function renderInquiry() {
       const file = f.file.files[0] ? await prepareFile(f.file.files[0]) : null;
       await api("inquiry", {
         type: f.type.value,
-        size: f.size.value,
+        size: "kruh 15 cm",
         quantity: Number(f.quantity.value),
-        material: f.material.value,
         motif: f.motif.value,
         deadline: f.deadline.value,
         name: f.name.value,
@@ -376,7 +409,7 @@ function renderInquiry() {
         consent: f.consent.checked,
         file,
       });
-      form.outerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem a cenou.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
+      form.outerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
     } catch (err) {
       error.textContent = err.message;
       btn.disabled = false;
@@ -440,19 +473,18 @@ function bindSummary(container, rerender) {
 function renderCart() {
   const el = $("#cart-content");
   if (!lines().length) {
-    el.innerHTML =
-      '<div class="empty-state"><span class="tiny-star">✧</span><h2>Vaše chvíle teprve čeká.</h2><p>Košík je zatím prázdný. Najděte si vůni, která vám sedne.</p><a class="button" href="/obchod.html">Prohlédnout svíčky →</a></div>';
+    el.innerHTML = `<div class="empty-state"><span class="tiny-star">${icon("sparkle")}</span><h2>Vaše chvíle teprve čeká.</h2><p>Košík je zatím prázdný. Najděte si vůni, která vám sedne.</p><a class="button" href="/obchod.html">Prohlédnout svíčky →</a></div>`;
     return;
   }
   const t = pricing();
   el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${t.lines
     .map(
       (l) =>
-        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
+        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(products.find((p) => p.id === l.id) || {}))}</a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
     )
     .join(
       "",
-    )}<a class="text-link spaced-top" href="/obchod.html">← Zpět ke svíčkám</a></section>${summary()}</div>`;
+    )}<a class="text-link spaced-top" href="/obchod.html">← Pokračovat v nákupu</a></section>${summary()}</div>`;
 }
 $("#cart-content")?.addEventListener("click", (e) => {
   const b = e.target.closest("[data-qty],[data-remove]");
@@ -503,13 +535,13 @@ function renderCheckout() {
   const el = $("#checkout-content");
   if (!lines().length) {
     el.innerHTML =
-      '<div class="empty-state"><h2>Nejdřív si vyberte svou vůni.</h2><a class="button" href="/obchod.html">Do obchodu →</a></div>';
+      '<div class="empty-state"><h2>Košík je zatím prázdný.</h2><a class="button" href="/obchod.html">Do obchodu →</a></div>';
     return;
   }
   const shippingOptions = Object.entries(SHIPPING)
     .map(
       ([id, s], i) =>
-        `<label class="radio"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}>${esc(s.label)}<span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
+        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}>${s.logo ? `<img class="carrier-logo" src="${esc(s.logo)}" alt="" width="72" height="24" loading="lazy">` : ""}<span class="shipping-label">${esc(s.label)}</span><span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
     )
     .join("");
   const paymentOptions = Object.entries(PAYMENT)
@@ -600,6 +632,16 @@ function renderCheckout() {
   const applyShipping = (open) => {
     const shipping = form.elements.shipping.value;
     const kind = SHIPPING[shipping]?.kind;
+    // Point / address fields sit right under the chosen delivery option.
+    const row = form
+      .querySelector(`input[name="shipping"][value="${CSS.escape(shipping)}"]`)
+      ?.closest(".radio");
+    const panel = {
+      point: "#delivery-fields",
+      home: "#home-fields",
+      pickup: "#pickup-address",
+    }[kind];
+    if (row && panel) row.after($(panel));
     $("#delivery-fields").hidden = kind !== "point";
     $("#home-fields").hidden = kind !== "home";
     $("#pickup-address").hidden = kind !== "pickup";
@@ -658,7 +700,7 @@ function renderCheckout() {
       code = null;
       store.set(codeKey, null);
       persist();
-      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsem poslala na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Děkuji, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsem poslala na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
       const heading = $(".success-panel h2", el);
       heading.tabIndex = -1;
       heading.focus({ preventScroll: true });
@@ -751,7 +793,7 @@ function renderWithdrawal() {
       const at = new Date(result.received * 1000).toLocaleString("cs-CZ", {
         timeZone: "Europe/Prague",
       });
-      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Odstoupení od smlouvy jsem přijala.</h2><p>Přijato ${esc(at)}. Potvrzení jsem poslala na ${esc(data.email)}.</p><p>Zboží mi prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Odstoupení od smlouvy jsem přijala.</h2><p>Přijato ${esc(at)}. Potvrzení jsem poslala na ${esc(data.email)}.</p><p>Zboží mi prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
     } catch (err) {
       error.textContent = err.message;
       button.disabled = false;
@@ -858,8 +900,7 @@ function renderReset() {
     if (f.password !== f.again) throw Error("Hesla se neshodují.");
     await api("account/reset", { token, password: f.password });
     history.replaceState(null, "", "/obnova-hesla.html");
-    el.innerHTML =
-      '<div class="success-panel"><span class="tiny-star">✧</span><h2>Heslo je změněné.</h2><p>Jste přihlášeni.</p><a class="button" href="/ucet.html">Můj účet →</a></div>';
+    el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Heslo je změněné.</h2><p>Jste přihlášeni.</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   });
 }
 

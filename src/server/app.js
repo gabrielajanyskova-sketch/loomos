@@ -7,6 +7,7 @@ import * as admin from "./admin.js";
 import * as workshop from "./workshop.js";
 import * as products from "./products.js";
 import * as inquiry from "./inquiry.js";
+import * as images from "./images.js";
 import * as withdrawal from "./withdrawal.js";
 
 const routes = {
@@ -18,6 +19,7 @@ const routes = {
   "GET /api/invoice": withdrawal.customerInvoice,
   "POST /api/withdrawal": withdrawal.withdraw,
   "POST /api/inquiry": inquiry.create,
+  "GET /api/img": images.serve,
 
   "GET /api/account/me": account.me,
   "POST /api/account/register": account.register,
@@ -51,6 +53,8 @@ const adminRoutes = {
   "POST /api/admin/product": products.save,
   "POST /api/admin/product-reset": products.reset,
   "POST /api/admin/product-delete": products.remove,
+  "POST /api/admin/product-image": images.upload,
+  "POST /api/admin/product-image-update": images.update,
   "GET /api/admin/stock": admin.stock,
   "POST /api/admin/stock": admin.setStock,
   "POST /api/admin/prices": admin.setPrice,
