@@ -12,3 +12,6 @@ Ceny lapačů zůstávají k doplnění v administraci. Neoceněné produkty nel
 
 
 Slevy: zlevněná cena je samostatná od běžné ceny. Před slevou se uloží nejnižší nabídková cena z předchozích 30 dní včetně ceny platné na začátku období. Při postupném snižování ceny v téže akci se reference nemění. Pokud historie ještě nepokrývá 30 dní, vlastnice musí potvrdit ověřenou nejnižší cenu; nesmí být vyšší než dosud zaznamenané minimum. Minulé ceny se nezpětně nedoplňují odhadem. Změny, zdroj reference a skutečné prodejní ceny zůstávají v auditní historii. Cena bez slevy a prázdné pole zlevněné ceny akci ukončí.
+
+
+Doplnění vizualizací: 11 motivů ze ZIPu je převedeno do stejné scény na okně jako Rubble (Chase, Bing, Peppa, Zuma, Marshall, Stitch, sova, víla, medvídek, Skye a traktor). Hlavní obrázky používají nové názvy `-window-480.webp` a `-window-960.webp`, aby je neblokovala mezipaměť starších souborů. Celkem je tedy 12 vizualizací včetně Rubblea. U Maria a Pikachu generátor odmítl úpravu; nadále používají skutečné fotky v obalu. Tyto dvě úpravy nejsou hotové. Všechny nové vizualizace jsou označené a v detailu je dostupný odkaz na původní skutečnou fotku.

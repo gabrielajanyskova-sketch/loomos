@@ -80,10 +80,26 @@ const suncatcherPhotos = new Set([
   "lapac-slunce-traktor",
   "lapac-slunce-pikachu",
 ]);
+const suncatcherWindowPhotos = new Set([
+  "lapac-slunce-traktor",
+  "lapac-slunce-chase",
+  "lapac-slunce-bing",
+  "lapac-slunce-peppa",
+  "lapac-slunce-zuma",
+  "lapac-slunce-marshall",
+  "lapac-slunce-stitch",
+  "lapac-slunce-sova",
+  "lapac-slunce-vila",
+  "lapac-slunce-medvidek",
+  "lapac-slunce-skye",
+]);
 const suncatcherPicture = (p) => {
   const href = `/produkty/${esc(p.id)}.html`;
-  if (suncatcherPhotos.has(p.id))
-    return `<a class="product-image suncatcher-product-image" href="${href}"><img src="/assets/img/${esc(p.id)}-480.webp" srcset="/assets/img/${esc(p.id)}-480.webp 480w, /assets/img/${esc(p.id)}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="1280" alt="Lapač slunce ${esc(p.name)} — skutečná fotografie výrobku v obalu" loading="lazy" decoding="async"></a>`;
+  if (suncatcherPhotos.has(p.id)) {
+    const visual = suncatcherWindowPhotos.has(p.id);
+    const source = esc(p.id) + (visual ? "-window" : "");
+    return `<a class="product-image suncatcher-product-image" href="${href}"><img src="/assets/img/${source}-480.webp" srcset="/assets/img/${source}-480.webp 480w, /assets/img/${source}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="${visual ? 1200 : 1280}" alt="Lapač slunce ${esc(p.name)} — ${visual ? "ilustrační vizualizace na okně" : "skutečná fotografie výrobku v obalu"}" loading="lazy" decoding="async">${visual ? '<span class="photo-note">Ilustrační vizualizace</span>' : ""}</a>`;
+  }
   if (p.id === "lapac-slunce-rubble")
     return `<a class="product-image suncatcher-product-image" href="${href}"><img src="/assets/img/lapac-slunce-rubble.webp" width="960" height="1200" alt="Lapač slunce Rubble na okně — ilustrační vizualizace" loading="lazy" decoding="async"><span class="photo-note">Ilustrační vizualizace</span></a>`;
   return `<a class="product-image pending-photo" href="${href}" aria-label="${esc(p.name)} — detail produktu"><span class="pending-photo-circle"><span>${esc(p.name)}</span><small>Fotografii připravujeme</small></span></a>`;
@@ -91,7 +107,7 @@ const suncatcherPicture = (p) => {
 const suncatcherCard = (p) =>
   `<article class="product-card">${suncatcherPicture(p)}<div class="product-meta"><small>LAPAČ SLUNCE · 15 CM</small><div class="product-title-row"><h3><a href="/produkty/${esc(p.id)}.html">${esc(p.name)}</a></h3><span class="price" data-card-price>${money(p.price)}</span></div><div data-sale-reference>${saleMarkup(p.variants?.[0] ?? p)}</div><p class="product-notes">${esc(p.notes)}</p><span class="stock-note" aria-live="polite"></span><button class="add-button" data-add="${esc(p.id)}" ${p.price == null ? "disabled" : ""}><span class="add-label">${p.price == null ? "Cenu připravujeme" : "Přidat do košíku"}</span></button></div></article>`;
 const suncatcherDetail = (p) =>
-  `<div class="detail-grid"><div class="detail-photo">${suncatcherPicture(p)}</div><section class="detail-copy"><div class="eyebrow">LAPAČ SLUNCE · LOOMOS</div><h1>${esc(p.name)}</h1><p class="lead">${esc(p.subtitle)}</p><p>${esc(p.description)}</p><span class="price" id="detail-price">${money(p.price)}</span><div data-sale-reference>${saleMarkup(p)}</div><span class="stock-note" aria-live="polite"></span><div class="buy-row"><div class="quantity"><button data-detail-qty="-1" aria-label="Ubrat kus">−</button><output id="detail-quantity">1</output><button data-detail-qty="1" aria-label="Přidat kus">＋</button></div><button class="button" data-add="${esc(p.id)}" ${p.price == null ? "disabled" : ""}>${p.price == null ? "Cenu připravujeme" : "Přidat do košíku ＋"}</button></div><div class="detail-facts"><span>Průměr 15 cm</span><span>Statické přilnutí</span><span>Bez lepidla</span></div><h2>Jak lapač použít</h2><p>Očistěte a osušte hladké sklo. Sejměte zadní ochrannou fólii a lapač přiložte na okno. Nejlépe vynikne na přímém slunci. Vzhled odlesků závisí na světle a úhlu pohledu.</p></section></div>`;
+  `<div class="detail-grid"><div class="detail-photo">${suncatcherPicture(p)}${suncatcherWindowPhotos.has(p.id) ? `<p><a class="text-link" href="/assets/img/${esc(p.id)}-960.webp">Skutečná fotografie výrobku v obalu →</a></p>` : ""}</div><section class="detail-copy"><div class="eyebrow">LAPAČ SLUNCE · LOOMOS</div><h1>${esc(p.name)}</h1><p class="lead">${esc(p.subtitle)}</p><p>${esc(p.description)}</p><span class="price" id="detail-price">${money(p.price)}</span><div data-sale-reference>${saleMarkup(p)}</div><span class="stock-note" aria-live="polite"></span><div class="buy-row"><div class="quantity"><button data-detail-qty="-1" aria-label="Ubrat kus">−</button><output id="detail-quantity">1</output><button data-detail-qty="1" aria-label="Přidat kus">＋</button></div><button class="button" data-add="${esc(p.id)}" ${p.price == null ? "disabled" : ""}>${p.price == null ? "Cenu připravujeme" : "Přidat do košíku ＋"}</button></div><div class="detail-facts"><span>Průměr 15 cm</span><span>Statické přilnutí</span><span>Bez lepidla</span></div><h2>Jak lapač použít</h2><p>Očistěte a osušte hladké sklo. Sejměte zadní ochrannou fólii a lapač přiložte na okno. Nejlépe vynikne na přímém slunci. Vzhled odlesků závisí na světle a úhlu pohledu.</p></section></div>`;
 export const picture = (p, tag = "") =>
   !isCandle(p)
     ? `<a class="product-image suncatcher-image" href="/produkty/${encodeURIComponent(p.id)}.html" aria-label="${esc(p.name)}"><span class="rainbow-fill" aria-hidden="true"></span>${tag ? `<span class="product-tag">${esc(tag)}</span>` : ""}</a>`
