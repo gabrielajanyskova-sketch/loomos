@@ -6,6 +6,7 @@ import {
   saleMarkup,
   burnLine,
   thumbSrc,
+  icon,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -408,7 +409,7 @@ function renderInquiry() {
         consent: f.consent.checked,
         file,
       });
-      form.outerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
+      form.outerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
     } catch (err) {
       error.textContent = err.message;
       btn.disabled = false;
@@ -472,8 +473,7 @@ function bindSummary(container, rerender) {
 function renderCart() {
   const el = $("#cart-content");
   if (!lines().length) {
-    el.innerHTML =
-      '<div class="empty-state"><span class="tiny-star">✧</span><h2>Vaše chvíle teprve čeká.</h2><p>Košík je zatím prázdný. Najděte si vůni, která vám sedne.</p><a class="button" href="/obchod.html">Prohlédnout svíčky →</a></div>';
+    el.innerHTML = `<div class="empty-state"><span class="tiny-star">${icon("sparkle")}</span><h2>Vaše chvíle teprve čeká.</h2><p>Košík je zatím prázdný. Najděte si vůni, která vám sedne.</p><a class="button" href="/obchod.html">Prohlédnout svíčky →</a></div>`;
     return;
   }
   const t = pricing();
@@ -700,7 +700,7 @@ function renderCheckout() {
       code = null;
       store.set(codeKey, null);
       persist();
-      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsem poslala na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Děkuji, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsem poslala na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
       const heading = $(".success-panel h2", el);
       heading.tabIndex = -1;
       heading.focus({ preventScroll: true });
@@ -793,7 +793,7 @@ function renderWithdrawal() {
       const at = new Date(result.received * 1000).toLocaleString("cs-CZ", {
         timeZone: "Europe/Prague",
       });
-      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Odstoupení od smlouvy jsem přijala.</h2><p>Přijato ${esc(at)}. Potvrzení jsem poslala na ${esc(data.email)}.</p><p>Zboží mi prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Odstoupení od smlouvy jsem přijala.</h2><p>Přijato ${esc(at)}. Potvrzení jsem poslala na ${esc(data.email)}.</p><p>Zboží mi prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
     } catch (err) {
       error.textContent = err.message;
       button.disabled = false;
@@ -900,8 +900,7 @@ function renderReset() {
     if (f.password !== f.again) throw Error("Hesla se neshodují.");
     await api("account/reset", { token, password: f.password });
     history.replaceState(null, "", "/obnova-hesla.html");
-    el.innerHTML =
-      '<div class="success-panel"><span class="tiny-star">✧</span><h2>Heslo je změněné.</h2><p>Jste přihlášeni.</p><a class="button" href="/ucet.html">Můj účet →</a></div>';
+    el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Heslo je změněné.</h2><p>Jste přihlášeni.</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   });
 }
 

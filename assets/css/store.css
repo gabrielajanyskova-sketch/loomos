@@ -3451,3 +3451,66 @@ span.cart-thumb {
 .card-qty output {
   min-width: 22px;
 }
+
+/* Line icons from /assets/img/icons.svg */
+.ico {
+  display: inline-block;
+  width: 1.35em;
+  height: 1.35em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.3em;
+}
+.ico-inline {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+}
+.announcement .ico-inline {
+  margin: 0 10px;
+  color: var(--copper);
+}
+.detail-facts span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.detail-facts .ico {
+  width: 26px;
+  height: 26px;
+  color: var(--copper-light);
+}
+.tiny-star .ico,
+.shop-bottom > span .ico {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  stroke-width: 1.4;
+}
+.category-graphic .ico {
+  width: 76px;
+  height: 76px;
+  stroke-width: 1.2;
+}
+.badge-pill .ico-inline,
+.product-tag .ico-inline {
+  fill: currentColor;
+  stroke-width: 1.2;
+}
+.admin-sidebar nav .ico,
+aside nav .ico {
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  vertical-align: -4px;
+}
+@media (max-width: 700px) {
+  .category-graphic .ico {
+    width: 56px;
+    height: 56px;
+  }
+}

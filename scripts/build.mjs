@@ -108,7 +108,7 @@ for (const dir of ["img", "fonts"])
         (name.startsWith("favicon-") && name.endsWith(".png")) ||
         name.endsWith("-LICENSE.txt") ||
         name === "og-image.jpg" ||
-        name === "benefit-icons.svg"
+        name === "icons.svg"
       )
     )
       continue;

@@ -11,3 +11,4 @@ Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jede
 - Web: v častých otázkách a na stránce Složení a bezpečnost doplněno, že odlepení vosku od skla se může objevit i při pečlivé výrobě (přirozená vlastnost sójového vosku).
 - Úvodní stránka: karta „Lapače slunce“ má fotku lapače se sovou (nahoře fotka, pod ní text); u připravovaných karet „PŘIPRAVUJI“ místo „PŘIPRAVUJEME“.
 - Karty produktů v obchodě: výběr počtu kusů (− 1 +) vedle „Přidat do košíku“ — bez rozkliknutí produktu; po přidání se počet vrátí na 1.
+- Ikony: jednotná sada čárových vektorových ikon (icons.svg) místo symbolů z písma — horní lišta, výhody svíčky v detailu, lapače, karty „Připravuji“ (auto, 3D, potisky), hvězdička u nejoblíbenější vůně, admin menu, potvrzovací panely. Oprava textu „projde mýma rukama“.
