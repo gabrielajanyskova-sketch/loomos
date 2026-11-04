@@ -518,7 +518,7 @@ function renderCheckout() {
   const shippingOptions = Object.entries(SHIPPING)
     .map(
       ([id, s], i) =>
-        `<label class="radio"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}>${esc(s.label)}<span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
+        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}>${s.logo ? `<img class="carrier-logo" src="${esc(s.logo)}" alt="" width="72" height="24" loading="lazy">` : ""}<span class="shipping-label">${esc(s.label)}</span><span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
     )
     .join("");
   const paymentOptions = Object.entries(PAYMENT)
@@ -609,6 +609,16 @@ function renderCheckout() {
   const applyShipping = (open) => {
     const shipping = form.elements.shipping.value;
     const kind = SHIPPING[shipping]?.kind;
+    // Point / address fields sit right under the chosen delivery option.
+    const row = form
+      .querySelector(`input[name="shipping"][value="${CSS.escape(shipping)}"]`)
+      ?.closest(".radio");
+    const panel = {
+      point: "#delivery-fields",
+      home: "#home-fields",
+      pickup: "#pickup-address",
+    }[kind];
+    if (row && panel) row.after($(panel));
     $("#delivery-fields").hidden = kind !== "point";
     $("#home-fields").hidden = kind !== "home";
     $("#pickup-address").hidden = kind !== "pickup";

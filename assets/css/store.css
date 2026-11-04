@@ -3369,3 +3369,33 @@ span.cart-thumb {
 .photo-upload {
   cursor: pointer;
 }
+
+/* Checkout: carrier logos and point/address fields right under the chosen option */
+.radio .shipping-label {
+  margin-left: 0;
+  color: inherit;
+}
+.carrier-logo {
+  width: 72px;
+  height: 24px;
+  object-fit: contain;
+  margin-right: 4px;
+}
+.shipping-option:has(input:checked) {
+  border-color: var(--copper);
+}
+.shipping-option:has(input:checked):has(
+    + #delivery-fields:not([hidden]),
+    + #home-fields:not([hidden]),
+    + #pickup-address:not([hidden])
+  ) {
+  border-bottom-color: transparent;
+}
+.shipping-option + #delivery-fields,
+.shipping-option + #home-fields,
+.shipping-option + #pickup-address {
+  margin: -13px 0 12px;
+  padding: 14px 15px;
+  border: 1px solid var(--copper);
+  border-top: 0;
+}
