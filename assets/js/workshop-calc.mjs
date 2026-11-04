@@ -19,6 +19,14 @@ export function maxLoadWithoutUfi(noUfiPercent) {
   return Math.floor((c / (1 - c)) * 1000) / 10;
 }
 
+/** Supplier's no-UFI limit, or a stricter limit calculated from the allergen declaration. */
+export const oilLimit = (oil) =>
+  Math.min(oil.no_ufi_max_percent, oil.clp_max_percent ?? Infinity);
+
+/** How much oil to use (% of wax): the supplier's recommended maximum, unless the no-UFI limit is lower. */
+export const recommendedLoad = (oil) =>
+  Math.min(SUPPLIER_LOAD.max, maxLoadWithoutUfi(oilLimit(oil)));
+
 /** Fill weight (wax + oil) from the weight of water up to the fill line. */
 export const fillFromWater = (waterGrams) => round(waterGrams * WAX_DENSITY);
 
@@ -41,8 +49,7 @@ export function calcBatch({
   const jarById = new Map(jars.map((j) => [j.id, j]));
   const oilById = new Map(oils.map((o) => [o.product_id, o]));
   /** Supplier's no-UFI limit, or a stricter limit we calculated from the allergen declaration. */
-  const limitOf = (oil) =>
-    Math.min(oil.no_ufi_max_percent, oil.clp_max_percent ?? Infinity);
+  const limitOf = oilLimit;
   const loadFor = (productId) => {
     const oil = oilById.get(productId);
     return avoidUfi && oil
