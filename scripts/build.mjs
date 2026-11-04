@@ -12,7 +12,7 @@ import {
   safetyTable,
   esc,
 } from "../assets/js/ui.mjs";
-import { validateCatalog } from "../assets/js/catalog.mjs";
+import { validateCatalog, isCandle } from "../assets/js/catalog.mjs";
 import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
 
@@ -127,6 +127,7 @@ const pages = [
   ["index.html", "home"],
   ["obchod.html", "shop"],
   ["velkoobchod.html", "wholesale"],
+  ["lapace-slunce.html", "suncatchers"],
   ["kosik.html", "cart"],
   ["pokladna.html", "checkout"],
   ["admin/index.html", "admin"],
@@ -162,21 +163,38 @@ for (const [file, page, product] of pages) {
     html = slot(html, "site-header", renderHeader(page, { live }));
     html = slot(html, "site-footer", renderFooter());
     if (page === "home") {
-      html = slot(html, "home-products", products.map(productCard).join(""));
+      html = slot(
+        html,
+        "home-products",
+        products.filter(isCandle).map(productCard).join(""),
+      );
       html = html.replace(
         /(<section[^>]*id="otazky"[^>]*>)[\s\S]*?(<\/section>)/,
         (_, open, close) => open + renderFAQ(faqs) + close,
       );
     }
     if (page === "shop") {
-      html = slot(html, "shop-products", products.map(productCard).join(""));
+      html = slot(
+        html,
+        "shop-products",
+        products.filter(isCandle).map(productCard).join(""),
+      );
       html = html.replace(
         /(<p id="product-count"[^>]*>).*?(<\/p>)/,
-        `$1${products.length} vůní v nabídce$2`,
+        `$1${products.filter(isCandle).length} vůní v nabídce$2`,
       );
     }
+    if (page === "suncatchers") {
+      const list = products.filter((p) => !isCandle(p));
+      if (list.length)
+        html = slot(
+          html,
+          "suncatcher-products",
+          list.map(productCard).join(""),
+        );
+    }
     if (page === "safety")
-      html = slot(html, "safety-table", safetyTable(products));
+      html = slot(html, "safety-table", safetyTable(products.filter(isCandle)));
     if (product) {
       html = slot(html, "product-detail", renderProductDetail(product));
       html = html.replace(
@@ -191,6 +209,7 @@ for (const [file, page, product] of pages) {
       "home",
       "shop",
       "wholesale",
+      "suncatchers",
       "product",
       "terms",
       "privacy",
@@ -220,7 +239,15 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně 30 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně 40 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products.map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`).join("\n")}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně 30 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně 40 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
+    .filter(isCandle)
+    .map(
+      (p) =>
+        `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.character?.length ? p.character.join(", ") + " — " : ""}${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`,
+    )
+    .join(
+      "\n",
+    )}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
 );
 await write(
   "site.webmanifest",

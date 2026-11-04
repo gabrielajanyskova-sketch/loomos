@@ -1,3 +1,7 @@
+/** Product categories: candles (default) and window sun catchers. */
+export const SUNCATCHER = "lapace-slunce";
+export const isCandle = (p) => (p.category || "svicky") === "svicky";
+
 /** Validate the same public catalog in the static build and the browser. */
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const validPrice = (price) =>
@@ -23,6 +27,13 @@ export function validateCatalog(value) {
     for (const key of ["subtitle", "notes", "description"])
       if (typeof p[key] !== "string")
         throw new TypeError("Neplatný popis produktu.");
+    if (
+      p.character !== undefined &&
+      (!Array.isArray(p.character) ||
+        p.character.length > 4 ||
+        p.character.some((t) => typeof t !== "string" || !t || t.length > 20))
+    )
+      throw new TypeError("Neplatný charakter vůně.");
     if (
       p.pyramid !== undefined &&
       (!p.pyramid ||

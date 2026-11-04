@@ -8,7 +8,7 @@ import {
   renderProductDetail,
   renderFAQ,
 } from "./ui.mjs";
-import { validateCatalog, readCart } from "./catalog.mjs";
+import { validateCatalog, readCart, isCandle } from "./catalog.mjs";
 import {
   memberPrice,
   priceCart,
@@ -803,11 +803,18 @@ async function init() {
     persist();
     toast("Košík byl aktualizován podle aktuální nabídky.");
   }
+  const candles = products.filter(isCandle);
   if (page === "home")
-    $("#home-products").innerHTML = products.map(productCard).join("");
+    $("#home-products").innerHTML = candles.map(productCard).join("");
+  if (page === "suncatchers") {
+    const list = products.filter((p) => !isCandle(p));
+    $("#suncatcher-products").innerHTML = list.length
+      ? list.map(productCard).join("")
+      : '<div class="coming-soon"><span class="pill">PŘIPRAVUJEME</span><p>První lapače slunce právě vyrábím. Chcete vědět, až budou? <a href="mailto:info@loomos.cz?subject=Lapa%C4%8De%20slunce">Napište mi</a> a dám vám vědět.</p></div>';
+  }
   if (page === "shop") {
     const render = () => {
-      const list = [...products];
+      const list = [...candles];
       const sort = $("#sort").value;
       if (sort === "price-up") list.sort((a, b) => a.price - b.price);
       if (sort === "price-down") list.sort((a, b) => b.price - a.price);
