@@ -34,7 +34,8 @@
       <div class="shop-tools">
         <div class="filter-tabs" aria-label="Kategorie">
           <button class="active" data-filter="all">Všechny svíčky</button
-          ><a href="/lapace-slunce.html">Lapače slunce</a>
+          ><button data-filter="pro-ni">Pro ni</button
+          ><button data-filter="pro-nej">Pro něj</button>
         </div>
         <label class="sort-label"
           >Řadit
@@ -46,6 +47,12 @@
           </select></label
         >
       </div>
+      <div
+        id="scent-filter"
+        class="scent-filter"
+        role="group"
+        aria-label="Oblíbená vůně"
+      ></div>
       <p id="product-count" class="muted"></p>
       <div id="shop-products" class="product-grid" aria-live="polite"></div>
       <div class="shop-bottom">

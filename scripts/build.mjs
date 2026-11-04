@@ -8,11 +8,12 @@ import {
   renderHeader,
   renderFooter,
   renderProductDetail,
+  renderRelated,
   renderFAQ,
   safetyTable,
   esc,
 } from "../assets/js/ui.mjs";
-import { validateCatalog } from "../assets/js/catalog.mjs";
+import { validateCatalog, isCandle, giftFor } from "../assets/js/catalog.mjs";
 import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
 
@@ -52,7 +53,7 @@ async function write(file, content) {
   await fs.writeFile(dest, content);
 }
 function slot(html, id, content) {
-  const expression = new RegExp(`(<div id="${id}"[^>]*>)[\\s\\S]*?(</div>)`);
+  const expression = new RegExp(`(<div\\s+id="${id}"[^>]*>)[\\s\\S]*?(</div>)`);
   if (!expression.test(html)) throw Error(`Chybí místo pro ${id}`);
   return html.replace(expression, (_, open, close) => open + content + close);
 }
@@ -126,8 +127,10 @@ await write("data/products.json", JSON.stringify(products));
 const pages = [
   ["index.html", "home"],
   ["obchod.html", "shop"],
-  ["lapace-slunce.html", "suncatchers"],
   ["velkoobchod.html", "wholesale"],
+  ["lapace-slunce.html", "suncatchers"],
+  ["darek-pro-ni.html", "gifts-her"],
+  ["darek-pro-nej.html", "gifts-him"],
   ["kosik.html", "cart"],
   ["pokladna.html", "checkout"],
   ["admin/index.html", "admin"],
@@ -143,15 +146,20 @@ const pages = [
 ];
 const sitemap = [];
 for (const [file, page, product] of pages) {
-  let html;
-  try {
-    html = await fs.readFile(path.join(root, file), "utf8");
-  } catch (error) {
-    if (!product || error.code !== "ENOENT") throw error;
-    html = (
-      await fs.readFile(path.join(root, "produkty/_sablona.html"), "utf8")
-    ).replaceAll("__PRODUCT_ID__", product.id);
-  }
+  // A product without its own page file is built from produkty/_sablona.html.
+  let html = await fs
+    .readFile(path.join(root, file), "utf8")
+    .catch(async (error) => {
+      if (page !== "product" || error.code !== "ENOENT") throw error;
+      return (
+        await fs.readFile(path.join(root, "produkty/_sablona.html"), "utf8")
+      )
+        .replace("__PRODUCT_ID__", product.id)
+        .replace(
+          "<title>Sójová svíčka — LOOMOS</title>",
+          `<title>${esc(product.name)} — LOOMOS</title>`,
+        );
+    });
   if (product?.category === "lapace-slunce")
     html = html.replace(
       '<a href="/obchod.html">Svíčky</a>',
@@ -179,30 +187,51 @@ for (const [file, page, product] of pages) {
       html = slot(
         html,
         "home-products",
-        products
-          .filter((p) => p.category !== "lapace-slunce")
-          .map(productCard)
-          .join(""),
+        products.filter(isCandle).map(productCard).join(""),
       );
       html = html.replace(
         /(<section[^>]*id="otazky"[^>]*>)[\s\S]*?(<\/section>)/,
         (_, open, close) => open + renderFAQ(faqs) + close,
       );
     }
-    if (["shop", "suncatchers"].includes(page)) {
-      const listed = products.filter(
-        (p) => (p.category === "lapace-slunce") === (page === "suncatchers"),
+    if (page === "shop") {
+      html = slot(
+        html,
+        "shop-products",
+        products.filter(isCandle).map(productCard).join(""),
       );
-      html = slot(html, "shop-products", listed.map(productCard).join(""));
       html = html.replace(
         /(<p id="product-count"[^>]*>).*?(<\/p>)/,
-        `$1${listed.length} ${page === "suncatchers" ? "motivů" : "vůní"} v nabídce$2`,
+        `$1${products.filter(isCandle).length} vůní v nabídce$2`,
       );
     }
+    if (page === "gifts-her" || page === "gifts-him")
+      html = slot(
+        html,
+        "gift-products",
+        products
+          .filter(
+            (p) =>
+              isCandle(p) &&
+              giftFor(p, page === "gifts-her" ? "pro-ni" : "pro-nej"),
+          )
+          .map(productCard)
+          .join(""),
+      );
+    if (page === "suncatchers") {
+      const list = products.filter((p) => !isCandle(p));
+      if (list.length)
+        html = slot(
+          html,
+          "suncatcher-products",
+          list.map(productCard).join(""),
+        );
+    }
     if (page === "safety")
-      html = slot(html, "safety-table", safetyTable(products));
+      html = slot(html, "safety-table", safetyTable(products.filter(isCandle)));
     if (product) {
       html = slot(html, "product-detail", renderProductDetail(product));
+      html = slot(html, "product-related", renderRelated(product, products));
       html = html.replace(
         '<span id="product-breadcrumb"></span>',
         `<span id="product-breadcrumb">${esc(product.name)}</span>`,
@@ -216,6 +245,8 @@ for (const [file, page, product] of pages) {
       "shop",
       "wholesale",
       "suncatchers",
+      "gifts-her",
+      "gifts-him",
       "product",
       "terms",
       "privacy",
@@ -233,7 +264,7 @@ const notFoundMeta = metadata({
 });
 await write(
   "404.html",
-  `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste naši aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
+  `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste moji aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
 );
 await write(
   "sitemap.xml",
@@ -245,7 +276,15 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační, ceny pracovní. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně 30 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně 40 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products.map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`).join("\n")}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
+  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Dárek pro ni — vonné svíčky pro ženy](${siteUrl}/darek-pro-ni)\n- [Dárek pro něj — pánské vonné svíčky](${siteUrl}/darek-pro-nej)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
+    .filter(isCandle)
+    .map(
+      (p) =>
+        `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.character?.length ? p.character.join(", ") + " — " : ""}${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`,
+    )
+    .join(
+      "\n",
+    )}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
 );
 await write(
   "site.webmanifest",
@@ -273,9 +312,15 @@ const ga = gaId
     }
   : { script: "", connect: "", img: "" };
 const packetaOrigin = "https://widget.packeta.com";
+// library.js first calls a healthcheck (XHR) and falls back to the backup or error-page host.
+const packetaHosts = [
+  packetaOrigin,
+  "https://backup.widget.packeta.com",
+  "https://error-page-service-widget-errors.prod.packeta-com.codenow.com",
+].join(" ");
 const balikovnaOrigin = "https://b2c.cpost.cz";
 const policy = ({ packeta = false } = {}) =>
-  `default-src 'self'; script-src 'self'${ga.script}${packeta ? " " + packetaOrigin : ""}; style-src 'self'${packeta ? " 'unsafe-inline' " + packetaOrigin : ""}; font-src 'self'${packeta ? " " + packetaOrigin : ""}; img-src 'self' data:${ga.img}${packeta ? " " + packetaOrigin : ""}; connect-src 'self'${ga.connect}; object-src 'none'; frame-src ${packeta ? `${packetaOrigin} ${balikovnaOrigin}` : "'none'"}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
+  `default-src 'self'; script-src 'self'${ga.script}${packeta ? " " + packetaOrigin : ""}; style-src 'self'${packeta ? " 'unsafe-inline' " + packetaOrigin : ""}; font-src 'self'${packeta ? " " + packetaOrigin : ""}; img-src 'self' data:${ga.img}${packeta ? " " + packetaOrigin : ""}; connect-src 'self'${ga.connect}${packeta ? " " + packetaOrigin : ""}; object-src 'none'; frame-src ${packeta ? `${packetaHosts} ${balikovnaOrigin}` : "'none'"}; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`;
 const csp = policy();
 const expires = new Date(Date.now() + 365 * 864e5).toISOString();
 await write(

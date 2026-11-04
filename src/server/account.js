@@ -69,7 +69,7 @@ export async function register(db, request, env, ctx) {
       key: `welcome-${row.id}`,
       replyTo: shopEmail(env),
       blocks: [
-        `Dobrý den, ${name},\nděkujeme za registraci. Po přihlášení máte na všechny svíčky automaticky slevu 5 %.`,
+        `Dobrý den, ${name},\nděkuji za registraci. Po přihlášení máte na všechny svíčky automaticky slevu 5 %.`,
         {
           button: [
             "Přejít do obchodu",
@@ -102,7 +102,7 @@ export async function login(db, request) {
     row?.password_hash || DUMMY_HASH,
   );
   if (!row || !ok) fail(401, "Nesprávný e-mail nebo heslo.");
-  if (row.blocked) fail(403, "Účet je zablokovaný. Napište nám prosím.");
+  if (row.blocked) fail(403, "Účet je zablokovaný. Napište mi prosím.");
   const cookie = await createSession(db, request, "customer", row.id);
   return json({ customer: publicCustomer(row) }, 200, { "Set-Cookie": cookie });
 }
@@ -189,7 +189,7 @@ export async function forgot(db, request, env, ctx) {
   return json({
     ok: true,
     message:
-      "Pokud účet s tímto e-mailem existuje, poslali jsme na něj odkaz pro obnovení hesla.",
+      "Pokud účet s tímto e-mailem existuje, poslala jsem na něj odkaz pro obnovení hesla.",
   });
 }
 

@@ -87,7 +87,7 @@ export async function orders(db) {
 const STATUS_MAIL = {
   zaplacena: [
     "Platba přijata",
-    "děkujeme, vaše platba dorazila. Svíčky teď pečlivě připravujeme a brzy vám dáme vědět o odeslání.",
+    "děkuji, vaše platba dorazila. Svíčky teď pečlivě připravuji a brzy vám dám vědět o odeslání.",
   ],
   odeslana: [
     "Objednávka je na cestě",
@@ -95,11 +95,11 @@ const STATUS_MAIL = {
   ],
   "k-vyzvednuti": [
     "Objednávka je připravená",
-    "vaše objednávka je připravená k osobnímu vyzvednutí. Ozveme se vám a domluvíme čas předání.",
+    "vaše objednávka je připravená k osobnímu vyzvednutí. Ozvu se vám a domluvíme čas předání.",
   ],
   zrusena: [
     "Objednávka byla zrušena",
-    "vaše objednávka byla zrušena. Pokud jste už platili, peníze vám vrátíme na účet, ze kterého platba přišla. S dotazy nám napište.",
+    "vaše objednávka byla zrušena. Pokud jste už platili, peníze vám vrátím na účet, ze kterého platba přišla. S dotazy mi napište.",
   ],
 };
 
@@ -155,7 +155,7 @@ export async function setStatus(db, request, env, ctx) {
   const mail = statusChanged
     ? STATUS_MAIL[status]
     : note || trackingChanged
-      ? ["Novinka k vaší objednávce", "máme pro vás novinku k objednávce."]
+      ? ["Novinka k vaší objednávce", "mám pro vás novinku k objednávce."]
       : null;
   // Paid → issue the invoice and attach it to the "payment received" e-mail.
   let attachments = [];
@@ -185,7 +185,7 @@ export async function setStatus(db, request, env, ctx) {
         attachments,
         blocks: [
           `Dobrý den, ${order.customer.name},\n${body}`,
-          ...(note ? [`Vzkaz od nás: ${note}`] : []),
+          ...(note ? [`Vzkaz ode mě: ${note}`] : []),
           ...(attachments.length
             ? ["Fakturu najdete v příloze tohoto e-mailu."]
             : []),

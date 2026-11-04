@@ -38,26 +38,27 @@ try {
   page.on("request", (r) => requests.push(r.url()));
   await page.goto(base);
   await page.locator(".product-card").nth(3).waitFor();
-  assert.equal(await page.locator(".product-card").count(), 4);
+  assert.equal(await page.locator(".product-card").count(), 7);
   // Wait until the catalog script has loaded (stock and member price are filled in).
   await page.locator(".product-card [data-add][data-label]").first().waitFor();
   assert.match(
     await page.locator(".product-card .member-price").first().textContent(),
-    /237/,
+    /332/,
   );
   await page
     .locator('[data-card-size="okurka-zazvor-mata"]')
     .selectOption("velka");
-  await page.waitForFunction(() =>
-    /349/.test(document.querySelector("[data-card-price]")?.textContent),
-  );
-  await page.locator(".product-card").first().locator("[data-add]").click();
+  const okurka = page.locator(".product-card", {
+    has: page.locator('[data-card-size="okurka-zazvor-mata"]'),
+  });
+  await okurka.locator("[data-card-price]", { hasText: "449" }).waitFor();
+  await okurka.locator("[data-add]").click();
   await page.screenshot({ path: path.join(artifacts, "home-desktop.png") });
 
   await page.goto(base + "/kosik");
   await page.locator(".cart-item").waitFor();
-  assert.match(await page.locator(".summary-total").textContent(), /349/);
-  assert.match(await page.locator(".member-hint").textContent(), /17/);
+  assert.match(await page.locator(".summary-total").textContent(), /449/);
+  assert.match(await page.locator(".member-hint").textContent(), /22/);
 
   // Register from checkout and come back with the 5 % discount.
   await page.goto(base + "/ucet?navrat=pokladna");
@@ -69,7 +70,7 @@ try {
   await page.waitForURL(/pokladna/);
   await page.locator("#checkout-form").waitFor();
   assert.equal(await page.inputValue("[name=email]"), "e2e@example.com");
-  assert.match(await page.locator(".summary-total").textContent(), /332/);
+  assert.match(await page.locator(".summary-total").textContent(), /427/);
   await page.fill("[name=phone]", "777123456");
   await page.check("[name=terms]");
   assert.ok(await page.locator("[name=payment][value=card]").isDisabled());
@@ -91,7 +92,7 @@ try {
   const noJs = await browser.newContext({ javaScriptEnabled: false });
   const plain = await noJs.newPage();
   await plain.goto(base);
-  assert.equal(await plain.locator(".product-card").count(), 4);
+  assert.equal(await plain.locator(".product-card").count(), 7);
   assert.match(await plain.locator(".footer-legal").textContent(), /19616295/);
   await plain.goto(base + "/obchodni-podminky");
   assert.match(await plain.locator("h1").textContent(), /Obchodní/);

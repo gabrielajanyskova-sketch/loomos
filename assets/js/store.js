@@ -3,12 +3,21 @@ import {
   money,
   esc,
   productCard,
+  burnLine,
   renderHeader,
   renderFooter,
   renderProductDetail,
+  renderRelated,
   renderFAQ,
 } from "./ui.mjs";
-import { validateCatalog, readCart } from "./catalog.mjs";
+import {
+  validateCatalog,
+  readCart,
+  isCandle,
+  giftFor,
+  SCENT_FAMILIES,
+  scentFamilies,
+} from "./catalog.mjs";
 import {
   memberPrice,
   priceCart,
@@ -208,6 +217,8 @@ function refreshCards(root = document) {
     const variant = variantOf(product, select?.value);
     const price = variant?.price ?? product.price;
     $("[data-card-price]", card).textContent = money(price);
+    const burn = $("[data-card-burn]", card);
+    if (burn) burn.textContent = burnLine(variant, price);
     const memberEl = $("[data-card-member]", card);
     if (memberEl && price != null)
       memberEl.innerHTML = member
@@ -250,6 +261,7 @@ function updateDetail() {
   const v = variantOf(p, $("#size-choice")?.value);
   const price = v?.price ?? p.price;
   $("#detail-price").textContent = money(price);
+  if ($("#detail-burn")) $("#detail-burn").textContent = burnLine(v, price);
   const memberEl = $("#detail-member-price");
   if (memberEl) memberEl.textContent = money(memberPrice(price));
   const button = $(".detail-copy [data-add]");
@@ -268,11 +280,14 @@ function renderProduct() {
   }
   document.title =
     p.name +
-    (p.category === "lapace-slunce"
-      ? " — lapač slunce | LOOMOS"
-      : " — sójová svíčka | LOOMOS");
+    (isCandle(p) ? " — sójová svíčka | LOOMOS" : " — lapač slunce | LOOMOS");
   $("#product-breadcrumb").textContent = p.name;
   $("#product-detail").innerHTML = renderProductDetail(p);
+  const related = $("#product-related");
+  if (related) {
+    related.innerHTML = renderRelated(p, products);
+    refreshCards(related);
+  }
   const size = new URLSearchParams(location.search).get("velikost");
   if (size && p.variants?.some((v) => v.id === size))
     $("#size-choice").value = size;
@@ -388,7 +403,7 @@ const loadPacketa = () =>
 
 function paymentBlock(payment, testOrder) {
   if (!payment)
-    return '<p class="notice">Platební údaje vám pošleme e-mailem.</p>';
+    return '<p class="notice">Platební údaje vám pošlu e-mailem.</p>';
   return `<div class="payment-box"><div class="qr">${qrSvg(payment.spayd)}</div><div><h3>Platba převodem</h3>${testOrder ? '<p class="notice">Zkušební objednávka — nic neplaťte.</p>' : ""}<p>Naskenujte QR kód v bankovní aplikaci, nebo zadejte údaje ručně. Zaplaťte prosím do ${payment.due_days} dnů.</p><dl class="payment-details"><dt>Číslo účtu</dt><dd>${esc(payment.account)}</dd><dt>IBAN</dt><dd>${esc(payment.iban)}</dd><dt>Variabilní symbol</dt><dd><strong>${esc(payment.vs)}</strong></dd><dt>Částka</dt><dd><strong>${money(payment.amount)}</strong></dd></dl></div></div>`;
 }
 
@@ -408,10 +423,10 @@ function renderCheckout() {
   const paymentOptions = Object.entries(PAYMENT)
     .map(
       ([id, p]) =>
-        `<label class="radio ${p.available ? "" : "disabled"}"><input type="radio" name="payment" value="${id}" ${p.available ? (id === "transfer" ? "checked" : "") : "disabled"}>${esc(p.label)}<span>${p.available ? "Zdarma" : "Připravujeme"}</span></label>`,
+        `<label class="radio ${p.available ? "" : "disabled"}"><input type="radio" name="payment" value="${id}" ${p.available ? (id === "transfer" ? "checked" : "") : "disabled"}>${esc(p.label)}<span>${p.available ? "Zdarma" : "Připravuji"}</span></label>`,
     )
     .join("");
-  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvíme po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><input type="hidden" name="balikovna_id"><input type="hidden" name="balikovna_zip"><input type="hidden" name="balikovna_name"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesíláme po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
+  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvím po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><input type="hidden" name="balikovna_id"><input type="hidden" name="balikovna_zip"><input type="hidden" name="balikovna_name"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesílám po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
   const form = $("#checkout-form");
   const renderSummary = () => {
     $("#checkout-summary").innerHTML = summary({
@@ -551,7 +566,7 @@ function renderCheckout() {
       code = null;
       store.set(codeKey, null);
       persist();
-      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkujeme, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsme poslali na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, objednávka ${esc(result.number)} je přijatá.</h2><p>Potvrzení jsem poslala na ${esc(f.email)}.${result.pricing.savings ? ` Ušetřili jste ${money(result.pricing.savings)}.` : ""}</p>${paymentBlock(result.payment, result.test)}<p><a class="text-link" href="/objednavka.html?t=${encodeURIComponent(result.token)}">Stránka objednávky — sem se můžete kdykoli vrátit →</a></p><a href="/obchod.html" class="button">Zpět ke svíčkám →</a></div>`;
       const heading = $(".success-panel h2", el);
       heading.tabIndex = -1;
       heading.focus({ preventScroll: true });
@@ -591,7 +606,7 @@ function orderTimeline(o) {
     })
     .join(
       "",
-    )}</ol><p class="timeline-status">${esc(ORDER_STATUS[o.status] || o.status)}</p>${tracking}${notes.length ? `<div class="shop-notes"><h3>Zprávy od nás</h3>${notes.map((n) => `<p class="shop-note"><span>${day(n.at)}</span>${esc(n.note)}</p>`).join("")}</div>` : ""}</section>`;
+    )}</ol><p class="timeline-status">${esc(ORDER_STATUS[o.status] || o.status)}</p>${tracking}${notes.length ? `<div class="shop-notes"><h3>Zprávy ode mě</h3>${notes.map((n) => `<p class="shop-note"><span>${day(n.at)}</span>${esc(n.note)}</p>`).join("")}</div>` : ""}</section>`;
 }
 async function renderOrderPage() {
   const el = $("#order-content");
@@ -644,7 +659,7 @@ function renderWithdrawal() {
       const at = new Date(result.received * 1000).toLocaleString("cs-CZ", {
         timeZone: "Europe/Prague",
       });
-      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Odstoupení od smlouvy jsme přijali.</h2><p>Přijato ${esc(at)}. Potvrzení jsme poslali na ${esc(data.email)}.</p><p>Zboží nám prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Odstoupení od smlouvy jsem přijala.</h2><p>Přijato ${esc(at)}. Potvrzení jsem poslala na ${esc(data.email)}.</p><p>Zboží mi prosím pošlete zpět do 14 dnů. Adresu a další postup najdete v e-mailu.</p><a class="button" href="/">Zpět na úvod</a></div>`;
     } catch (err) {
       error.textContent = err.message;
       button.disabled = false;
@@ -678,7 +693,7 @@ function bindForm(form, handler) {
 function renderAccount() {
   const el = $("#account-content");
   if (!member) {
-    el.innerHTML = `<div class="account-grid"><section class="panel"><h2>Přihlášení</h2><form id="login-form"><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><label>Heslo<input name="password" type="password" autocomplete="current-password" required></label><p class="error" role="alert"></p><button class="button">Přihlásit se →</button></form><button type="button" class="link-button spaced-top" id="show-forgot">Zapomněli jste heslo?</button><form id="forgot-form" hidden class="spaced-top"><p class="muted">Pošleme vám odkaz pro nastavení nového hesla.</p><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><p class="error" role="alert"></p><p class="success" role="status"></p><button class="inline-button">Poslat odkaz</button></form></section><section class="panel"><h2>Nový účet</h2><p>Registrovaní zákazníci mají <strong>automaticky 5 % slevu na všechno</strong> a přehled svých objednávek.</p><form id="register-form"><label>Jméno a příjmení<input name="name" autocomplete="name" required maxlength="120"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><label>Telefon (nepovinné)<input name="phone" type="tel" autocomplete="tel" maxlength="30"></label><label>Heslo (alespoň 8 znaků)<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><label class="check"><input type="checkbox" name="terms" required><span>Beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label><p class="error" role="alert"></p><button class="button">Vytvořit účet →</button></form></section></div>`;
+    el.innerHTML = `<div class="account-grid"><section class="panel"><h2>Přihlášení</h2><form id="login-form"><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><label>Heslo<input name="password" type="password" autocomplete="current-password" required></label><p class="error" role="alert"></p><button class="button">Přihlásit se →</button></form><button type="button" class="link-button spaced-top" id="show-forgot">Zapomněli jste heslo?</button><form id="forgot-form" hidden class="spaced-top"><p class="muted">Pošlu vám odkaz pro nastavení nového hesla.</p><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><p class="error" role="alert"></p><p class="success" role="status"></p><button class="inline-button">Poslat odkaz</button></form></section><section class="panel"><h2>Nový účet</h2><p>Registrovaní zákazníci mají <strong>automaticky 5 % slevu na všechno</strong> a přehled svých objednávek.</p><form id="register-form"><label>Jméno a příjmení<input name="name" autocomplete="name" required maxlength="120"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="200"></label><label>Telefon (nepovinné)<input name="phone" type="tel" autocomplete="tel" maxlength="30"></label><label>Heslo (alespoň 8 znaků)<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><label class="check"><input type="checkbox" name="terms" required><span>Beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label><p class="error" role="alert"></p><button class="button">Vytvořit účet →</button></form></section></div>`;
     const done = (result, message) => {
       member = result.customer;
       const target = returnTarget();
@@ -710,7 +725,7 @@ function renderAccount() {
     });
     return;
   }
-  el.innerHTML = `<div class="account-head"><div><h2>Dobrý den, ${esc(member.name)}.</h2><p>Vaše sleva 5 % se v košíku odečítá automaticky.</p></div><button type="button" class="inline-button" id="logout">Odhlásit se</button></div><div class="account-grid"><section class="panel"><h2>Moje objednávky</h2><div id="my-orders"><p class="muted">Načítám…</p></div></section><section class="panel"><h2>Osobní údaje</h2><form id="profile-form"><label>Jméno a příjmení<input name="name" autocomplete="name" required maxlength="120" value="${esc(member.name)}"></label><label>E-mail<input type="email" value="${esc(member.email)}" disabled></label><label>Telefon<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="${esc(member.phone || "")}"></label><p class="error" role="alert"></p><button class="inline-button">Uložit údaje</button></form><h2 class="spaced-top">Změna hesla</h2><form id="password-form"><label>Současné heslo<input name="current" type="password" autocomplete="current-password" required></label><label>Nové heslo<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><p class="error" role="alert"></p><button class="inline-button">Změnit heslo</button></form><details class="spaced-top"><summary>Smazat účet</summary><form id="delete-form"><p class="muted">Účet i přihlašovací údaje smažeme. Objednávky si musíme ponechat kvůli účetnictví, ale už nebudou propojené s účtem.</p><label>Pro potvrzení zadejte heslo<input name="password" type="password" autocomplete="current-password" required></label><p class="error" role="alert"></p><button class="inline-button danger">Trvale smazat účet</button></form></details></section></div>`;
+  el.innerHTML = `<div class="account-head"><div><h2>Dobrý den, ${esc(member.name)}.</h2><p>Vaše sleva 5 % se v košíku odečítá automaticky.</p></div><button type="button" class="inline-button" id="logout">Odhlásit se</button></div><div class="account-grid"><section class="panel"><h2>Moje objednávky</h2><div id="my-orders"><p class="muted">Načítám…</p></div></section><section class="panel"><h2>Osobní údaje</h2><form id="profile-form"><label>Jméno a příjmení<input name="name" autocomplete="name" required maxlength="120" value="${esc(member.name)}"></label><label>E-mail<input type="email" value="${esc(member.email)}" disabled></label><label>Telefon<input name="phone" type="tel" autocomplete="tel" maxlength="30" value="${esc(member.phone || "")}"></label><p class="error" role="alert"></p><button class="inline-button">Uložit údaje</button></form><h2 class="spaced-top">Změna hesla</h2><form id="password-form"><label>Současné heslo<input name="current" type="password" autocomplete="current-password" required></label><label>Nové heslo<input name="password" type="password" autocomplete="new-password" minlength="8" required></label><p class="error" role="alert"></p><button class="inline-button">Změnit heslo</button></form><details class="spaced-top"><summary>Smazat účet</summary><form id="delete-form"><p class="muted">Účet i přihlašovací údaje smažu. Objednávky si musím ponechat kvůli účetnictví, ale už nebudou propojené s účtem.</p><label>Pro potvrzení zadejte heslo<input name="password" type="password" autocomplete="current-password" required></label><p class="error" role="alert"></p><button class="inline-button danger">Trvale smazat účet</button></form></details></section></div>`;
   $("#logout").addEventListener("click", async () => {
     await api("account/logout", {}).catch(() => {});
     member = null;
@@ -772,7 +787,6 @@ async function init() {
   const needsMember = [
     "home",
     "shop",
-    "suncatchers",
     "product",
     "cart",
     "checkout",
@@ -815,15 +829,71 @@ async function init() {
     persist();
     toast("Košík byl aktualizován podle aktuální nabídky.");
   }
+  const candles = products.filter(isCandle);
   if (page === "home")
-    $("#home-products").innerHTML = products
-      .filter((p) => p.category !== "lapace-slunce")
+    $("#home-products").innerHTML = candles.map(productCard).join("");
+  if (page === "gifts-her" || page === "gifts-him") {
+    const who = page === "gifts-her" ? "pro-ni" : "pro-nej";
+    $("#gift-products").innerHTML = candles
+      .filter((p) => giftFor(p, who))
       .map(productCard)
       .join("");
-  if (["shop", "suncatchers"].includes(page)) {
+  }
+  if (page === "suncatchers") {
+    const list = products.filter((p) => !isCandle(p));
+    $("#suncatcher-products").innerHTML = list.length
+      ? list.map(productCard).join("")
+      : '<div class="coming-soon"><span class="pill">PŘIPRAVUJEME</span><p>První lapače slunce právě vyrábím. Chcete vědět, až budou? <a href="mailto:info@loomos.cz?subject=Lapa%C4%8De%20slunce">Napište mi</a> a dám vám vědět.</p></div>';
+  }
+  if (page === "shop") {
+    const tabs = [...document.querySelectorAll("[data-filter]")];
+    const params = new URLSearchParams(location.search);
+    let filter = params.get("pro") ? `pro-${params.get("pro")}` : "all";
+    const families = SCENT_FAMILIES.filter(([id]) =>
+      candles.some((p) => scentFamilies(p).includes(id)),
+    );
+    let family = families.some(([id]) => id === params.get("ton"))
+      ? params.get("ton")
+      : "";
+    const updateUrl = () => {
+      const url = new URL(location.href);
+      if (filter === "all") url.searchParams.delete("pro");
+      else url.searchParams.set("pro", filter.slice(4));
+      if (family) url.searchParams.set("ton", family);
+      else url.searchParams.delete("ton");
+      history.replaceState(null, "", url);
+    };
+    const chips = $("#scent-filter");
+    if (chips) {
+      chips.innerHTML =
+        '<span class="scent-filter-label">Oblíbená vůně:</span>' +
+        families
+          .map(
+            ([id, label]) =>
+              `<button type="button" data-family="${id}">${esc(label)}</button>`,
+          )
+          .join("");
+      chips.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-family]");
+        if (!b) return;
+        family = family === b.dataset.family ? "" : b.dataset.family;
+        updateUrl();
+        render();
+      });
+    }
     const render = () => {
-      const list = products.filter(
-        (p) => (p.category === "lapace-slunce") === (page === "suncatchers"),
+      chips?.querySelectorAll("[data-family]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.family === family);
+        b.setAttribute("aria-pressed", String(b.dataset.family === family));
+      });
+      tabs.forEach((t) => {
+        t.classList.toggle("active", t.dataset.filter === filter);
+        t.setAttribute("aria-pressed", String(t.dataset.filter === filter));
+      });
+      const list = candles.filter(
+        (p) =>
+          (filter === "all" || giftFor(p, filter)) &&
+          (!family || scentFamilies(p).includes(family)),
       );
       const sort = $("#sort").value;
       if (sort === "price-up") list.sort((a, b) => a.price - b.price);
@@ -832,11 +902,24 @@ async function init() {
         list.sort((a, b) => a.name.localeCompare(b.name, "cs"));
       $("#shop-products").innerHTML = list.length
         ? list.map(productCard).join("")
-        : "<p>Nové vůně právě připravujeme.</p>";
+        : family || filter !== "all"
+          ? "<p>S touto kombinací teď žádnou svíčku nemám. Zkuste jiný filtr.</p>"
+          : "<p>Nové vůně právě připravuji.</p>";
+      const n = list.length;
+      const word = n === 1 ? "vůně" : n >= 2 && n <= 4 ? "vůně" : "vůní";
       $("#product-count").textContent =
-        `${list.length} ${page === "suncatchers" ? "motivů" : "vůní"} v nabídce`;
+        filter === "all"
+          ? `${n} ${word} v nabídce`
+          : `${n} ${word} ${filter === "pro-ni" ? "pro ni" : "pro něj"}`;
       refreshCards();
     };
+    tabs.forEach((t) =>
+      t.addEventListener("click", () => {
+        filter = t.dataset.filter;
+        updateUrl();
+        render();
+      }),
+    );
     $("#sort").addEventListener("change", render);
     render();
   }

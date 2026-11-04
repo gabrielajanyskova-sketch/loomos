@@ -1,40 +1,83 @@
 <!doctype html>
 <html lang="cs">
-  <head></head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="/assets/css/store.css" />
+    <script type="module" src="/assets/js/store.js"></script>
+    <title>Lapače slunce — LOOMOS</title>
+  </head>
   <body data-page="suncatchers">
     <a class="skip" href="#main">Přejít na obsah</a>
     <div id="site-header"></div>
     <main id="main" class="container page-main">
       <div class="breadcrumb"><a href="/">Domů</a> / Lapače slunce</div>
-      <div class="shop-heading">
-        <div class="eyebrow">MALÁ RADOST DO OKNA</div>
-        <h1>Pusťte domů <em>kousek duhy.</em></h1>
-        <p>
-          Lapače slunce s duhovými odlesky. Průměr 15 cm, statické přilnutí na
-          čisté hladké sklo po sejmutí zadní ochranné fólie.
+      <section class="suncatcher-hero">
+        <div class="eyebrow">DUHA NA VAŠÍ ZDI</div>
+        <h1>Lapače <em>slunce.</em></h1>
+        <p class="lead">
+          Nálepky na okno, které z obyčejného slunečního paprsku udělají duhu.
+          Jakmile na ně posvítí sluníčko, rozběhnou se po stěnách, stropě i
+          podlaze barevná prasátka.
         </p>
-      </div>
-      <div class="shop-tools">
-        <div class="filter-tabs">
-          <a href="/obchod.html">Svíčky</a
-          ><a class="active" href="/lapace-slunce.html">Lapače slunce</a>
-        </div>
-        <label class="sort-label"
-          >Řadit<select id="sort">
-            <option value="default">Doporučené</option>
-            <option value="name">Podle názvu</option>
-          </select></label
-        >
-      </div>
-      <p id="product-count" class="muted"></p>
-      <div id="shop-products" class="product-grid" aria-live="polite"></div>
-      <section class="shop-bottom">
-        <p>
-          Jak na to? Očistěte a osušte sklo, sejměte zadní ochrannou fólii a
-          lapač přiložte na okno. Duhové odlesky se mění podle světla a úhlu
-          pohledu.
-        </p>
+        <p>Průměr 15 cm. Na hladkém skle drží staticky, bez lepidla.</p>
+        <div class="rainbow-strip" aria-hidden="true"></div>
       </section>
+
+      <section class="suncatcher-info">
+        <article>
+          <span class="suncatcher-step">01</span>
+          <h2>Jak to funguje</h2>
+          <p>
+            Lapač slunce je z tenké hranolové fólie. Sluneční světlo se v ní
+            rozloží na všechny barvy duhy, stejně jako v kapkách deště nebo ve
+            skleněném hranolu, a místnost se rozzáří barevnými odlesky.
+          </p>
+        </article>
+        <article>
+          <span class="suncatcher-step">02</span>
+          <h2>Kam ho nalepit</h2>
+          <p>
+            Na vnitřní stranu okna, kam svítí přímé slunce. Nejvíc duh uvidíte
+            na oknech na jih, ráno na východ a večer na západ. Duhy putují po
+            místnosti, jak se slunce během dne posouvá.
+          </p>
+        </article>
+        <article>
+          <span class="suncatcher-step">03</span>
+          <h2>Jak nalepit</h2>
+          <p>
+            Sklo umyjte a nechte vyschnout. Sejměte zadní ochrannou fólii,
+            přiložte nálepku a uhlaďte ji od středu ke krajům, aby pod ní
+            nezůstaly bublinky. Hodí se i do dětského pokoje, na skleněné dveře
+            nebo do zimní zahrady.
+          </p>
+        </article>
+      </section>
+
+      <section class="section-tight" aria-labelledby="suncatcher-offer">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">NABÍDKA</div>
+            <h2 id="suncatcher-offer">Vyberte si <em>svou duhu.</em></h2>
+          </div>
+        </div>
+        <div
+          id="suncatcher-products"
+          class="product-grid"
+          aria-live="polite"
+        ></div>
+      </section>
+
+      <div class="shop-bottom">
+        <span>✧</span>
+        <p>
+          Chcete lapač slunce v jiném tvaru nebo velikosti?
+          <a href="mailto:info@loomos.cz?subject=Lapa%C4%8D%20slunce"
+            >Napište mi →</a
+          >
+        </p>
+      </div>
     </main>
     <div id="site-footer"></div>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>

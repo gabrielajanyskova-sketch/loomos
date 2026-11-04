@@ -3,7 +3,7 @@ import oilData from "../../data/oils.json";
 import labelDefaults from "../../data/labels.json";
 import { assertSameOrigin, fail, json, readJson, text } from "./http.js";
 import { now } from "./db.js";
-import { catalog, variantsOf } from "./catalog.js";
+import { allScents as catalog, variantsOf } from "./catalog.js";
 import { calcBatch, DEFAULTS } from "../../assets/js/workshop-calc.mjs";
 
 const oils = oilData.map((o) => ({
@@ -126,7 +126,7 @@ const DEFAULT_WAXES = [
     max_load: "obvykle 7–8 %, max. 10 %",
     cure_min: 10,
     cure_max: 14,
-    note: "Lít pomalu do předehřátých sklenic, chladnout na mřížce. Pomalé chladnutí omezuje praskliny a nerovný povrch.",
+    note: "Výrobce doporučuje zahřát na 85 °C, aby se rozpustily všechny krystalky tuku — povrch je pak hladší, vosk lépe drží na skle a olej se lépe spojí. Jde to i na 70 °C (taje už při 45–48 °C), ale hrozí bílé mapy (frosting), mokré skvrny u skla a horší spojení s olejem — nejdřív vyzkoušejte 2–3 testovací svíčky, případně zkuste 75–80 °C. Lít pomalu do předehřátých sklenic, chladnout na mřížce. Pomalé chladnutí omezuje praskliny a nerovný povrch.",
   },
   {
     name: "Nature Wax C-3",
@@ -138,7 +138,7 @@ const DEFAULT_WAXES = [
     max_load: "6–8 %, max. 10 %",
     cure_min: 10,
     cure_max: 14,
-    note: "Zahřívat na 65–77 °C, nikdy nad 93 °C. Olej přidávat při 65–70 °C. Při chladnu (pod 22 °C) sklenice předehřát kvůli přilnavosti ke sklu. Zapálit nejdříve po 48 hodinách, ideálně po 1–2 týdnech.",
+    note: "Zahřívat na 65–77 °C (70 °C je ideální), nikdy nad 93 °C. Olej přidávat při 65–70 °C, hned po zahřátí. Lít při 55–65 °C. Při chladnu (pod 22 °C) sklenice předehřát kvůli přilnavosti ke sklu. Zapálit nejdříve po 48 hodinách, ideálně po 1–2 týdnech.",
   },
 ];
 const WAX_FIELDS = [
@@ -153,6 +153,33 @@ const WAX_FIELDS = [
   "cure_max",
   "note",
 ];
+/** Earlier default notes: replaced by the new ones unless the owner edited them. */
+const OLD_WAX_NOTES = [
+  [
+    "Golden Wax 464 (US464)",
+    "Lít pomalu do předehřátých sklenic, chladnout na mřížce. Pomalé chladnutí omezuje praskliny a nerovný povrch.",
+  ],
+  [
+    "Nature Wax C-3",
+    "Zahřívat na 65–77 °C, nikdy nad 93 °C. Olej přidávat při 65–70 °C. Při chladnu (pod 22 °C) sklenice předehřát kvůli přilnavosti ke sklu. Zapálit nejdříve po 48 hodinách, ideálně po 1–2 týdnech.",
+  ],
+];
+async function updateWaxNotes(db) {
+  const done = await db
+    .prepare("SELECT 1 FROM workshop_settings WHERE key='wax_notes_v2'")
+    .first();
+  if (done) return;
+  await db.batch([
+    ...OLD_WAX_NOTES.map(([name, old]) =>
+      db
+        .prepare("UPDATE workshop_waxes SET note=? WHERE name=? AND note=?")
+        .bind(DEFAULT_WAXES.find((w) => w.name === name).note, name, old),
+    ),
+    db.prepare(
+      "INSERT OR IGNORE INTO workshop_settings (key, value) VALUES ('wax_notes_v2', '1')",
+    ),
+  ]);
+}
 async function seedWaxes(db) {
   const seeded = await db
     .prepare("SELECT 1 FROM workshop_settings WHERE key='seeded_waxes'")
@@ -224,6 +251,7 @@ export async function saveWax(db, request) {
 export async function overview(db) {
   await seedJars(db);
   await seedWaxes(db);
+  await updateWaxNotes(db);
   await seedLabels(db);
   const [jars, config, batches, labels, label] = await Promise.all([
     jarsOf(db, true),
@@ -257,7 +285,8 @@ export async function overview(db) {
     oils,
     scents: catalog.map((p) => ({
       id: p.id,
-      name: p.name,
+      name: p.active ? p.name : `${p.name} (zatím není v e-shopu)`,
+      active: p.active,
       variants: variantsOf(p).map((v) => ({ id: v.id, name: v.name })),
     })),
     jars,

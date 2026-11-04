@@ -1,26 +1,65 @@
 [
   {
-    "id": "okurka-zazvor-mata",
-    "name": "Okurka, zázvor a máta",
-    "subtitle": "Svěží chvíle pro sebe.",
-    "notes": "Okurka · máta · zázvor · bílé květy",
-    "price": 249,
+    "id": "morska-sul-paculi",
+    "name": "Mořská sůl a pačuli",
+    "subtitle": "Chvíle, která patří jen vám.",
+    "badge": "Nejoblíbenější vůně",
+    "notes": "Mořská sůl · citrusy · jasmín · pačuli · ambra",
+    "character": ["exotická", "pryskyřičná", "svěží"],
+    "gift": ["pro-nej"],
+    "price": 349,
     "category": "svicky",
-    "description": "Svěží zelená vůně, která provoní domov jako otevřené okno do zahrady. Nejdřív vás probudí chladivá okurka, máta peprná a šťáva citronu s limetkou. V srdci se rozvinou lilie, frézie, jasmín a růže a vše jemně zakulatí teplé pižmo. Skvěle se hodí do kuchyně, koupelny i pracovny.",
+    "description": "Exotická, lehce pryskyřičná vůně s nádechem dálek. Otevírá ji mořská sůl s grapefruitem, mandarinkou a pomerančem, v srdci se snoubí jasmín s vavřínem a bobkovým listem. Základ tvoří hřejivá ambra, guajakové dřevo, pačuli, dubový mech a labdanum. Vůně pro večery, kdy chcete zpomalit.",
     "active": true,
-    "price_provisional": true,
+    "price_provisional": false,
     "variants": [
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Mořská sůl, grapefruit, mandarinka, pomeranč",
+      "heart": "Jasmín, vavřínový list, bobkový list",
+      "base": "Ambra, guajakové dřevo, pačuli, dubový mech, labdanum"
+    }
+  },
+  {
+    "id": "okurka-zazvor-mata",
+    "name": "Okurka, zázvor a máta",
+    "subtitle": "Svěží chvíle pro sebe.",
+    "notes": "Okurka · máta · zázvor · bílé květy",
+    "character": ["svěží", "zelená", "bylinná"],
+    "gift": ["pro-ni", "pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Svěží zelená vůně, která provoní domov jako otevřené okno do zahrady. Nejdřív vás probudí chladivá okurka, máta peprná a šťáva citronu s limetkou. V srdci se rozvinou lilie, frézie, jasmín a růže a vše jemně zakulatí teplé pižmo. Skvěle se hodí do kuchyně, koupelny i pracovny.",
+    "active": true,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
         "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -34,23 +73,27 @@
     "name": "Pomeranč a vanilka",
     "subtitle": "Hřejivá vůně domova.",
     "notes": "Pomeranč · čokoláda · vanilka",
-    "price": 249,
+    "character": ["sladká", "hřejivá", "citrusová"],
+    "gift": ["pro-ni"],
+    "price": 349,
     "category": "svicky",
     "description": "Sladká a hřejivá vůně jako odpoledne s hrnkem kakaa. Šťavnatý pomeranč se snoubí s jemnou čokoládou a vše zahalí krémová vanilka. Útulná vůně pro pohodové večery, která nepřebije prostor, ale příjemně ho zabydlí.",
     "active": true,
-    "price_provisional": true,
+    "price_provisional": false,
     "variants": [
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
@@ -60,63 +103,207 @@
     }
   },
   {
-    "id": "morska-sul-paculi",
-    "name": "Mořská sůl a pačuli",
-    "subtitle": "Chvíle, která patří jen vám.",
-    "notes": "Mořská sůl · citrusy · jasmín · pačuli · ambra",
-    "price": 249,
-    "category": "svicky",
-    "description": "Exotická, lehce pryskyřičná vůně s nádechem dálek. Otevírá ji mořská sůl s grapefruitem, mandarinkou a pomerančem, v srdci se snoubí jasmín s vavřínem a bobkovým listem. Základ tvoří hřejivá ambra, guajakové dřevo, pačuli, dubový mech a labdanum. Vůně pro večery, kdy chcete zpomalit.",
-    "active": true,
-    "price_provisional": true,
-    "variants": [
-      {
-        "id": "mala",
-        "name": "Malá",
-        "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
-      },
-      {
-        "id": "velka",
-        "name": "Velká",
-        "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
-      }
-    ],
-    "pyramid": {
-      "top": "Mořská sůl, grapefruit, mandarinka, pomeranč",
-      "heart": "Jasmín, vavřínový list, bobkový list",
-      "base": "Ambra, guajakové dřevo, pačuli, dubový mech, labdanum"
-    }
-  },
-  {
     "id": "zazvor-zeleny-caj",
     "name": "Zázvor a zelený čaj",
     "subtitle": "Klid a jasná mysl.",
     "notes": "Zelený čaj · citronová tráva · zázvor",
-    "price": 249,
+    "character": ["svěží", "lehká", "čajová"],
+    "gift": ["pro-ni", "pro-nej"],
+    "price": 349,
     "category": "svicky",
     "description": "Čistá a uklidňující vůně jako šálek čerstvě zalitého zeleného čaje. Svěžest citronové trávy doplňuje hřejivý zázvor. Lehká vůně, která nezatíží, ideální na ranní rozjezd i soustředěnou práci.",
     "active": true,
-    "price_provisional": true,
+    "price_provisional": false,
     "variants": [
       {
         "id": "mala",
         "name": "Malá",
-        "price": 249,
-        "detail": "20 cl · cca 180 g vosku · hoří cca 30 h"
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
       },
       {
         "id": "velka",
         "name": "Velká",
-        "price": 349,
-        "detail": "30 cl · cca 220 g vosku · hoří cca 40 h"
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
       }
     ],
     "pyramid": {
       "top": "Zelený čaj",
       "heart": "Citronová tráva",
       "base": "Zázvor"
+    }
+  },
+  {
+    "id": "jantar-citrusy",
+    "name": "Jantar a citrusy",
+    "subtitle": "Slunce v pryskyřici.",
+    "notes": "Pomeranč · bergamot · pačuli · ambra",
+    "character": ["citrusová", "dřevitá", "hřejivá"],
+    "gift": ["pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Slunečný háj, kde se šťavnaté citrusy potkávají s teplým pryskyřičným dřevem. Pomeranč, mandarinka a bergamot rozzáří prostor, pačuli, santal a vetiver mu dají hloubku a ambra s pižmem ho zahalí do příjemného tepla.",
+    "active": true,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Pomeranč, tangerinka, mandarinka, bergamot",
+      "heart": "Pačuli, santalové dřevo, vetiver",
+      "base": "Ambra, pižmo"
+    }
+  },
+  {
+    "id": "vanilka-paculi-santal",
+    "name": "Vanilka, pačuli a santal",
+    "subtitle": "Krémové dřevité pohlazení.",
+    "notes": "Vanilka · santal · pačuli · fialka",
+    "character": ["sladká", "dřevitá", "krémová"],
+    "gift": ["pro-ni"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Pozdní odpoledne u krbu, deka a šálek čaje. Krémová vanilka se snoubí se santalovým dřevem a zemitým pačuli, citronová kůra a bergamot dodají lehkost a fialka s jasmínem jemné srdce. Hřejivá, uklidňující vůně do obýváku i ložnice.",
+    "active": true,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Citron, bergamot, cukr",
+      "heart": "Fialka, jasmín, balzámy",
+      "base": "Vanilka, santalové dřevo, pačuli, pižmo"
+    }
+  },
+  {
+    "id": "amalfinske-pobrezi",
+    "name": "Amalfinské pobřeží",
+    "subtitle": "Procházka po slunném pobřeží.",
+    "notes": "Citron · bergamot · máta · pižmo",
+    "character": ["svěží", "citrusová", "mořská"],
+    "gift": ["pro-ni", "pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Ranní slunce nad terasami citroníků a slaný vánek od moře. Svěží citron, pomeranč a bergamot doplňují bylinky, neroli a chladivá máta, vše jemně zahalí pižmo, ambra a mech.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Citron, pomeranč, bergamot",
+      "heart": "Bylinky, neroli, máta, ozon",
+      "base": "Pižmo, ambra, mech"
+    }
+  },
+  {
+    "id": "more-cedr",
+    "name": "Moře a cedr",
+    "subtitle": "Svěží vánek, hluboké dřevo.",
+    "notes": "Citrusy · mořské tóny · cedr · santal",
+    "character": ["mořská", "svěží", "dřevitá"],
+    "gift": ["pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Svěží mořský vánek s citrusy a zeleným jablkem, v srdci mořské tóny, květy a bylinky. Cedr, santal, pačuli a ambra dávají vůni sebevědomý, dlouhý dřevitý závěr.",
+    "active": true,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Citrusy, bergamot, grapefruit, jablko, černý rybíz",
+      "heart": "Mořské tóny, růže, lilie, fialka, jasmín, ylang-ylang, levandule",
+      "base": "Cedr, santalové dřevo, pačuli, ambra, pižmo"
+    }
+  },
+  {
+    "id": "kokos-limetka",
+    "name": "Kokos a limetka",
+    "subtitle": "Tropické odpoledne.",
+    "notes": "Kokos · limetka · broskev · vanilkový cukr",
+    "character": ["sladká", "ovocná", "tropická"],
+    "gift": ["pro-ni"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Teplý písek pod nohama a chladný mořský vánek. Šťavnatá limetka a citrusy se snoubí s krémovým kokosem a špetkou jahody, v srdci broskev a květy, na konci sladký vanilkový cukr a pižmo.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Kokos, limetka, pomeranč, citron, jahoda",
+      "heart": "Broskev, květy",
+      "base": "Vanilkový cukr, pižmo"
     }
   },
   {

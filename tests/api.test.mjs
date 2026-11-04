@@ -79,12 +79,12 @@ test("guest order: server prices, QR payment, e-mails, idempotency", async () =>
   const created = await call("/api/orders", data);
   assert.equal(created.status, 201, JSON.stringify(created.body));
   const o = created.body;
-  assert.equal(o.pricing.total, 349 + 109);
+  assert.equal(o.pricing.total, 449 + 109);
   assert.equal(o.pricing.memberSavings, 0);
   assert.match(o.number, /^\d{7}$/);
   assert.equal(o.payment.vs, o.number);
   assert.equal(o.payment.iban, "CZ65 0800 0000 1920 0014 5399");
-  assert.match(o.payment.spayd, /AM:458\.00\*CC:CZK\*X-VS:/);
+  assert.match(o.payment.spayd, /AM:558\.00\*CC:CZK\*X-VS:/);
   assert.ok(o.test);
   const again = await call("/api/orders", data);
   assert.equal(again.body.number, o.number);
@@ -151,8 +151,8 @@ test("accounts: 5 % member pricing, password reset by e-mail, order history", as
     "/api/orders",
     order({ email: "petra@example.com" }),
   );
-  assert.equal(bought.body.pricing.memberSavings, 2 * 249 - 2 * 237);
-  assert.equal(bought.body.pricing.total, 2 * 237 + 109);
+  assert.equal(bought.body.pricing.memberSavings, 2 * 349 - 2 * 332);
+  assert.equal(bought.body.pricing.total, 2 * 332 + 109);
   const mine = await call("/api/account/orders");
   assert.equal(mine.body.length, 1);
   assert.equal(mine.body[0].number, bought.body.number);
@@ -247,7 +247,7 @@ test("discount codes, stock limits and admin order handling", async () => {
     }),
   );
   assert.equal(ok.status, 201, JSON.stringify(ok.body));
-  assert.equal(ok.body.pricing.codeDiscount, 35);
+  assert.equal(ok.body.pricing.codeDiscount, 45);
   const products = (await call("/api/products")).body;
   assert.equal(
     products.find((p) => p.id === "morska-sul-paculi").stock.velka,
@@ -359,7 +359,7 @@ test("Dílnička: jars, saved batch, finished candles go to stock; supplier data
     200,
   );
   const ws = (await a("/api/admin/workshop")).body;
-  assert.equal(ws.oils.length, 4);
+  assert.equal(ws.oils.length, 9);
   assert.deepEqual(
     ws.jars
       .filter((j) => /Oxford|Kimberley/.test(j.name))
