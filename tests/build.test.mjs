@@ -42,11 +42,11 @@ test("deployment output never contains source, database, tests, secrets or old i
       false,
       path,
     );
-  assert.ok(
-    !readdirSync(new URL("../dist/produkty", import.meta.url)).includes(
-      "_sablona.html",
-    ),
-  );
+  // The product template (for products added in admin) is published, but never indexed.
+  const template = read("produkty/_sablona.html");
+  assert.match(template, /data-product="__PRODUCT_ID__"/);
+  assert.match(template, /name="robots" content="noindex,follow"/);
+  assert.ok(!read("sitemap.xml").includes("_sablona"));
   assert.match(read("_headers"), /frame-ancestors 'none'/);
   // Only checkout allows inline styles (the Packeta widget sets style attributes); never inline scripts.
   const headers = read("_headers");
@@ -56,7 +56,7 @@ test("deployment output never contains source, database, tests, secrets or old i
 });
 test("sitemap points only to real indexable content routes on the future domain", () => {
   const xml = read("sitemap.xml");
-  assert.equal((xml.match(/<loc>/g) || []).length, 30);
+  assert.equal((xml.match(/<loc>/g) || []).length, 31);
   assert.match(xml, /https:\/\/loomos.cz\/lapace-slunce</);
   assert.ok(!xml.includes("ucet") && !xml.includes("objednavka"));
   assert.ok(!xml.includes("kosik"));
@@ -77,7 +77,9 @@ test("sun catcher collection and all fourteen individual routes are built separa
     assert.match(detail, /data-page="product"/);
     assert.ok(detail.includes(`data-product="${p.id}"`));
     assert.ok(detail.includes(`<h1>${p.name}</h1>`));
-    assert.match(detail, /Cenu připravujeme/);
+    assert.match(detail, /199/);
+    assert.match(detail, /Od 2 ks jen 175/);
+    assert.match(detail, /Jak lapač nalepit/);
   }
   assert.equal(
     (read("obchod.html").match(/class="product-card[ "]/g) || []).length,

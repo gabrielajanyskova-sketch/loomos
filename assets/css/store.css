@@ -3100,10 +3100,6 @@ a.category-card {
 }
 
 /* Nejoblíbenější vůně + Mohlo by se vám líbit */
-.product-card.featured {
-  outline: 1px solid #cb956899;
-  outline-offset: -1px;
-}
 .product-card.featured .product-tag {
   background: var(--copper);
   color: #1b1712;
@@ -3134,6 +3130,106 @@ a.category-card {
 .small-note a {
   color: var(--copper-light);
 }
+
+/* Admin: products */
+.admin-cats {
+  margin-right: auto;
+  margin-left: 20px;
+}
+.product-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px 20px;
+  align-items: start;
+}
+.product-admin label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.product-admin .wide,
+.product-admin .variant-fields {
+  grid-column: 1 / -1;
+}
+.product-admin .variant-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 16px;
+  border: 1px solid var(--line);
+  padding: 12px;
+}
+.product-admin small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.bulk-note {
+  font-size: 12px;
+  color: var(--copper-light);
+  margin: 0 0 8px;
+}
+
+/* Individual inquiry */
+.inquiry-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  margin-top: 30px;
+}
+.inquiry-form label:not(.check) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.inquiry-form .full {
+  grid-column: 1 / -1;
+}
+.inquiry-form small {
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .inquiry-form {
+    grid-template-columns: 1fr;
+  }
+}
+.inquiry.vyrizena {
+  opacity: 0.65;
+}
+.pre {
+  white-space: pre-wrap;
+}
+.member-info {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.member-info a {
+  color: var(--copper-light);
+}
+.howto {
+  margin: 18px 0;
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+}
+.howto summary {
+  cursor: pointer;
+  color: var(--copper-light);
+}
+.howto-steps {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+.howto-steps li {
+  margin-bottom: 8px;
+}
+.howto-steps strong {
+  color: var(--text);
 
 .pending-photo {
   display: flex;

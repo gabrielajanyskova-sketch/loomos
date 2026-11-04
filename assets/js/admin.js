@@ -44,6 +44,15 @@ let tab = "overview";
 let config = {};
 let orders = [];
 let filter = "aktivni";
+let category = "svicky";
+const CATEGORIES = { svicky: "Svíčky", "lapace-slunce": "Lapače slunce" };
+const categoryTabs = (current) =>
+  `<div class="filter-tabs admin-cats">${Object.entries(CATEGORIES)
+    .map(
+      ([id, label]) =>
+        `<button type="button" data-category="${id}" class="${id === current ? "active" : ""}">${label}</button>`,
+    )
+    .join("")}</div>`;
 
 async function api(path, data) {
   const response = await fetch("/api/admin/" + path, {
@@ -229,8 +238,8 @@ function orderDetail(number) {
 
 /* ---------- stock ---------- */
 async function renderStock(el) {
-  const rows = await api("stock");
-  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2></div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}<br><small>Aktuálně: ${money(r.price)}</small></td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
+  const rows = (await api("stock")).filter((r) => r.category === category);
+  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2>${categoryTabs(category)}</div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}<br><small>Aktuálně: ${money(r.price)}</small></td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 async function saveStock(row) {
   const inputs = [...row.querySelectorAll("input")];
@@ -258,6 +267,130 @@ async function saveStock(row) {
   } finally {
     button.disabled = false;
   }
+}
+
+/* ---------- products ---------- */
+const lines = (v) =>
+  String(v || "")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+const intOrNull = (v) => (String(v).trim() === "" ? null : Number(v));
+let products = [];
+async function renderProducts(el) {
+  products = await api("products");
+  const list = products.filter((p) => p.category === category);
+  el.innerHTML = `<div class="admin-toolbar"><h2>Produkty</h2>${categoryTabs(category)}<button type="button" class="button" data-product-new>＋ Nový produkt</button></div><p class="muted">Změny se v e-shopu projeví hned. Stránky produktů z původní nabídky se pro vyhledávače aktualizují při příštím nasazení webu.</p><div class="table-wrap"><table><thead><tr><th>Produkt</th><th>Cena</th><th>V e-shopu</th><th></th></tr></thead><tbody>${
+    list
+      .map(
+        (p) =>
+          `<tr><td><strong>${esc(p.name)}</strong>${p.badge ? ` <small class="status-label">${esc(p.badge)}</small>` : ""}<br><small class="muted">${esc(p.id)}${p.edited ? " · upraveno v adminu" : ""}</small></td><td>${p.variants?.length ? p.variants.map((v) => `${esc(v.name)} ${money(v.price)}`).join("<br>") : money(p.price)}${p.bulk || p.variants?.some((v) => v.bulk) ? '<br><small class="muted">s množstevní cenou</small>' : ""}</td><td>${p.active ? "Ano" : "Ne"}</td><td><button type="button" class="inline-button" data-product-edit="${esc(p.id)}">Upravit</button></td></tr>`,
+      )
+      .join("") ||
+    '<tr><td colspan="4">V této kategorii zatím nic není.</td></tr>'
+  }</tbody></table></div><section class="panel" id="product-editor" hidden></section>`;
+}
+function productForm(p, isNew) {
+  const candle = (p.category || category) === "svicky";
+  const variant = (id) => p.variants?.find((v) => v.id === id) || {};
+  const bulk = p.bulk || {};
+  const v = (x) => esc(x ?? "");
+  const variantFields = (id, label) => {
+    const x = variant(id);
+    return `<fieldset class="variant-fields"><legend>${label}</legend><label>${isNew ? "Výchozí cena (Kč)" : "Cena (Kč) — mění se v Sklad a ceny"}<input name="${id}_price" type="number" min="1" value="${v(x.regular_price ?? x.price)}" ${isNew ? "required" : "readonly"}></label><label>Popis velikosti<input name="${id}_detail" maxlength="120" value="${v(x.detail)}"></label><label>Hoří (hodin)<input name="${id}_burn" type="number" min="1" max="500" value="${v(x.burn_hours)}"></label></fieldset>`;
+  };
+  const editor = $("#product-editor");
+  editor.hidden = false;
+  editor.innerHTML = `<h3>${isNew ? "Nový produkt" : "Upravit: " + esc(p.name)}</h3><form id="product-form" class="product-admin" data-new="${isNew ? "1" : ""}" data-category="${candle ? "svicky" : "lapace-slunce"}">
+    <label>Kód produktu (do adresy)<input name="product_id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="60" value="${v(p.id)}" ${isNew ? "" : "readonly"} placeholder="např. lapac-slunce-kocka"><small>malá písmena bez diakritiky a pomlčky; později nejde změnit</small></label>
+    <label>Název<input name="name" required maxlength="120" value="${v(p.name)}"></label>
+    <label>Podnadpis<input name="subtitle" maxlength="160" value="${v(p.subtitle)}"></label>
+    <label>Krátký popis na kartě<input name="notes" maxlength="160" value="${v(p.notes)}" placeholder="${candle ? "např. Vanilka · santal · pačuli" : "např. Kruh Ø 15 cm · kočička"}"></label>
+    <label class="wide">Popis<textarea name="description" rows="4" maxlength="2000">${v(p.description)}</textarea></label>
+    ${
+      candle
+        ? `${variantFields("mala", "Malá svíčka")}${variantFields("velka", "Velká svíčka")}
+    <label>Hlava (vonné tóny)<input name="top" maxlength="160" value="${v(p.pyramid?.top)}"></label>
+    <label>Srdce<input name="heart" maxlength="160" value="${v(p.pyramid?.heart)}"></label>
+    <label>Základ<input name="base" maxlength="160" value="${v(p.pyramid?.base)}"></label>
+    <label>Charakter (oddělte čárkou, max. 4)<input name="character" maxlength="100" value="${v((p.character || []).join(", "))}" placeholder="sladká, hřejivá"></label>
+    <fieldset class="variant-fields"><legend>Dárek</legend><label class="check"><input type="checkbox" name="pro_ni" ${p.gift?.includes("pro-ni") ? "checked" : ""}>Pro ni</label><label class="check"><input type="checkbox" name="pro_nej" ${p.gift?.includes("pro-nej") ? "checked" : ""}>Pro něj</label></fieldset>`
+        : `<label>${isNew ? "Výchozí cena za kus (Kč, prázdné = cenu připravuji)" : "Cena za kus (Kč) — mění se v Sklad a ceny"}<input name="price" type="number" min="1" value="${v(p.regular_price ?? p.price)}" ${isNew ? "" : "readonly"}></label>
+    <label>Množstevní cena od (ks)<input name="bulk_min" type="number" min="2" max="100" value="${v(bulk.min_qty)}" placeholder="např. 2"></label>
+    <label>Množstevní cena za kus (Kč)<input name="bulk_price" type="number" min="1" value="${v(bulk.price)}" placeholder="např. 175"></label>`
+    }
+    <label>Štítek (nepovinné)<input name="badge" maxlength="40" value="${v(p.badge)}" placeholder="např. Nejoblíbenější vůně, Novinka"></label>
+    <label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Zobrazit v e-shopu</label>
+    <div class="wide product-actions"><button class="button">Uložit produkt</button>${!isNew && p.edited ? `<button type="button" class="inline-button danger" data-product-reset="${v(p.id)}">${p.bundled ? "Vrátit původní údaje" : "Smazat produkt"}</button>` : ""}<button type="button" class="inline-button" data-product-close>Zavřít</button></div>
+  </form>`;
+  editor.scrollIntoView({ behavior: "smooth" });
+}
+function productFromForm(form) {
+  const f = form.elements;
+  const candle = form.dataset.category === "svicky";
+  const product = {
+    id: f.product_id.value.trim(),
+    name: f.name.value.trim(),
+    subtitle: f.subtitle.value.trim(),
+    notes: f.notes.value.trim(),
+    description: f.description.value.trim(),
+    category: form.dataset.category,
+    active: f.active.checked,
+  };
+  if (f.badge.value.trim()) product.badge = f.badge.value.trim();
+  if (candle) {
+    product.variants = [
+      ["mala", "Malá"],
+      ["velka", "Velká"],
+    ].map(([id, name]) => {
+      const value = f[id + "_price"].value;
+      const variant = { id, name, price: value === "" ? null : Number(value) };
+      if (f[id + "_detail"].value.trim())
+        variant.detail = f[id + "_detail"].value.trim();
+      if (f[id + "_burn"].value)
+        variant.burn_hours = Number(f[id + "_burn"].value);
+      return variant;
+    });
+    product.price = product.variants[0].price;
+    if (f.top.value.trim() || f.heart.value.trim())
+      product.pyramid = {
+        top: f.top.value.trim(),
+        heart: f.heart.value.trim(),
+        ...(f.base.value.trim() ? { base: f.base.value.trim() } : {}),
+      };
+    const character = lines(f.character.value).slice(0, 4);
+    if (character.length) product.character = character;
+    const gift = [
+      f.pro_ni.checked && "pro-ni",
+      f.pro_nej.checked && "pro-nej",
+    ].filter(Boolean);
+    if (gift.length) product.gift = gift;
+  } else {
+    product.price = f.price.value === "" ? null : Number(f.price.value);
+    const min = intOrNull(f.bulk_min.value);
+    const price = intOrNull(f.bulk_price.value);
+    if (min !== null || price !== null) {
+      if (min === null || price === null)
+        throw new Error("Vyplňte u množstevní ceny počet kusů i cenu.");
+      product.bulk = { min_qty: min, price };
+    }
+  }
+  return product;
+}
+
+/* ---------- inquiries ---------- */
+async function renderInquiries(el) {
+  const list = await api("inquiries");
+  el.innerHTML = `<div class="admin-toolbar"><h2>Poptávky na míru</h2><span class="muted">${((n) => (n === 1 ? "1 nová" : n >= 2 && n <= 4 ? `${n} nové` : `${n} nových`))(list.filter((i) => i.status === "nova").length)}</span></div>${
+    list.length
+      ? list
+          .map(
+            (i) =>
+              `<section class="panel inquiry ${i.status}"><div class="admin-toolbar"><h3>č. ${i.id} · ${esc(i.type_label)}${i.status === "nova" ? ' <span class="status-label">Nová</span>' : ""}</h3><small class="muted">${date(i.created)}</small></div><p><strong>${esc(i.name)}</strong> · <a href="mailto:${esc(i.email)}?subject=${encodeURIComponent("Vaše poptávka č. " + i.id + " — LOOMOS")}">${esc(i.email)}</a>${i.phone ? " · " + esc(i.phone) : ""}</p><p class="muted">Velikost: ${esc(i.size || "—")} · Počet: ${i.quantity} ks · Fólie: ${esc(i.material || "nevím")} · Termín: ${esc(i.deadline || "—")}</p><p class="pre">${esc(i.motif)}</p><div class="order-actions">${i.file_name ? `<a class="inline-button" href="/api/admin/inquiry-file?id=${i.id}">Stáhnout přílohu (${esc(i.file_name)})</a>` : '<span class="muted">Bez přílohy</span>'}<button type="button" class="inline-button" data-inquiry="${i.id}" data-status="${i.status === "nova" ? "vyrizena" : "nova"}">${i.status === "nova" ? "Označit jako vyřízenou" : "Vrátit mezi nové"}</button><button type="button" class="inline-button danger" data-inquiry="${i.id}" data-delete>Smazat</button></div></section>`,
+          )
+          .join("")
+      : '<div class="panel">Zatím žádné poptávky. Formulář je na stránce <a href="/poptavka.html" target="_blank" rel="noopener">Tvorba na míru</a>.</div>'
+  }<p class="muted">Poptávka vám přijde i e-mailem (s přílohou); odpovědět můžete přímo na něj.</p>`;
 }
 
 /* ---------- customers ---------- */
@@ -329,6 +462,8 @@ async function renderCodes(el) {
 const views = {
   overview: renderOverview,
   orders: renderOrders,
+  products: renderProducts,
+  inquiries: renderInquiries,
   stock: renderStock,
   customers: renderCustomers,
   codes: renderCodes,
@@ -375,6 +510,45 @@ document.addEventListener("click", (e) => {
   if (chip) {
     filter = chip.dataset.filter;
     show("orders");
+  }
+  const inq = e.target.closest("[data-inquiry]");
+  if (inq) {
+    if (inq.hasAttribute("data-delete") && !confirm("Smazat poptávku?")) return;
+    guard(async () => {
+      await api("inquiry", {
+        id: Number(inq.dataset.inquiry),
+        ...(inq.hasAttribute("data-delete")
+          ? { action: "delete" }
+          : { status: inq.dataset.status }),
+      });
+      await show("inquiries");
+    });
+    return;
+  }
+  const cat = e.target.closest("[data-category]");
+  if (cat && cat.tagName === "BUTTON") {
+    category = cat.dataset.category;
+    show(tab);
+    return;
+  }
+  if (e.target.closest("[data-product-new]"))
+    productForm({ category, active: false }, true);
+  const edit = e.target.closest("[data-product-edit]");
+  if (edit)
+    productForm(
+      products.find((p) => p.id === edit.dataset.productEdit),
+      false,
+    );
+  if (e.target.closest("[data-product-close]"))
+    $("#product-editor").hidden = true;
+  const reset = e.target.closest("[data-product-reset]");
+  if (reset) {
+    if (!confirm(reset.textContent + "?")) return;
+    guard(async () => {
+      await api("product-reset", { id: reset.dataset.productReset });
+      status("Hotovo.");
+      await show("products");
+    });
   }
   if (e.target.closest("[data-save-stock]"))
     guard(() => saveStock(e.target.closest("tr")));
@@ -442,4 +616,18 @@ guard(async () => {
       "Administrace ještě nemá heslo. V Cloudflare nastavte tajnou proměnnou ADMIN_PASSWORD (alespoň 12 znaků) a web znovu nasaďte.",
       true,
     );
+});
+
+document.addEventListener("submit", (e) => {
+  // Not e.target.id: a form field named "id" would shadow it.
+  if (!e.target.matches("#product-form")) return;
+  e.preventDefault();
+  const form = e.target;
+  guard(async () => {
+    const product = productFromForm(form);
+    await api("product", { product, new: Boolean(form.dataset.new) });
+    status(`Produkt „${product.name}“ je uložený.`);
+    category = product.category;
+    await show("products");
+  });
 });

@@ -203,3 +203,22 @@ test("CLP label format: 6.6 pt DM Sans gives an x-height of at least 1.2 mm", as
   assert.ok(xHeightMm(6) < 1.2);
   assert.equal(CLP_FORMAT.lineHeight, 1.2);
 });
+
+test("quantity price applies from the minimum count, before the member discount", () => {
+  const bulk = { min_qty: 2, price: 175 };
+  const one = priceCart({
+    lines: [{ key: "l", name: "L", price: 199, qty: 1, bulk }],
+  });
+  assert.equal(one.items, 199);
+  assert.equal(one.bulkSavings, 0);
+  const two = priceCart({
+    lines: [{ key: "l", name: "L", price: 199, qty: 2, bulk }],
+  });
+  assert.equal(two.items, 350);
+  assert.equal(two.bulkSavings, 48);
+  const member = priceCart({
+    lines: [{ key: "l", name: "L", price: 199, qty: 3, bulk }],
+    member: true,
+  });
+  assert.equal(member.items, 3 * memberPrice(175));
+});

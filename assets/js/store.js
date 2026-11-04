@@ -20,7 +20,6 @@ import {
   scentFamilies,
 } from "./catalog.mjs";
 import {
-  memberPrice,
   priceCart,
   SHIPPING,
   PAYMENT,
@@ -125,6 +124,7 @@ function lines() {
         variant: v?.id || "",
         name: p.name + (v ? " — " + v.name : ""),
         price: v ? v.price : p.price,
+        ...((v?.bulk ?? p.bulk) ? { bulk: v?.bulk ?? p.bulk } : {}),
         qty: i.qty,
       };
     })
@@ -230,12 +230,6 @@ function refreshCards(root = document) {
     if (reference) reference.innerHTML = saleMarkup(variant ?? product);
     const burn = $("[data-card-burn]", card);
     if (burn) burn.textContent = burnLine(variant, price);
-    const memberEl = $("[data-card-member]", card);
-    if (memberEl) memberEl.hidden = price == null;
-    if (memberEl && price != null)
-      memberEl.innerHTML = member
-        ? `Vaše cena s účtem: <strong>${money(memberPrice(price))}</strong>`
-        : `S účtem o 5 % levněji: <strong>${money(memberPrice(price))}</strong>`;
     button.dataset.label ||= button.firstChild?.textContent?.trim() || "";
     availability(button, product, variant?.id ?? "");
   });
@@ -276,9 +270,6 @@ function updateDetail() {
   const reference = $(".detail-copy [data-sale-reference]");
   if (reference) reference.innerHTML = saleMarkup(v ?? p);
   if ($("#detail-burn")) $("#detail-burn").textContent = burnLine(v, price);
-  const memberEl = $("#detail-member-price");
-  if (memberEl)
-    memberEl.textContent = money(price == null ? null : memberPrice(price));
   const button = $(".detail-copy [data-add]");
   if (button) {
     button.dataset.label ||= "Přidat do košíku ＋";
@@ -293,10 +284,13 @@ function renderProduct() {
       '<div class="empty-state"><h2>Tahle vůně právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
     return;
   }
-  document.title =
-    p.name +
-    (isCandle(p) ? " — sójová svíčka | LOOMOS" : " — lapač slunce | LOOMOS");
+  document.title = `${p.name} — ${isCandle(p) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`;
   $("#product-breadcrumb").textContent = p.name;
+  const parent = $("#product-breadcrumb")?.previousElementSibling;
+  if (parent && !isCandle(p)) {
+    parent.href = "/lapace-slunce.html";
+    parent.textContent = "Lapače slunce";
+  }
   $("#product-detail").innerHTML = renderProductDetail(p);
   const related = $("#product-related");
   if (related) {
@@ -310,12 +304,95 @@ function renderProduct() {
   track("view_item", p, variantOf(p, $("#size-choice")?.value), 1);
 }
 
+/* ---------- individual inquiry ---------- */
+const MAX_UPLOAD = 1_400_000;
+/** Photos are scaled down in the browser (max. 2000 px) so they fit the upload limit. */
+async function prepareFile(file) {
+  const resizable = ["image/jpeg", "image/png", "image/webp"].includes(
+    file.type,
+  );
+  let blob = file;
+  if (resizable && file.size > 500_000) {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas
+      .getContext("2d")
+      .drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const type = file.type === "image/png" ? "image/png" : "image/jpeg";
+    blob = await new Promise((resolve) => canvas.toBlob(resolve, type, 0.85));
+    if (blob.size > MAX_UPLOAD && type === "image/png")
+      blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.85),
+      );
+  }
+  if (blob.size > MAX_UPLOAD)
+    throw new Error(
+      "Soubor je příliš velký (max. 1,4 MB). Pošlete prosím menší nebo mi ho pošlete e-mailem.",
+    );
+  const data = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  const name =
+    blob.type === file.type
+      ? file.name
+      : file.name.replace(/\.[^.]+$/, "") + ".jpg";
+  return { name, type: blob.type || file.type, data };
+}
+function renderInquiry() {
+  const form = $("#inquiry-form");
+  if (!form) return;
+  const type = new URLSearchParams(location.search).get("typ");
+  if (
+    type &&
+    form.elements.type.querySelector(`option[value="${CSS.escape(type)}"]`)
+  )
+    form.elements.type.value = type;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const btn = $("#inquiry-send");
+    const error = $("#inquiry-error");
+    error.textContent = "";
+    btn.disabled = true;
+    try {
+      const f = form.elements;
+      const file = f.file.files[0] ? await prepareFile(f.file.files[0]) : null;
+      await api("inquiry", {
+        type: f.type.value,
+        size: f.size.value,
+        quantity: Number(f.quantity.value),
+        material: f.material.value,
+        motif: f.motif.value,
+        deadline: f.deadline.value,
+        name: f.name.value,
+        email: f.email.value,
+        phone: f.phone.value,
+        consent: f.consent.checked,
+        file,
+      });
+      form.outerHTML = `<div class="success-panel"><span class="tiny-star">✧</span><h2>Děkuji, poptávka je odeslaná.</h2><p>Potvrzení jsem vám poslala na ${esc(f.email.value)}. Do pár dnů se ozvu s návrhem a cenou.</p><a class="button" href="/obchod.html">Mezitím se podívejte na svíčky →</a></div>`;
+    } catch (err) {
+      error.textContent = err.message;
+      btn.disabled = false;
+    }
+  });
+}
+
 /* ---------- cart ---------- */
 function summary({ checkout = false, shipping = null } = {}) {
   const t = pricing(shipping);
   const memberRow = member
     ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(t.memberSavings)}</span></div>`
     : `<p class="member-hint"><a href="/ucet.html?navrat=${checkout ? "pokladna" : "kosik"}">Přihlaste se nebo se zaregistrujte</a> a ušetříte ${money(t.itemsOriginal - priceCart({ lines: lines(), member: true }).items)} (5 % na vše).</p>`;
+  const bulkRow = t.bulkSavings
+    ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(t.bulkSavings)}</span></div>`
+    : "";
   const codeRow = t.code
     ? `<div class="summary-row saving"><span>Kód ${esc(t.code)} <button type="button" class="link-button" data-remove-code>odebrat</button></span><span>−${money(t.codeDiscount)}</span></div>`
     : "";
@@ -333,7 +410,7 @@ function summary({ checkout = false, shipping = null } = {}) {
           )
           .join("")
       : ""
-  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal)}</span></div>${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
+  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal + t.bulkSavings)}</span></div>${bulkRow}${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
 }
 async function applyCode(form, rerender) {
   const error = $("#code-error");
@@ -371,7 +448,7 @@ function renderCart() {
   el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${t.lines
     .map(
       (l) =>
-        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.originalUnit ? ` <s>${money(l.originalUnit)}</s>` : ""}</p><div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.originalTotal ? `<s class="old-price">${money(l.originalTotal)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
+        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html"><img class="cart-thumb" src="/assets/img/candle-480.webp" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}"></a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
     )
     .join(
       "",
@@ -629,7 +706,7 @@ async function renderOrderPage() {
   try {
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
-    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
+    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.bulkSavings ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(p.bulkSavings)}</span></div>` : ""}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }
@@ -925,9 +1002,12 @@ async function init() {
       const n = list.length;
       const word = n === 1 ? "vůně" : n >= 2 && n <= 4 ? "vůně" : "vůní";
       $("#product-count").textContent =
-        filter === "all"
-          ? `${n} ${word} v nabídce`
-          : `${n} ${word} ${filter === "pro-ni" ? "pro ni" : "pro něj"}`;
+        // No total count by default: the offer keeps growing.
+        filter === "all" && !family
+          ? ""
+          : filter === "all"
+            ? `${n} ${word}`
+            : `${n} ${word} ${filter === "pro-ni" ? "pro ni" : "pro něj"}`;
       refreshCards();
     };
     tabs.forEach((t) =>
@@ -941,6 +1021,7 @@ async function init() {
     render();
   }
   refreshCards();
+  if (page === "inquiry") renderInquiry();
   if (page === "product") renderProduct();
   if (page === "cart") renderCart();
   if (page === "checkout") renderCheckout();

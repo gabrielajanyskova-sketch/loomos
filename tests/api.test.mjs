@@ -41,13 +41,16 @@ const order = (extra = {}) => ({
   items: [{ id: "okurka-zazvor-mata", variant: "mala", qty: 2 }],
   ...extra,
 });
+// One admin session for all tests: logging in is rate limited.
+let adminSession;
 async function admin() {
+  if (adminSession) return adminSession;
   const call = client(shop.url);
   const login = await call("/api/admin/login", {
     password: shop.env.ADMIN_PASSWORD,
   });
   assert.equal(login.status, 200);
-  return call;
+  return (adminSession = call);
 }
 
 test("API refuses cross-site writes, non-JSON and anonymous admin access", async () => {
@@ -804,7 +807,135 @@ test("Česká pošta home delivery needs an address, not a Balíkovna", async ()
   assert.equal(res.body.address.zip, "11000");
 });
 
-test("unpriced single-size sun catcher supports admin stock but cannot be ordered", async () => {
+test("admin adds and edits products; quantity price and dynamic product page work", async () => {
+  const a = await admin();
+  const sun = {
+    id: "lapac-slunce-kocka",
+    name: "Lapač slunce — kočička",
+    subtitle: "Duhy na zdi.",
+    notes: "Kruh Ø 15 cm · kočička",
+    description: "Test.",
+    category: "lapace-slunce",
+    active: true,
+    price: 199,
+    bulk: { min_qty: 2, price: 175 },
+  };
+  const created = await a("/api/admin/product", { product: sun, new: true });
+  assert.equal(created.status, 200, JSON.stringify(created.body));
+  assert.equal(
+    (await a("/api/admin/product", { product: sun, new: true })).status,
+    409,
+  );
+  assert.equal(
+    (
+      await a("/api/admin/product", {
+        product: { ...sun, bulk: { min_qty: 2, price: 250 } },
+      })
+    ).status,
+    400,
+  );
+  const call = client(shop.url);
+  const listed = (await call("/api/products")).body;
+  assert.ok(listed.some((p) => p.id === sun.id));
+  const bought = await call(
+    "/api/orders",
+    order({
+      email: "lapac@example.com",
+      items: [{ id: sun.id, qty: 2 }],
+    }),
+  );
+  assert.equal(bought.status, 201, JSON.stringify(bought.body));
+  assert.equal(bought.body.pricing.items, 350);
+  assert.equal(bought.body.pricing.bulkSavings, 48);
+  const page = await fetch(`${shop.url}/produkty/${sun.id}`);
+  assert.equal(page.status, 200);
+  assert.match(await page.text(), /data-product="lapac-slunce-kocka"/);
+  assert.equal((await fetch(`${shop.url}/produkty/neexistuje`)).status, 200);
+
+  // Editing a product from the file overrides it; reset brings the original back.
+  const all = (await a("/api/admin/products")).body;
+  const okurka = all.find((p) => p.id === "okurka-zazvor-mata");
+  const edited = await a("/api/admin/product", {
+    product: { ...okurka, subtitle: "Upraveno v adminu." },
+  });
+  assert.equal(edited.status, 200, JSON.stringify(edited.body));
+  let shown = (await call("/api/products")).body.find(
+    (p) => p.id === "okurka-zazvor-mata",
+  );
+  assert.equal(shown.subtitle, "Upraveno v adminu.");
+  // Prices stay in Sklad a ceny (D1 price history), not in the product editor.
+  assert.equal(shown.variants[0].price, 349);
+  await a("/api/admin/product-reset", { id: "okurka-zazvor-mata" });
+  await a("/api/admin/product-reset", { id: sun.id });
+  shown = (await call("/api/products")).body.find(
+    (p) => p.id === "okurka-zazvor-mata",
+  );
+  assert.notEqual(shown.subtitle, "Upraveno v adminu.");
+  assert.ok(!(await call("/api/products")).body.some((p) => p.id === sun.id));
+});
+
+test("individual inquiry: validated, stored with its file, e-mailed and handled in admin", async () => {
+  const call = client(shop.url);
+  const base = {
+    type: "lapac-slunce",
+    size: "kruh 15 cm",
+    quantity: 3,
+    material: "Duhová (lapač slunce)",
+    motif: "Náš jezevčík Ferda",
+    name: "Eva Dvořáková",
+    email: "poptavka@example.com",
+    consent: true,
+  };
+  assert.equal(
+    (await call("/api/inquiry", { ...base, consent: false })).status,
+    400,
+  );
+  assert.equal(
+    (
+      await call("/api/inquiry", {
+        ...base,
+        file: { name: "x.exe", type: "application/x-msdownload", data: "QUJD" },
+      })
+    ).status,
+    400,
+  );
+  const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>').toString(
+    "base64",
+  );
+  const sent = await call("/api/inquiry", {
+    ...base,
+    file: { name: "ferda.svg", type: "image/svg+xml", data: svg },
+  });
+  assert.equal(sent.status, 201, JSON.stringify(sent.body));
+  const shopMail = await mailTo("info@loomos.cz", /Poptávka č\. \d+/);
+  assert.equal(shopMail.body.attachments[0].filename, "ferda.svg");
+  assert.equal(shopMail.body.reply_to, "poptavka@example.com");
+  await mailTo("poptavka@example.com", /Poptávku jsem přijala/);
+
+  const a = await admin();
+  const list = (await a("/api/admin/inquiries")).body;
+  const mine = list.find((i) => i.id === sent.body.id);
+  assert.equal(mine.motif, "Náš jezevčík Ferda");
+  assert.equal(mine.file_name, "ferda.svg");
+  const file = await fetch(`${shop.url}/api/admin/inquiry-file?id=${mine.id}`, {
+    headers: { Cookie: "" },
+  });
+  assert.equal(file.status, 401);
+  assert.equal(
+    (await a("/api/admin/inquiry", { id: mine.id, status: "vyrizena" })).status,
+    200,
+  );
+  assert.equal(
+    (await a("/api/admin/inquiries")).body.find((i) => i.id === mine.id).status,
+    "vyrizena",
+  );
+  await a("/api/admin/inquiry", { id: mine.id, action: "delete" });
+  assert.ok(
+    !(await a("/api/admin/inquiries")).body.some((i) => i.id === mine.id),
+  );
+});
+
+test("single-size sun catcher: admin stock, and it cannot be ordered without a price", async () => {
   const isolated = await startShop();
   try {
     const a = client(isolated.url);
@@ -823,7 +954,15 @@ test("unpriced single-size sun catcher supports admin stock but cannot be ordere
       (p) => p.product_id === product_id && p.variant_id === "",
     );
     assert.equal(row.quantity, 7);
-    assert.equal(row.price, null);
+    assert.equal(row.price, 199);
+    const cleared = await a("/api/admin/prices", {
+      product_id,
+      variant_id: "",
+      regular_price: null,
+      sale_price: null,
+      revision: row.revision,
+    });
+    assert.equal(cleared.status, 200, JSON.stringify(cleared.body));
     const call = client(isolated.url);
     assert.equal(
       (

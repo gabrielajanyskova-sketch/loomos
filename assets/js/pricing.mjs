@@ -81,15 +81,26 @@ export function priceCart({
   shipping = null,
 }) {
   const priced = lines.map((line) => {
-    const unit = member ? memberPrice(line.price) : line.price;
+    // Quantity price (e.g. 175 Kč per piece from 2 pieces) comes before the member discount.
+    // Never above the current price (e.g. while a sale price is lower than the quantity price).
+    const base =
+      line.bulk && line.qty >= line.bulk.min_qty
+        ? Math.min(line.bulk.price, line.price)
+        : line.price;
+    const unit = member ? memberPrice(base) : base;
     return {
       ...line,
-      originalUnit: line.price,
+      listUnit: line.price,
+      originalUnit: base,
       unit,
-      originalTotal: line.price * line.qty,
+      originalTotal: base * line.qty,
       total: unit * line.qty,
     };
   });
+  const bulkSavings = priced.reduce(
+    (s, l) => s + (l.listUnit - l.originalUnit) * l.qty,
+    0,
+  );
   const itemsOriginal = priced.reduce((s, l) => s + l.originalTotal, 0);
   const items = priced.reduce((s, l) => s + l.total, 0);
   const memberSavings = itemsOriginal - items;
@@ -115,7 +126,8 @@ export function priceCart({
     codeDiscount,
     codeError,
     shippingPrice,
-    savings: memberSavings + codeDiscount,
+    bulkSavings,
+    savings: memberSavings + codeDiscount + bulkSavings,
     total,
   };
 }

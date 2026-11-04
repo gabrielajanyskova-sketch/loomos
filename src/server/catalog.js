@@ -7,15 +7,44 @@ import { fail } from "./http.js";
 import { priceRows, effectivePrice } from "./product-prices.js";
 import { MAX_QTY } from "../../assets/js/pricing.mjs";
 
-export const catalog = withSafety(
-  validateCatalog(products).filter((p) => p.active),
-  labels,
-);
-/** All scents incl. inactive ones (Dílnička can produce scents not yet sold in the e-shop). */
-export const allScents = withSafety(validateCatalog(products), labels);
+const bundled = validateCatalog(products);
+
+/** Accept one product from the admin only if it passes the same validation as the bundled file. */
+function valid(product) {
+  try {
+    return validateCatalog([product])[0];
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Catalog = data/products.json, overridden and extended by products saved in admin (D1 table products).
+ * Returns every product (incl. inactive) plus the active ones and a lookup by id.
+ */
+export async function loadCatalog(db) {
+  const { results } = await db
+    .prepare("SELECT id, data, position FROM products ORDER BY position, id")
+    .all();
+  const saved = new Map();
+  for (const row of results) {
+    const product = valid(JSON.parse(row.data));
+    if (product && product.id === row.id) saved.set(row.id, product);
+  }
+  const merged = [
+    ...bundled.map((p) => saved.get(p.id) || p),
+    ...[...saved.values()].filter((p) => !bundled.some((b) => b.id === p.id)),
+  ];
+  const all = withSafety(merged, labels);
+  const active = all.filter((p) => p.active);
+  return { all, active, byId: new Map(active.map((p) => [p.id, p])) };
+}
+export const bundledProducts = bundled;
 
 export const variantsOf = (p) =>
-  p.variants?.length ? p.variants : [{ id: "", name: "", price: p.price }];
+  p.variants?.length
+    ? p.variants
+    : [{ id: "", name: "", price: p.price, bulk: p.bulk }];
 
 /** Map "id::variant" → quantity, or undefined when stock is not tracked. */
 export async function stockMap(db) {
@@ -28,14 +57,19 @@ export async function stockMap(db) {
 }
 
 export async function publicCatalog(db) {
+  return withStock(db, (await loadCatalog(db)).active);
+}
+
+/** Prices from D1 (product_prices, with history) applied to products; missing rows are seeded. */
+export async function priceProducts(db, list) {
   const [stock, prices] = await Promise.all([
     stockMap(db),
-    priceRows(db, catalog, variantsOf),
+    priceRows(db, list, variantsOf),
   ]);
   const map = new Map(
     prices.map((r) => [`${r.product_id}::${r.variant_id}`, r]),
   );
-  const priced = catalog.map((p) => {
+  const priced = list.map((p) => {
     const variants = variantsOf(p).map((v) => {
       const row = map.get(`${p.id}::${v.id}`);
       return {
@@ -60,6 +94,11 @@ export async function publicCatalog(db) {
         : { revision: first.revision, tracked_since: first.tracked_since }),
     };
   });
+  return { priced, stock };
+}
+
+async function withStock(db, list) {
+  const { priced, stock } = await priceProducts(db, list);
   return priced.map((p) => ({
     ...p,
     stock: Object.fromEntries(
@@ -69,7 +108,7 @@ export async function publicCatalog(db) {
 }
 
 /** Validate cart items against the catalog and return priced lines. */
-export function resolveItems(items, pricedCatalog = catalog) {
+export function resolveItems(items, pricedCatalog) {
   const currentById = new Map(pricedCatalog.map((p) => [p.id, p]));
   if (!Array.isArray(items) || items.length < 1 || items.length > 50)
     fail(400, "Košík je prázdný.");
@@ -97,6 +136,7 @@ export function resolveItems(items, pricedCatalog = catalog) {
       variant: variant.id,
       name: product.name + (variant.name ? ` — ${variant.name}` : ""),
       price: variant.price,
+      ...(variant.bulk ? { bulk: variant.bulk } : {}),
       qty,
     };
   });

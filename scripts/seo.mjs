@@ -18,6 +18,7 @@ const privatePages = new Set([
   "order",
   "workshop",
   "withdrawal",
+  "product-template",
 ]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
@@ -26,6 +27,7 @@ const titles = {
   suncatchers: "Lapače slunce — duhové nálepky na okno | LOOMOS",
   "gifts-her": "Dárek pro ni — vonné svíčky pro ženy | LOOMOS",
   "gifts-him": "Dárek pro něj — pánské vonné svíčky | LOOMOS",
+  inquiry: "Tvorba na míru — lapače slunce, samolepky, loga | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
   admin: "Administrace | LOOMOS",
@@ -34,6 +36,7 @@ const titles = {
   reset: "Obnovení hesla | LOOMOS",
   order: "Vaše objednávka | LOOMOS",
   workshop: "Dílnička | LOOMOS",
+  "product-template": "LOOMOS",
   withdrawal: "Odstoupení od smlouvy | LOOMOS",
   terms: "Obchodní podmínky | LOOMOS",
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",
@@ -43,6 +46,8 @@ const descriptions = {
   safety:
     "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používám, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si z vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
+  inquiry:
+    "Lapač slunce s vaším motivem, samolepky nebo logo na míru. Pošlete mi obrázek nebo fotku, napište velikost a počet kusů a já se ozvu s návrhem a cenou.",
   "gifts-her":
     "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi a dřevěným knotem. Dárek pro ženu, přítelkyni i mámu k Vánocům, narozeninám nebo na Valentýna.",
   "gifts-him":
@@ -61,6 +66,7 @@ const crumbs = {
   wholesale: "Spolupráce",
   suncatchers: "Lapače slunce",
   "gifts-her": "Dárek pro ni",
+  inquiry: "Tvorba na míru",
   "gifts-him": "Dárek pro něj",
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
@@ -84,7 +90,7 @@ export function metadata({
   const path = publicPath(file);
   const canonical = new URL(path, siteUrl).href;
   const title = product
-    ? `${product.name} — sójová svíčka | LOOMOS`
+    ? `${product.name} — ${isCandle(product) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`
     : titles[page];
   const description = product
     ? shorten(product.description, 158)

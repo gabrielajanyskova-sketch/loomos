@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { readCart, validateCatalog } from "../assets/js/catalog.mjs";
+import { readCart, validateCatalog, isCandle } from "../assets/js/catalog.mjs";
 import { productCard, renderProductDetail, esc } from "../assets/js/ui.mjs";
 import { metadata } from "../scripts/seo.mjs";
 
@@ -96,17 +96,21 @@ test("JSON-LD cannot break out of its non-executable script", () => {
   );
 });
 
-test("fourteen unpriced sun catchers render without wax claims or zero prices", () => {
+test("fourteen sun catchers (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
   const catchers = validateCatalog(products).filter(
     (p) => p.category === "lapace-slunce",
   );
   assert.equal(catchers.length, 14);
   for (const p of catchers) {
-    assert.equal(p.price, null);
+    assert.equal(p.price, 199);
+    assert.deepEqual(p.bulk, { min_qty: 2, price: 175 });
     const html = productCard(p, 0) + renderProductDetail(p);
     assert.match(html, /15 cm/i);
-    assert.match(html, /disabled/);
-    assert.match(html, /Cenu připravujeme/);
+    assert.match(html, /175/);
+    const unpriced = { ...p, price: null, bulk: undefined };
+    const pending = productCard(unpriced, 0) + renderProductDetail(unpriced);
+    assert.match(pending, /disabled/);
+    assert.match(pending, /Cenu připravuji/);
     assert.doesNotMatch(
       html,
       /0 Kč|Sójový vosk|Dřevěný knot|member-price|Vonné tóny|candle-/i,
