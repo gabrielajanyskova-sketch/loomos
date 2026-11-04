@@ -3058,3 +3058,72 @@ a.category-card {
 .gift-note a {
   color: var(--copper-light);
 }
+
+/* Shop filter by scent family */
+.scent-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+.scent-filter-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.scent-filter button {
+  border: 1px solid #ffffff25;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+}
+.scent-filter button:hover {
+  border-color: var(--copper);
+}
+.scent-filter button.active {
+  border-color: var(--copper);
+  background: #cb956833;
+  color: var(--copper-light);
+}
+.filter-tabs > * {
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .filter-tabs {
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+}
+
+/* Nejoblíbenější vůně + Mohlo by se vám líbit */
+.product-card.featured {
+  outline: 1px solid #cb956899;
+  outline-offset: -1px;
+}
+.product-card.featured .product-tag {
+  background: var(--copper);
+  color: #1b1712;
+  border-color: var(--copper);
+}
+.badge-pill {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--copper);
+  color: #1b1712;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.related {
+  margin-top: 70px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+.related h2 {
+  margin: 6px 0 24px;
+}

@@ -5,6 +5,56 @@ export const isCandle = (p) => (p.category || "svicky") === "svicky";
 export const GIFTS = { "pro-ni": "Pro ni", "pro-nej": "Pro něj" };
 export const giftFor = (p, who) => Boolean(p.gift?.includes(who));
 
+/** Scent families for the shop filter, recognised from the notes and the scent pyramid. */
+export const SCENT_FAMILIES = [
+  ["vanilka", "Vanilka", ["vanilk"]],
+  ["pizmo", "Pižmo", ["pižm"]],
+  ["paculi", "Pačuli", ["pačuli"]],
+  ["ambra", "Ambra", ["ambr"]],
+  ["drevo", "Dřevo", ["santal", "cedr", "vetiver", "dřev"]],
+  [
+    "citrusy",
+    "Citrusy",
+    [
+      "pomeranč",
+      "citron",
+      "bergamot",
+      "limet",
+      "mandarin",
+      "grapefruit",
+      "tangerin",
+      "citrus",
+    ],
+  ],
+  [
+    "kvetiny",
+    "Květiny",
+    [
+      "jasmín",
+      "růž",
+      "lili",
+      "fialk",
+      "frézi",
+      "květ",
+      "neroli",
+      "ylang",
+      "levandul",
+    ],
+  ],
+  ["svezi", "Svěží a zelené", ["okurk", "mát", "čaj", "ozon", "zelen"]],
+  ["more", "Moře", ["moř"]],
+  ["koreni", "Koření a zázvor", ["zázvor", "skořic", "hřebíč"]],
+  ["sladke", "Sladké", ["čokolád", "cukr", "kokos", "broskev", "jahod"]],
+];
+export const scentFamilies = (p) => {
+  const text = [p.notes, p.pyramid?.top, p.pyramid?.heart, p.pyramid?.base]
+    .join(" ")
+    .toLowerCase();
+  return SCENT_FAMILIES.filter(([, , words]) =>
+    words.some((w) => text.includes(w)),
+  ).map(([id]) => id);
+};
+
 /** Validate the same public catalog in the static build and the browser. */
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const validPrice = (price) =>
@@ -30,6 +80,11 @@ export function validateCatalog(value) {
     for (const key of ["subtitle", "notes", "description"])
       if (typeof p[key] !== "string")
         throw new TypeError("Neplatný popis produktu.");
+    if (
+      p.badge !== undefined &&
+      (typeof p.badge !== "string" || !p.badge || p.badge.length > 40)
+    )
+      throw new TypeError("Neplatný štítek produktu.");
     if (
       p.gift !== undefined &&
       (!Array.isArray(p.gift) || p.gift.some((g) => !(g in GIFTS)))

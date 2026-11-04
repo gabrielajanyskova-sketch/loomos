@@ -7,9 +7,17 @@ import {
   renderHeader,
   renderFooter,
   renderProductDetail,
+  renderRelated,
   renderFAQ,
 } from "./ui.mjs";
-import { validateCatalog, readCart, isCandle, giftFor } from "./catalog.mjs";
+import {
+  validateCatalog,
+  readCart,
+  isCandle,
+  giftFor,
+  SCENT_FAMILIES,
+  scentFamilies,
+} from "./catalog.mjs";
 import {
   memberPrice,
   priceCart,
@@ -266,6 +274,11 @@ function renderProduct() {
   document.title = p.name + " — sójová svíčka | LOOMOS";
   $("#product-breadcrumb").textContent = p.name;
   $("#product-detail").innerHTML = renderProductDetail(p);
+  const related = $("#product-related");
+  if (related) {
+    related.innerHTML = renderRelated(p, products);
+    refreshCards(related);
+  }
   const size = new URLSearchParams(location.search).get("velikost");
   if (size && p.variants?.some((v) => v.id === size))
     $("#size-choice").value = size;
@@ -825,15 +838,53 @@ async function init() {
   }
   if (page === "shop") {
     const tabs = [...document.querySelectorAll("[data-filter]")];
-    let filter = new URLSearchParams(location.search).get("pro");
-    filter = filter ? `pro-${filter}` : "all";
+    const params = new URLSearchParams(location.search);
+    let filter = params.get("pro") ? `pro-${params.get("pro")}` : "all";
+    const families = SCENT_FAMILIES.filter(([id]) =>
+      candles.some((p) => scentFamilies(p).includes(id)),
+    );
+    let family = families.some(([id]) => id === params.get("ton"))
+      ? params.get("ton")
+      : "";
+    const updateUrl = () => {
+      const url = new URL(location.href);
+      if (filter === "all") url.searchParams.delete("pro");
+      else url.searchParams.set("pro", filter.slice(4));
+      if (family) url.searchParams.set("ton", family);
+      else url.searchParams.delete("ton");
+      history.replaceState(null, "", url);
+    };
+    const chips = $("#scent-filter");
+    if (chips) {
+      chips.innerHTML =
+        '<span class="scent-filter-label">Oblíbená vůně:</span>' +
+        families
+          .map(
+            ([id, label]) =>
+              `<button type="button" data-family="${id}">${esc(label)}</button>`,
+          )
+          .join("");
+      chips.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-family]");
+        if (!b) return;
+        family = family === b.dataset.family ? "" : b.dataset.family;
+        updateUrl();
+        render();
+      });
+    }
     const render = () => {
+      chips?.querySelectorAll("[data-family]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.family === family);
+        b.setAttribute("aria-pressed", String(b.dataset.family === family));
+      });
       tabs.forEach((t) => {
         t.classList.toggle("active", t.dataset.filter === filter);
         t.setAttribute("aria-pressed", String(t.dataset.filter === filter));
       });
       const list = candles.filter(
-        (p) => filter === "all" || giftFor(p, filter),
+        (p) =>
+          (filter === "all" || giftFor(p, filter)) &&
+          (!family || scentFamilies(p).includes(family)),
       );
       const sort = $("#sort").value;
       if (sort === "price-up") list.sort((a, b) => a.price - b.price);
@@ -842,7 +893,9 @@ async function init() {
         list.sort((a, b) => a.name.localeCompare(b.name, "cs"));
       $("#shop-products").innerHTML = list.length
         ? list.map(productCard).join("")
-        : "<p>Nové vůně právě připravuji.</p>";
+        : family || filter !== "all"
+          ? "<p>S touto kombinací teď žádnou svíčku nemám. Zkuste jiný filtr.</p>"
+          : "<p>Nové vůně právě připravuji.</p>";
       const n = list.length;
       const word = n === 1 ? "vůně" : n >= 2 && n <= 4 ? "vůně" : "vůní";
       $("#product-count").textContent =
@@ -854,10 +907,7 @@ async function init() {
     tabs.forEach((t) =>
       t.addEventListener("click", () => {
         filter = t.dataset.filter;
-        const url = new URL(location.href);
-        if (filter === "all") url.searchParams.delete("pro");
-        else url.searchParams.set("pro", filter.slice(4));
-        history.replaceState(null, "", url);
+        updateUrl();
         render();
       }),
     );
