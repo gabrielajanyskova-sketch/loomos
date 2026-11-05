@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (dalších 6 lapačů, velikost lapa�
 
 Čeká na nasazení:
 
-- (nic)
+- **Úvodní stránka:** u Lapačů slunce místo smazané sovy skutečná fotka lapače Kotě na měsíci (verze na šířku, motiv celý).
 
 Ke kontrole majitelkou:
 
