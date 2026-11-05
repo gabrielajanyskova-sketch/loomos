@@ -13,4 +13,3 @@ Ke kontrole majitelkou:
 - Logo Balíkovny (pobočka) je z veřejného modulu jiného autora — ověřit, že odpovídá aktuálnímu logu; případně poslat oficiální.
 - Heureka: po registraci ověřit adresu API pro Ověřeno zákazníky (v kódu `https://api.heureka.cz/shop-certification/v2/order/log`, dá se změnit proměnnou `HEUREKA_API_URL`).
 - Nové lapače: doplnit velikost v adminu u každého motivu.
-- Po nasazení 5. 11.: smazat v D1 záznamy „smazáno“ u lapac-slunce-sova, -vila, -medvidek, -traktor.
