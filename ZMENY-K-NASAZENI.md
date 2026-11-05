@@ -10,6 +10,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (8 nových lapačů slunce, zvýrazn�
 - Fotky lapačů na bílém pozadí doplněny na formát 3 : 4, aby vyplnily celou kartu i stránku produktu bez okrajů.
 - **Velikost lapače** je nové pole v adminu (Produkty → Upravit → Velikost). Ukáže se na kartě, u produktu i v údajích o výrobku. Kulaté lapače mají „Ø 15 cm“, nové motivy zatím bez velikosti.
 - **Fotky v adminu:** u produktu jsou vidět i fotky, které jsou teď na webu. Když přidáte další nebo vyberete jinou hlavní, uloží se automaticky i ty původní. V seznamu produktů je náhled hlavní fotky. Nahrané fotky už nejsou na webu ztmavené.
+- **Kontrola celého webu před spuštěním:** v patičce přibyl odkaz na Lapače slunce; zkráceny popisy pro Google u stránek Dárek pro ni / pro něj; stránky objednávky a hodnocení otevřené bez odkazu z e-mailu už zbytečně nevolají server. Smazán zastaralý pracovní soubor `SUN-CATCHERS-DRAFT.md`.
 
 Ke kontrole majitelkou:
 
