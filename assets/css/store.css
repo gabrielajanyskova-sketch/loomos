@@ -3914,3 +3914,23 @@ aside nav .ico {
     box-shadow: 0 0 0 0.2mm #999;
   }
 }
+@media print {
+  /* Borders (not backgrounds) so the lines print even without "background graphics". */
+  .label-page .cut-line {
+    position: absolute;
+  }
+  .label-page .cut-v {
+    top: 0;
+    width: 0;
+    height: 297mm;
+    border-left: 0.15mm solid #9a9a9a;
+    margin-left: -0.075mm;
+  }
+  .label-page .cut-h {
+    left: 0;
+    width: 210mm;
+    height: 0;
+    border-top: 0.15mm solid #9a9a9a;
+    margin-top: -0.075mm;
+  }
+}

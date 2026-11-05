@@ -522,7 +522,8 @@ function renderLabels() {
       <div class="jar-form">
         <label>Šarže / datum (nepovinné, na dno)<input name="batch" maxlength="40" placeholder="např. 2026-11"></label>
         <label>Začít od pozice na archu<input name="start" type="number" min="1" max="200" value="1"><small>když tisknete na načatý arch</small></label>
-        <label class="check wide"><input type="checkbox" name="guides">Tisknout obrysy (zkušební tisk na obyčejný papír / čáry pro stříhání)</label>
+        <label class="check wide"><input type="checkbox" name="cut" checked>Vodítka pro stříhání u předních etiket (tenké čáry přes celý arch na hranách etiket)</label>
+        <label class="check wide"><input type="checkbox" name="guides">Tisknout obrysy etiket (zkušební tisk na obyčejný papír)</label>
       </div>
       <div class="workshop-actions">
         <button class="button" data-print="round">Tisknout etikety na dno</button>
@@ -580,7 +581,10 @@ function printSheets(pages) {
     .join("");
   sheet.querySelectorAll(".label-page").forEach((pageEl, n) => {
     const { layout, width, height, round } = pages[n];
-    [...pageEl.children].forEach((el, i) => {
+    const labels = [...pageEl.children];
+    if (!round && $("#label-print").elements.cut.checked)
+      cutLines(pageEl, layout, width, height, labels.length);
+    labels.forEach((el, i) => {
       if (round) sizeLabel(el, data.label);
       el.style.left = `${layout.margin_left + (i % layout.columns) * (width + layout.gap)}mm`;
       el.style.top = `${layout.margin_top + Math.floor(i / layout.columns) * (height + layout.gap)}mm`;
@@ -593,6 +597,32 @@ function printSheets(pages) {
   );
   window.print();
   document.body.classList.remove("print-labels", "print-guides");
+}
+/**
+ * Thin cutting guides across the whole A4 sheet on every label edge, so the sheet can be cut
+ * with scissors or a trimmer. Lines sit exactly on the edges, so nothing is left on the label.
+ */
+function cutLines(pageEl, layout, width, height, count) {
+  const columns = Math.min(layout.columns, count);
+  const rows = Math.ceil(count / layout.columns);
+  const edges = (start, size, n) => [
+    ...new Set(
+      Array.from({ length: n }, (_, i) => {
+        const from = start + i * (size + layout.gap);
+        return [from, from + size].map((x) => Math.round(x * 100) / 100);
+      }).flat(),
+    ),
+  ];
+  for (const [axis, positions] of [
+    ["v", edges(layout.margin_left, width, columns)],
+    ["h", edges(layout.margin_top, height, rows)],
+  ])
+    for (const at of positions) {
+      const line = document.createElement("span");
+      line.className = `cut-line cut-${axis}`;
+      line.style[axis === "v" ? "left" : "top"] = `${at}mm`;
+      pageEl.append(line);
+    }
 }
 /** Splits a list of labels into pages; the first page can start at a later position. */
 function paginate(list, perPage, start = 1) {

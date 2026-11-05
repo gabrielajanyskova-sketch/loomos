@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (filtr lapačů podle tématu, nová 
 
 Čeká na nasazení:
 
-- (nic)
+- **Vodítka pro stříhání u předních etiket:** tenké šedé čáry přes celý arch A4 na hranách etiket (zapnuto automaticky, tisknou se i bez „grafiky pozadí“).
 
 Ke kontrole majitelkou:
 
