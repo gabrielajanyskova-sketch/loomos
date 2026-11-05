@@ -93,3 +93,32 @@ export const overflows = (el) => {
   const text = el.querySelector(".label-text");
   return text.scrollHeight > text.clientHeight + 1;
 };
+
+/**
+ * Front labels for the jar (rectangle, width × height in mm). The default sheet layout is the
+ * largest grid that fits on A4 with at least 5 mm left for the printer, centred on the page.
+ */
+export const FRONT_SIZES = {
+  small: { name: "Malá", width: 50, height: 60 },
+  big: { name: "Velká", width: 60, height: 70 },
+};
+export function frontLayout({ width, height }, gap = 0) {
+  const fit = (page, size) => Math.floor((page - 10 + gap) / (size + gap));
+  const columns = fit(210, width);
+  const rows = fit(297, height);
+  const round = (n) => Math.round(n * 10) / 10;
+  return {
+    columns,
+    rows,
+    gap,
+    margin_left: round((210 - columns * width - (columns - 1) * gap) / 2),
+    margin_top: round((297 - rows * height - (rows - 1) * gap) / 2),
+  };
+}
+/** HTML of one front label; the size class sets its dimensions in mm. */
+export function frontLabelHtml({ size, name, notes, grams, hours }) {
+  const meta = [grams ? `${grams} g` : "", hours ? `hoří ±${hours} h` : ""]
+    .filter(Boolean)
+    .join(" · ");
+  return `<div class="front-label front-${size === "small" ? "small" : "big"}"><img class="front-logo" src="/assets/img/logo-print.png" alt="LOOMOS" width="600" height="561"><p class="front-kind">Sójová svíčka</p><p class="front-name">${esc(name)}</p>${notes ? `<p class="front-notes">${esc(notes)}</p>` : ""}<p class="front-meta">${esc(meta)}</p><p class="front-made">Ručně vyrobeno · loomos.cz</p></div>`;
+}

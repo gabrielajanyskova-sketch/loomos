@@ -249,34 +249,85 @@ async function renderStock(el) {
     waiting.find(
       (w) => w.product_id === r.product_id && w.variant_id === r.variant_id,
     )?.count || 0;
-  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2>${categoryTabs(category)}</div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}<br><small>Aktuálně: ${money(r.price)}</small>${waitingFor(r) ? `<br><small class="status-label">Hlídá ${waitingFor(r)}× — po naskladnění dostanou e-mail</small>` : ""}</td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
+  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2>${categoryTabs(category)}</div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}<br><small>Aktuálně: ${money(r.price)}</small>${waitingFor(r) ? `<br><small class="status-label">Hlídá ${waitingFor(r)}× — po naskladnění dostanou e-mail</small>` : ""}</td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div><div class="stock-save-all"><button type="button" class="button" data-save-all-stock disabled>Uložit všechny změny</button><span class="muted" data-save-all-note>Upravte libovolné řádky a uložte je najednou.</span></div>`;
 }
-async function saveStock(row) {
-  const inputs = [...row.querySelectorAll("input")];
-  if (inputs.some((i) => !i.reportValidity())) return;
+function stockPayload(row) {
   const input = $(".stock-input", row);
   const number = (selector) => {
     const value = $(selector, row).value.trim();
     return value === "" ? null : Number(value);
   };
+  return {
+    product_id: input.dataset.product,
+    variant_id: input.dataset.variant,
+    revision: Number(row.dataset.revision),
+    quantity: number(".stock-input"),
+    regular_price: number(".regular-price-input"),
+    sale_price: number(".sale-price-input"),
+    confirmed_lowest_30: number(".reference-price-input"),
+  };
+}
+async function saveStock(row) {
+  const inputs = [...row.querySelectorAll("input")];
+  if (inputs.some((i) => !i.reportValidity())) return;
   const button = $("[data-save-stock]", row);
   if (button.disabled) return;
   button.disabled = true;
   try {
-    await api("prices", {
-      product_id: input.dataset.product,
-      variant_id: input.dataset.variant,
-      revision: Number(row.dataset.revision),
-      quantity: number(".stock-input"),
-      regular_price: number(".regular-price-input"),
-      sale_price: number(".sale-price-input"),
-      confirmed_lowest_30: number(".reference-price-input"),
-    });
+    await api("prices", stockPayload(row));
     status("Sklad i ceny jsou uložené.");
     await show("stock");
   } finally {
     button.disabled = false;
   }
+}
+/** Saves every edited row in one go; rows that fail are named in the status message. */
+async function saveAllStock() {
+  const changed = [
+    ...document.querySelectorAll(".stock-price-table tr.changed"),
+  ];
+  if (!changed.length) return;
+  for (const row of changed)
+    if ([...row.querySelectorAll("input")].some((i) => !i.reportValidity()))
+      return;
+  const button = $("[data-save-all-stock]");
+  button.disabled = true;
+  const failed = [];
+  for (const [i, row] of changed.entries()) {
+    status(`Ukládám ${i + 1} z ${changed.length}…`);
+    try {
+      await api("prices", stockPayload(row));
+    } catch (error) {
+      failed.push(
+        `${row.cells[0].firstChild.textContent.trim()}: ${error.message}`,
+      );
+    }
+  }
+  await show("stock");
+  if (failed.length)
+    status(
+      `Uloženo ${changed.length - failed.length} z ${changed.length}. Neuložilo se — ${failed.join("; ")}`,
+      true,
+    );
+  else
+    status(
+      changed.length === 1
+        ? "Změna je uložená."
+        : `Uloženo ${changed.length} změn.`,
+    );
+}
+function markStockChanged(input) {
+  const row = input.closest(".stock-price-table tr");
+  if (!row) return;
+  row.classList.add("changed");
+  const count = document.querySelectorAll(
+    ".stock-price-table tr.changed",
+  ).length;
+  const button = $("[data-save-all-stock]");
+  button.disabled = false;
+  button.textContent = `Uložit všechny změny (${count})`;
+  $("[data-save-all-note]").textContent =
+    count === 1 ? "1 upravený řádek" : `${count} upravených řádků`;
 }
 
 /* ---------- products ---------- */
@@ -730,6 +781,7 @@ document.addEventListener("click", (e) => {
   }
   if (e.target.closest("[data-save-stock]"))
     guard(() => saveStock(e.target.closest("tr")));
+  if (e.target.closest("[data-save-all-stock]")) guard(saveAllStock);
   const customer = e.target.closest("[data-customer]");
   if (customer) {
     const action = customer.dataset.action;
@@ -754,6 +806,9 @@ document.addEventListener("click", (e) => {
       await api("codes/delete", { code: del.dataset.deleteCode });
       await show("codes");
     });
+});
+document.addEventListener("input", (e) => {
+  if (e.target.matches(".stock-price-table input")) markStockChanged(e.target);
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && e.target.matches(".stock-price-table input")) {
