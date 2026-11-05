@@ -2913,46 +2913,23 @@ a.category-card {
 }
 .suncatcher-hero {
   max-width: 760px;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
-.rainbow-strip {
-  height: 6px;
-  margin-top: 28px;
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #ffb347,
-    #fff176,
-    #6bd49a,
-    #5cb8ff,
-    #9b7bff
-  );
-  opacity: 0.85;
+/* Sun catchers are small products: four in a row on a wide screen. */
+.product-grid.suncatcher-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
 }
-.suncatcher-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  margin-bottom: 50px;
+@media (max-width: 1200px) {
+  .product-grid.suncatcher-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
-.suncatcher-info article {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  padding: 24px;
-}
-.suncatcher-info h2 {
-  font-size: 24px;
-  margin: 8px 0 10px;
-}
-.suncatcher-info p {
-  color: var(--muted);
-  margin: 0;
-}
-.suncatcher-step {
-  color: var(--copper-light);
-  font-size: 12px;
-  letter-spacing: 0.14em;
+@media (max-width: 860px) {
+  .product-grid.suncatcher-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
 }
 .suncatcher-image {
   display: block;
@@ -3986,5 +3963,27 @@ aside nav .ico {
   }
   .upsell-item .add-button {
     padding: 9px 12px;
+  }
+}
+
+/* Two sun catchers side by side on a phone: quantity above the button. */
+@media (max-width: 560px) {
+  .suncatcher-grid .card-buy {
+    flex-direction: column;
+  }
+  .suncatcher-grid .card-qty {
+    justify-content: space-between;
+  }
+  .suncatcher-grid .card-buy .add-button {
+    justify-content: center;
+    padding: 11px 8px;
+    font-size: 15px;
+  }
+  .suncatcher-grid .product-title-row h3 {
+    font-size: 21px;
+  }
+  .suncatcher-grid .bulk-note,
+  .suncatcher-grid .product-notes {
+    font-size: 13px;
   }
 }

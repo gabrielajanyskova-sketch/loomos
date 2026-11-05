@@ -8,6 +8,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (e-maily ve vzhledu webu, logo a QR v
 
 - **Horní lišta:** jen „Doprava zdarma od 1 200 Kč“ (bez „Ručně vyráběné sójové svíčky“).
 - **Faktura s logem:** vlevo nahoře tisková verze loga místo textu LOOMOS.
+- **Stránka Lapače slunce zkrácená:** nahoře jen nadpis a jedna věta (návod je u každého lapače), bez druhého nadpisu „Nabídka“ a bez spodního odstavce o lapači na přání (je kartou mezi lapači). Lapače 4 vedle sebe (3 na menším notebooku, 2 na tabletu i mobilu).
 
 Ke kontrole majitelkou:
 
