@@ -97,6 +97,11 @@ export function validateCatalog(value) {
     )
       throw new TypeError("Neplatný štítek produktu.");
     if (
+      p.size !== undefined &&
+      (typeof p.size !== "string" || !p.size || p.size.length > 40)
+    )
+      throw new TypeError("Neplatná velikost produktu.");
+    if (
       p.gift !== undefined &&
       (!Array.isArray(p.gift) || p.gift.some((g) => !(g in GIFTS)))
     )

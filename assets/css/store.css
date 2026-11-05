@@ -3311,6 +3311,11 @@ a.category-card {
 }
 
 /* Uploaded product photos */
+.uploaded-photo img,
+.product-card .uploaded-photo img,
+.detail-photo .uploaded-photo img {
+  filter: none;
+}
 .uploaded-photo img {
   width: 100%;
   height: auto;
@@ -3798,4 +3803,14 @@ aside nav .ico {
   color: var(--copper-light);
   letter-spacing: 2px;
   font-size: 14px;
+}
+
+/* Admin: main photo next to the product name */
+.product-cell .product-thumb {
+  float: left;
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 1px solid var(--line);
 }

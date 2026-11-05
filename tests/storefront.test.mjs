@@ -2,7 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { readCart, validateCatalog, isCandle } from "../assets/js/catalog.mjs";
-import { productCard, renderProductDetail, esc } from "../assets/js/ui.mjs";
+import {
+  builtinPhotos,
+  productCard,
+  renderProductDetail,
+  esc,
+} from "../assets/js/ui.mjs";
 import { metadata } from "../scripts/seo.mjs";
 
 const products = JSON.parse(
@@ -113,7 +118,9 @@ test("eighteen sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) r
     assert.equal(p.price, 199);
     assert.deepEqual(p.bulk, { min_qty: 2, price: 175 });
     const html = productCard(p, 0) + renderProductDetail(p);
-    assert.match(html, /15 cm/i);
+    // The size is shown only when it is filled in (each motif has its own).
+    if (p.size) assert.ok(html.includes(`Velikost ${p.size}`));
+    else assert.doesNotMatch(html, /Velikost/);
     assert.match(html, /175/);
     const unpriced = { ...p, price: null, bulk: undefined };
     const pending = productCard(unpriced, 0) + renderProductDetail(unpriced);
@@ -158,4 +165,20 @@ test("nullable candle variant prices disable only that size, zero remains invali
   assert.throws(() =>
     validateCatalog([{ ...p, variants: [{ ...p.variants[0], price: 0 }] }]),
   );
+});
+
+test("admin sees the real photos that ship with the website (never illustrations)", () => {
+  const byId = Object.fromEntries(products.map((p) => [p.id, p]));
+  assert.deepEqual(builtinPhotos(byId["lapac-slunce-vanocni-stromecek"]), [
+    "/assets/img/lapac-slunce-vanocni-stromecek-960.webp",
+    "/assets/img/lapac-slunce-vanocni-stromecek-2-960.webp",
+  ]);
+  // Window pictures are illustrations: only the real photo in packaging is offered.
+  assert.deepEqual(builtinPhotos(byId["lapac-slunce-sova"]), [
+    "/assets/img/lapac-slunce-sova-960.webp",
+  ]);
+  assert.deepEqual(builtinPhotos(byId["morska-sul-paculi"]), []);
+  for (const p of products)
+    for (const src of builtinPhotos(p))
+      assert.ok(readFileSync(new URL(".." + src, import.meta.url)).length);
 });

@@ -214,7 +214,15 @@ export function metadata({
         : {}),
       additionalProperty: !isCandle(product)
         ? [
-            { "@type": "PropertyValue", name: "Průměr", value: "15 cm" },
+            ...(product.size
+              ? [
+                  {
+                    "@type": "PropertyValue",
+                    name: "Velikost",
+                    value: product.size,
+                  },
+                ]
+              : []),
             {
               "@type": "PropertyValue",
               name: "Uchycení",

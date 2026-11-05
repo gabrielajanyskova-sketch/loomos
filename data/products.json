@@ -313,12 +313,13 @@
     "price": 199,
     "active": true,
     "subtitle": "Malá radost do slunečného okna.",
-    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
-    "description": "Lapač slunce s motivem Sova a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "notes": "Statické přilnutí ke sklu · kruh",
+    "description": "Lapač slunce s motivem Sova a duhovými odlesky. Kruhová dekorace se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "size": "Ø 15 cm"
   },
   {
     "id": "lapac-slunce-vila",
@@ -327,12 +328,13 @@
     "price": 199,
     "active": true,
     "subtitle": "Malá radost do slunečného okna.",
-    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
-    "description": "Lapač slunce s motivem Víla a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "notes": "Statické přilnutí ke sklu · kruh",
+    "description": "Lapač slunce s motivem Víla a duhovými odlesky. Kruhová dekorace se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "size": "Ø 15 cm"
   },
   {
     "id": "lapac-slunce-medvidek",
@@ -341,12 +343,13 @@
     "price": 199,
     "active": true,
     "subtitle": "Malá radost do slunečného okna.",
-    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
-    "description": "Lapač slunce s motivem Medvídek a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "notes": "Statické přilnutí ke sklu · kruh",
+    "description": "Lapač slunce s motivem Medvídek a duhovými odlesky. Kruhová dekorace se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "size": "Ø 15 cm"
   },
   {
     "id": "lapac-slunce-traktor",
@@ -355,12 +358,13 @@
     "price": 199,
     "active": true,
     "subtitle": "Malá radost do slunečného okna.",
-    "notes": "Průměr 15 cm · statické přilnutí ke sklu",
-    "description": "Lapač slunce s motivem Traktor a duhovými odlesky. Kruhová dekorace o průměru 15 cm se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
+    "notes": "Statické přilnutí ke sklu · kruh",
+    "description": "Lapač slunce s motivem Traktor a duhovými odlesky. Kruhová dekorace se po sejmutí zadní ochranné fólie přiloží na čisté hladké sklo a drží staticky, bez lepidla. Nejlépe vynikne na okně s přímým slunečním světlem.",
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "size": "Ø 15 cm"
   },
   {
     "id": "lapac-slunce-kocicka",
@@ -369,7 +373,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Mazlivá duha pro všechny kočičí duše.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s motivem schoulené kočičky s huňatým ocáskem. Jakmile na něj posvítí slunce, rozběhnou se po pokoji barevná prasátka. Dárek pro každého, kdo má doma mourka — nebo by ho rád měl. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -383,7 +387,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Moudrá strážkyně slunečného okna.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce se sovou sedící na větvičce s lístky. Na skle září duhovými odstíny a za slunečného dne rozsype po místnosti barevné odlesky. Hodí se do dětského pokoje i do pracovny. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -397,7 +401,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Pro všechny, kdo milují koně.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s hlavou koně s vlající hřívou. Na slunci se hříva rozzáří všemi barvami duhy a po stěnách se rozběhnou barevné odlesky. Radost pro malé i velké milovnice koní. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -411,7 +415,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Kousek lesa na vašem okně.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s liškou sedící mezi listy. Za slunečného dne rozzáří okno duhovými barvami a pokoj zaplní barevnými prasátky. Krásný dárek pro milovníky přírody. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -425,7 +429,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Malý drak, který chytá sluníčko.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s usměvavým dráčkem s křidélky. Na slunci se rozzáří duhovými barvami a rozhází po pokoji barevné odlesky. Oblíbený motiv do dětského pokoje. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -439,7 +443,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Statečný pejsek v hasičské helmě.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s veselým štěňátkem v hasičské helmě. Na okně se rozzáří duhovými barvami a za slunečného dne rozběhne po pokoji barevná prasátka. Radost pro malé hasiče i pejskaře. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -453,7 +457,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Usměvavá dýně na podzimní okno.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s veselou vyřezávanou dýní mezi listy. Podzimní sluníčko ji rozzáří duhovými barvami a pokoj zaplní barevnými odlesky. Ozdoba na podzim i na Halloween. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -467,7 +471,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Duhové Vánoce na vašem okně.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s vánočním stromečkem, hvězdou a dárky. Zimní sluníčko ho rozzáří všemi barvami duhy a po pokoji se rozběhnou barevná prasátka. Milá drobnost pod stromeček i jako vánoční výzdoba. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -481,7 +485,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Sladké sny s duhou na okně.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce se spícím koťátkem schouleným v půlměsíci s hvězdičkou. Na slunci se rozzáří duhovými barvami a rozsype po pokoji barevná prasátka. Něžná ozdoba do dětského pokoje i ložnice. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -495,7 +499,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Zasněžené chaloupky plné duhového světla.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce se zasněženou vesničkou, chaloupkami a stromky. Zimní sluníčko ho rozzáří všemi barvami duhy a pokoj zaplní barevnými odlesky. Krásná zimní a vánoční výzdoba okna. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -509,7 +513,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Pilná včelka na rozkvetlé slunečnici.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s včelkou sedící na slunečnici. Na slunci se rozzáří duhovými barvami a po stěnách se rozběhnou barevná prasátka. Jarní a letní radost na každé okno. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -523,7 +527,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Pro všechny malé hasiče.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s hasičským autem a žebříkem. Za slunečného dne rozzáří okno duhovými barvami a pokoj zaplní barevnými odlesky. Oblíbený motiv do klučičího i holčičího pokojíčku. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -537,7 +541,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Duhový ptáček na kvetoucí větvičce.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s ledňáčkem sedícím na kvetoucí větvičce. Na slunci se rozzáří všemi barvami duhy a rozhází po místnosti barevné odlesky. Dárek pro milovníky přírody a ptactva. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
@@ -551,7 +555,7 @@
     "price": 199,
     "active": true,
     "subtitle": "Ušatý kamarád pro slunečné okno.",
-    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "notes": "Statické přilnutí ke sklu",
     "description": "Lapač slunce s roztomilým klapouchým zajíčkem. Na slunci se rozzáří duhovými barvami a rozběhnou se po pokoji barevná prasátka. Hodí se do dětského pokoje i jako jarní a velikonoční ozdoba. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
     "bulk": {
       "min_qty": 2,
