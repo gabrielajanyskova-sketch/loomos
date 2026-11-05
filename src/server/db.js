@@ -178,6 +178,14 @@ const SCHEMA = [
     created INTEGER NOT NULL
   )`,
   "CREATE INDEX IF NOT EXISTS product_images_product ON product_images (product_id, position)",
+  // "Hlídat dostupnost": one e-mail when a sold-out product is back; the row is deleted after sending.
+  `CREATE TABLE IF NOT EXISTS stock_alerts (
+    email TEXT NOT NULL COLLATE NOCASE,
+    product_id TEXT NOT NULL,
+    variant_id TEXT NOT NULL,
+    created INTEGER NOT NULL,
+    PRIMARY KEY (email, product_id, variant_id)
+  )`,
   `CREATE TABLE IF NOT EXISTS inquiries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,

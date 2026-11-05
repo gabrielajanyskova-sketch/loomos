@@ -8,6 +8,7 @@ import * as workshop from "./workshop.js";
 import * as products from "./products.js";
 import * as inquiry from "./inquiry.js";
 import * as images from "./images.js";
+import * as alerts from "./alerts.js";
 import * as withdrawal from "./withdrawal.js";
 
 const routes = {
@@ -20,6 +21,7 @@ const routes = {
   "POST /api/withdrawal": withdrawal.withdraw,
   "POST /api/inquiry": inquiry.create,
   "GET /api/img": images.serve,
+  "POST /api/stock-alert": alerts.subscribe,
 
   "GET /api/account/me": account.me,
   "POST /api/account/register": account.register,
@@ -55,6 +57,7 @@ const adminRoutes = {
   "POST /api/admin/product-delete": products.remove,
   "POST /api/admin/product-image": images.upload,
   "POST /api/admin/product-image-update": images.update,
+  "GET /api/admin/stock-alerts": alerts.overview,
   "GET /api/admin/stock": admin.stock,
   "POST /api/admin/stock": admin.setStock,
   "POST /api/admin/prices": admin.setPrice,
@@ -92,7 +95,18 @@ export async function handle(request, env, ctx) {
   try {
     const db = await database(env);
     if (adminRoutes[key]) await admin.requireAdmin(db, request);
-    return await route(db, request, env, ctx);
+    const response = await route(db, request, env, ctx);
+    // Any admin change can bring stock back (stock, prices, workshop batch, cancelled order).
+    if (adminRoutes[key] && request.method === "POST" && response.ok) {
+      const job = alerts
+        .notifyRestocked(db, env, url.origin)
+        .catch((error) =>
+          console.log(`Restock e-mails failed: ${error?.message}`),
+        );
+      if (ctx?.waitUntil) ctx.waitUntil(job);
+      else await job;
+    }
+    return response;
   } catch (error) {
     if (error instanceof HttpError)
       return json({ error: error.message }, error.status);

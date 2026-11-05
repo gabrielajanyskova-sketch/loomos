@@ -1044,3 +1044,51 @@ test("product photos: upload, serve, main photo, delete", async () => {
     404,
   );
 });
+
+test("Hlídat dostupnost: only sold-out goods, one e-mail when back in stock", async () => {
+  const a = await admin();
+  const call = client(shop.url);
+  const product_id = "zazvor-zeleny-caj";
+  const variant_id = "velka";
+  const set = (quantity) =>
+    a("/api/admin/stock", { product_id, variant_id, quantity });
+  await set(5);
+  assert.equal(
+    (
+      await call("/api/stock-alert", {
+        product_id,
+        variant_id,
+        email: "hlidam@example.com",
+      })
+    ).status,
+    409,
+  );
+  await set(0);
+  const ok = await call("/api/stock-alert", {
+    product_id,
+    variant_id,
+    email: "hlidam@example.com",
+  });
+  assert.equal(ok.status, 201, JSON.stringify(ok.body));
+  const waiting = (await a("/api/admin/stock-alerts")).body;
+  assert.ok(waiting.some((r) => r.product_id === product_id && r.count === 1));
+  const before = shop.mails.length;
+  await set(3);
+  const mail = await mailTo("hlidam@example.com", /je zase skladem/);
+  assert.match(mail.body.text, /Zázvor a zelený čaj — Velká/);
+  // Sent once: the alert is gone, another stock change sends nothing.
+  await set(4);
+  await new Promise((r) => setTimeout(r, 300));
+  assert.equal(
+    shop.mails
+      .slice(before)
+      .filter((m) => m.body.to[0] === "hlidam@example.com").length,
+    1,
+  );
+  assert.ok(
+    !(await a("/api/admin/stock-alerts")).body.some(
+      (r) => r.product_id === product_id && r.variant_id === variant_id,
+    ),
+  );
+  await set(null);
+});

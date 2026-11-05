@@ -10,6 +10,7 @@ Poslední hromadné nasazení: 4. 11. 2026 (loga dopravců, Lapač na přání j
 - **Lapač na přání:** upozornění, že u zboží vyrobeného na přání nelze odstoupit od smlouvy (§ 1837 OZ); návrh ke schválení před výrobou.
 - **Ochrana osobních údajů:** doplněna Česká pošta jako příjemce údajů (Balíkovna, doručení na adresu).
 - **Doprava zdarma od 1 200 Kč** (zboží po slevách): ukazatel v košíku „Do dopravy zdarma vám chybí …“, v pokladně „Zdarma“ u všech doprav, horní lišta „Doprava zdarma od 1 200 Kč“, obchodní podmínky (účinné od 5. 11. 2026). Hranice: `FREE_SHIPPING_FROM` v `assets/js/pricing.mjs`.
+- **Hlídat dostupnost:** u vyprodaného zboží si zákazník nechá poslat e-mail; po naskladnění (sklad v adminu, Dílnička, zrušená objednávka) dostane jediný e-mail a adresa se smaže. V „Sklad a ceny“ je vidět, kolik lidí hlídá. Ochrana osobních údajů doplněna.
 
 Ke kontrole majitelkou:
 

@@ -198,6 +198,49 @@ function add(id, qty = 1, variantId = "mala") {
   );
   track("add_to_cart", product, variant, qty);
 }
+/** "Hlídat dostupnost" under a sold-out product: one e-mail when it is back in stock. */
+function stockAlert(button, product, variantId, soldOut) {
+  const row = button.closest(".card-buy, .buy-row");
+  if (!row) return;
+  let box = row.nextElementSibling?.classList.contains("stock-alert")
+    ? row.nextElementSibling
+    : null;
+  if (!soldOut) return box?.remove();
+  if (!box) {
+    box = document.createElement("div");
+    box.className = "stock-alert";
+    row.after(box);
+  }
+  if (box.dataset.variant !== variantId || !box.innerHTML) {
+    box.dataset.product = product.id;
+    box.dataset.variant = variantId;
+    box.innerHTML = `<button type="button" class="link-button" data-alert-open>${icon("mail", "ico-inline")} Hlídat dostupnost</button>`;
+  }
+}
+document.addEventListener("click", (e) => {
+  const open = e.target.closest("[data-alert-open]");
+  if (!open) return;
+  const box = open.closest(".stock-alert");
+  box.innerHTML = `<form class="stock-alert-form"><label>Pošlu vám e-mail, až bude zase skladem<span class="code-row"><input type="email" name="email" required maxlength="200" autocomplete="email" placeholder="váš e-mail" value="${esc(member?.email || "")}"><button class="inline-button">Hlídat</button></span></label><small class="muted">Jediný e-mail o naskladnění, potom adresu smažu.</small><p class="error" role="alert"></p></form>`;
+  $("input", box).focus();
+});
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest(".stock-alert-form");
+  if (!form) return;
+  e.preventDefault();
+  const box = form.closest(".stock-alert");
+  try {
+    await api("stock-alert", {
+      product_id: box.dataset.product,
+      variant_id: box.dataset.variant,
+      email: form.elements.email.value,
+    });
+    box.innerHTML = `<p class="stock-alert-done">${icon("sparkle", "ico-inline")} Hlídám. Jakmile bude zase skladem, napíšu vám.</p>`;
+  } catch (err) {
+    $(".error", form).textContent = err.message;
+  }
+});
+
 function availability(button, product, variantId) {
   if (!button || !product) return;
   const stock = stockOf(product, variantId);
@@ -212,8 +255,9 @@ function availability(button, product, variantId) {
     plus.hidden = soldOut || selectedPrice == null;
     plus.textContent = "＋";
   }
+  stockAlert(button, product, variantId, soldOut);
   if (soldOut) label.textContent = "Vyprodáno";
-  else if (selectedPrice == null) label.textContent = "Cenu připravujeme";
+  else if (selectedPrice == null) label.textContent = "Cenu připravuji";
   else
     label.textContent = button.querySelector(".add-label")
       ? "Přidat do košíku"

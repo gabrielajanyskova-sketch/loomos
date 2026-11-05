@@ -3610,3 +3610,31 @@ aside nav .ico {
   background: var(--copper);
   transition: width 0.4s;
 }
+
+/* Hlídat dostupnost */
+.stock-alert {
+  margin-top: 10px;
+  font-size: 13px;
+}
+.stock-alert .link-button {
+  color: var(--copper-light);
+}
+.stock-alert-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+}
+.stock-alert-form small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+}
+.stock-alert-done {
+  color: var(--copper-light);
+  margin: 0;
+}
+.stock-alert-form input {
+  text-transform: none;
+  letter-spacing: normal;
+}
