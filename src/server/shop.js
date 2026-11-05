@@ -28,7 +28,7 @@ import {
 } from "../../assets/js/payment.mjs";
 import { seller } from "../../assets/js/site.mjs";
 import { trackingOf } from "../../assets/js/orders.mjs";
-import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
+import { czk, orderRows, sendMail, shopEmail, withdrawalNote } from "./mail.js";
 import { qrPng } from "./png.js";
 
 export const PAYMENT_DAYS = 7;
@@ -377,6 +377,7 @@ async function sendOrderEmails(env, request, number, token, order, test) {
         ...payBlocks,
         { button: ["Zobrazit objednávku", orderUrl(request, token)] },
         "S dotazy stačí odpovědět na tento e-mail.",
+        withdrawalNote(new URL(request.url).origin, number),
       ],
     }),
     sendMail(env, {

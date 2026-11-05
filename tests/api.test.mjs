@@ -109,6 +109,12 @@ test("guest order: server prices, QR payment, e-mails, idempotency", async () =>
   assert.ok(!mail.body.html.includes("<b>Nová"));
   assert.match(mail.body.html, new RegExp(`/api/qr\\?t=${o.token}`));
   assert.match(mail.body.text, /Variabilní symbol: \d{7}/);
+  // The confirmation explains the right of withdrawal and links to the prefilled form.
+  assert.ok(
+    mail.body.html.includes(`/odstoupeni?objednavka=${o.number}`),
+    "withdrawal link in the confirmation",
+  );
+  assert.match(mail.body.text, /odstoupit do 14 dnů/);
   await mailTo("info@loomos.cz", /Nová objednávka/);
   for (const bad of [
     { terms: false },

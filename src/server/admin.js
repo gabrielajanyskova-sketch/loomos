@@ -18,7 +18,7 @@ import { saveProductPrice } from "./product-prices.js";
 import { loadCatalog, priceProducts, variantsOf } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { shippingKind, shippingProvider } from "../../assets/js/pricing.mjs";
-import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
+import { czk, orderRows, sendMail, shopEmail, withdrawalNote } from "./mail.js";
 import { createPacket } from "./packeta.js";
 import { invoiceFor, invoicePdf, issueInvoice, pdfBase64 } from "./invoice.js";
 import { binary } from "./http.js";
@@ -217,6 +217,10 @@ export async function setStatus(db, request, env, ctx) {
               ["odeslana", "k-vyzvednuti", "dokoncena"].includes(status),
             ],
           },
+          // The 14 days run from delivery, so the shipping e-mails repeat how to withdraw.
+          ...(["odeslana", "k-vyzvednuti"].includes(status)
+            ? [withdrawalNote(origin, number)]
+            : []),
         ],
       }),
     );

@@ -34,7 +34,7 @@ const LOGO = `${brand.url}/assets/img/email-logo.png`;
 
 /**
  * blocks: strings (paragraphs), {rows:[[label, value, strong?, tone?]]} (tone "saving" = green),
- * {button:[label, url, secondary?]}, {image:[src, alt]}
+ * {button:[label, url, secondary?]}, {image:[src, alt]}, {small:[text, [[label, url], …]]} (fine print)
  */
 function render(title, blocks) {
   const text = [];
@@ -61,6 +61,14 @@ function render(title, blocks) {
       text.push(`${label}: ${url}`);
       html.push(
         `<p style="margin:0 0 14px"><a href="${esc(url)}" style="display:inline-block;padding:13px 24px;text-decoration:none;font-family:${SANS};font-size:15px;font-weight:bold;letter-spacing:.02em;${secondary ? `background:transparent;color:${C.copper};border:1px solid ${C.copper}` : `background:${C.copper};color:${C.page};border:1px solid ${C.copper}`}">${esc(label)} →</a></p>`,
+      );
+    } else if (b.small) {
+      const [note, links = []] = b.small;
+      text.push(
+        [note, ...links.map(([label, url]) => `${label}: ${url}`)].join("\n"),
+      );
+      html.push(
+        `<p style="margin:22px 0 0;padding-top:16px;border-top:1px solid ${C.line};font-size:13px;line-height:1.55;color:${C.muted}">${esc(note)}${links.length ? "<br>" : ""}${links.map(([label, url]) => `<a href="${esc(url)}" style="color:${C.copper}">${esc(label)}</a>`).join(" · ")}</p>`,
       );
     } else if (b.image) {
       html.push(
@@ -114,6 +122,20 @@ export async function sendMail(
 }
 
 export const shopEmail = (env) => env.SHOP_EMAIL || seller.email;
+
+/** Fine print about the right of withdrawal, with a link to the form prefilled with the order. */
+export const withdrawalNote = (origin, number) => ({
+  small: [
+    "Od smlouvy můžete bez udání důvodu odstoupit do 14 dnů od převzetí zboží (neplatí pro zboží vyrobené na přání).",
+    [
+      [
+        "Odstoupit od smlouvy",
+        `${origin}/odstoupeni?objednavka=${encodeURIComponent(number)}`,
+      ],
+      ["Obchodní podmínky", `${origin}/obchodni-podminky`],
+    ],
+  ],
+});
 
 export function orderRows(order) {
   // Items at their (quantity) price before the member discount, which follows as its own row.
