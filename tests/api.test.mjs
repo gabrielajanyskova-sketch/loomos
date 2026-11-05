@@ -115,6 +115,15 @@ test("guest order: server prices, QR payment, e-mails, idempotency", async () =>
     "withdrawal link in the confirmation",
   );
   assert.match(mail.body.text, /odstoupit do 14 dnů/);
+  // Terms (with the withdrawal form) as a PDF attachment in textual form.
+  const terms = mail.body.attachments?.find(
+    (x) => x.filename === "obchodni-podminky-loomos.pdf",
+  );
+  assert.ok(terms, "terms PDF attached to the confirmation");
+  assert.equal(
+    Buffer.from(terms.content, "base64").subarray(0, 4).toString(),
+    "%PDF",
+  );
   await mailTo("info@loomos.cz", /Nová objednávka/);
   for (const bad of [
     { terms: false },

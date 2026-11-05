@@ -31,6 +31,33 @@ import { trackingOf } from "../../assets/js/orders.mjs";
 import { czk, orderRows, sendMail, shopEmail, withdrawalNote } from "./mail.js";
 import { qrPng } from "./png.js";
 
+/**
+ * Terms as PDF (built from obchodni-podminky.html) for the order confirmation, so the customer
+ * gets them in textual form. Without it the e-mail still goes out.
+ */
+const base64 = (bytes) => {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000)
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+};
+async function termsAttachment(env, request) {
+  try {
+    const res = await env.ASSETS?.fetch(
+      new URL("/obchodni-podminky.pdf", request.url),
+    );
+    if (!res?.ok) return [];
+    return [
+      {
+        filename: "obchodni-podminky-loomos.pdf",
+        content: base64(new Uint8Array(await res.arrayBuffer())),
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
+
 export const PAYMENT_DAYS = 7;
 
 /** Bank details from BANK_ACCOUNT ("19-2000145399/0800") or BANK_IBAN. */
@@ -370,13 +397,14 @@ async function sendOrderEmails(env, request, number, token, order, test) {
       title: "Děkuji za objednávku",
       key: `order-${number}-customer`,
       replyTo: shopEmail(env),
+      attachments: await termsAttachment(env, request),
       blocks: [
         ...testNote,
         `Dobrý den, ${order.customer.name},\nděkuji za vaši objednávku v LOOMOS. Číslo objednávky je ${number}.`,
         { rows: orderRows(order) },
         ...payBlocks,
         { button: ["Zobrazit objednávku", orderUrl(request, token)] },
-        "S dotazy stačí odpovědět na tento e-mail.",
+        "S dotazy stačí odpovědět na tento e-mail. Obchodní podmínky včetně formuláře pro odstoupení od smlouvy najdete v příloze.",
         withdrawalNote(new URL(request.url).origin, number),
       ],
     }),

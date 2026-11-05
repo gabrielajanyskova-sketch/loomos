@@ -12,6 +12,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (e-maily ve vzhledu webu, logo a QR v
 - **Odstoupení v e-mailech:** potvrzení objednávky a e-mail o odeslání / připravení k vyzvednutí mají dole drobným písmem poučení o 14 dnech a odkazy „Odstoupit od smlouvy“ (formulář s předvyplněným číslem objednávky) a „Obchodní podmínky“.
 - **Svíčky také 4 v řadě** (Svíčky, Dárek pro ni / pro něj, úvodní stránka); na kartě výběr velikosti zkrácený na „Malá — 349 Kč“ (celý popis zůstává u svíčky). Na mobilu 2 vedle sebe s menším štítkem.
 - **Karty v řadě zarovnané:** výběr velikosti a tlačítka „Přidat do košíku“ jsou ve všech kartách jedné řady ve stejné výšce, i když má některá delší název nebo popis.
+- **Obchodní podmínky v PDF:** vytvoří se automaticky z textu stránky při každém sestavení webu (`/obchodni-podminky.pdf`, s logem a vzorovým formulářem pro odstoupení). Přikládají se k potvrzení objednávky; na stránce podmínek je odkaz ke stažení.
 
 Ke kontrole majitelkou:
 

@@ -17,6 +17,7 @@ import {
 import { validateCatalog, isCandle, giftFor } from "../assets/js/catalog.mjs";
 import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
+import { termsPdf } from "./terms-pdf.mjs";
 
 export const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -128,6 +129,8 @@ for (const name of await fs.readdir(path.join(root, "assets/img/pikto")))
       await fs.readFile(path.join(root, "assets/img/pikto", name)),
     );
 await write("data/products.json", JSON.stringify(products));
+// Terms as PDF: downloadable and attached to every order confirmation.
+await write("obchodni-podminky.pdf", await termsPdf(root));
 const pages = [
   ["index.html", "home"],
   ["obchod.html", "shop"],
