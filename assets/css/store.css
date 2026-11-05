@@ -3996,3 +3996,19 @@ aside nav .ico {
     letter-spacing: 0.08em;
   }
 }
+
+/* Cards in one row line up: the size choice and the buy buttons sit at the same height,
+   whatever the length of the name or the notes above them. */
+.product-grid .product-card {
+  display: flex;
+  flex-direction: column;
+}
+.product-grid .product-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.product-grid .product-meta .product-notes {
+  margin-bottom: auto;
+  padding-bottom: 6px;
+}
