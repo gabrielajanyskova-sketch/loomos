@@ -24,6 +24,7 @@ import {
 } from "./catalog.mjs";
 import {
   priceCart,
+  FREE_SHIPPING_FROM,
   SHIPPING,
   PAYMENT,
   MAX_QTY,
@@ -419,6 +420,18 @@ function renderInquiry() {
 }
 
 /* ---------- cart ---------- */
+/** Progress bar width is set through CSSOM: the CSP forbids inline style attributes. */
+const paintProgress = () =>
+  document
+    .querySelectorAll(".free-shipping-bar [data-progress]")
+    .forEach((el) => (el.style.width = `${el.dataset.progress}%`));
+/** "Do dopravy zdarma vám chybí 150 Kč" with a progress bar, or a confirmation once reached. */
+const freeShippingBar = (t) =>
+  t.items
+    ? t.freeShipping
+      ? `<p class="free-shipping reached">${icon("sparkle", "ico-inline")} Máte <strong>dopravu zdarma</strong>.</p>`
+      : `<div class="free-shipping"><p>Do dopravy zdarma vám chybí <strong>${money(t.missingForFreeShipping)}</strong>.</p><div class="free-shipping-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${FREE_SHIPPING_FROM}" aria-valuenow="${FREE_SHIPPING_FROM - t.missingForFreeShipping}"><span data-progress="${Math.round(((FREE_SHIPPING_FROM - t.missingForFreeShipping) / FREE_SHIPPING_FROM) * 100)}"></span></div></div>`
+    : "";
 function summary({ checkout = false, shipping = null } = {}) {
   const t = pricing(shipping);
   const memberRow = member
@@ -444,7 +457,7 @@ function summary({ checkout = false, shipping = null } = {}) {
           )
           .join("")
       : ""
-  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal + t.bulkSavings)}</span></div>${bulkRow}${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
+  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal + t.bulkSavings)}</span></div>${bulkRow}${memberRow}${codeRow}${codeForm}${freeShippingBar(t)}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
 }
 async function applyCode(form, rerender) {
   const error = $("#code-error");
@@ -486,6 +499,7 @@ function renderCart() {
     .join(
       "",
     )}<a class="text-link spaced-top" href="/obchod.html">← Pokračovat v nákupu</a></section>${summary()}</div>`;
+  paintProgress();
 }
 $("#cart-content")?.addEventListener("click", (e) => {
   const b = e.target.closest("[data-qty],[data-remove]");
@@ -542,7 +556,7 @@ function renderCheckout() {
   const shippingOptions = Object.entries(SHIPPING)
     .map(
       ([id, s], i) =>
-        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}><span class="carrier-logo-box">${s.logo ? `<img class="carrier-logo${s.logo.includes("balikovna") ? " on-light" : ""}" src="${esc(s.logo)}" alt="" width="96" height="24" loading="lazy">` : icon("hand", "carrier-ico")}</span><span class="shipping-label">${esc(s.logo && s.short ? s.short : s.label)}</span><span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
+        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}><span class="carrier-logo-box">${s.logo ? `<img class="carrier-logo${s.logo.includes("balikovna") ? " on-light" : ""}" src="${esc(s.logo)}" alt="" width="96" height="24" loading="lazy">` : icon("hand", "carrier-ico")}</span><span class="shipping-label">${esc(s.logo && s.short ? s.short : s.label)}</span><span data-ship-price="${id}">${s.price ? money(s.price) : "Zdarma"}</span></label>`,
     )
     .join("");
   const paymentOptions = Object.entries(PAYMENT)
@@ -558,6 +572,13 @@ function renderCheckout() {
       checkout: true,
       shipping: form.elements.shipping.value,
     });
+    // With free shipping every delivery option shows "Zdarma".
+    const free = pricing(form.elements.shipping.value).freeShipping;
+    form.querySelectorAll("[data-ship-price]").forEach((el) => {
+      const price = SHIPPING[el.dataset.shipPrice]?.price;
+      el.textContent = free || !price ? "Zdarma" : money(price);
+    });
+    paintProgress();
   };
   renderSummary();
   bindSummary($("#checkout-summary"), renderSummary);

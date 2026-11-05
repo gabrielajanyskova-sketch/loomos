@@ -3581,3 +3581,32 @@ aside nav .ico {
 .maker-info a {
   color: var(--copper-light);
 }
+
+/* Free shipping progress */
+.free-shipping {
+  margin: 10px 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.free-shipping p {
+  margin: 0 0 6px;
+}
+.free-shipping strong {
+  color: var(--copper-light);
+}
+.free-shipping.reached {
+  color: var(--copper-light);
+}
+.free-shipping-bar {
+  height: 6px;
+  border-radius: 6px;
+  background: #ffffff14;
+  overflow: hidden;
+}
+.free-shipping-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--copper);
+  transition: width 0.4s;
+}

@@ -222,3 +222,23 @@ test("quantity price applies from the minimum count, before the member discount"
   });
   assert.equal(member.items, 3 * memberPrice(175));
 });
+
+test("shipping is free from 1 200 Kč of goods after discounts", () => {
+  const line = (price, qty) => ({ key: "x", name: "X", price, qty });
+  const below = priceCart({ lines: [line(349, 3)], shipping: "zasilkovna" });
+  assert.equal(below.freeShipping, false);
+  assert.equal(below.missingForFreeShipping, 1200 - 1047);
+  assert.equal(below.shippingPrice, 109);
+  const above = priceCart({ lines: [line(449, 3)], shipping: "domu" });
+  assert.equal(above.freeShipping, true);
+  assert.equal(above.shippingPrice, 0);
+  assert.equal(above.total, 1347);
+  // A discount that drops the goods under the limit brings the shipping price back.
+  const discounted = priceCart({
+    lines: [line(449, 3)],
+    shipping: "domu",
+    code: { code: "X", type: "fixed", value: 200 },
+  });
+  assert.equal(discounted.freeShipping, false);
+  assert.equal(discounted.shippingPrice, 149);
+});
