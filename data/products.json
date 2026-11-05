@@ -473,5 +473,89 @@
       "min_qty": 2,
       "price": 175
     }
+  },
+  {
+    "id": "lapac-slunce-kote-na-mesici",
+    "name": "Kotě na měsíci",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Sladké sny s duhou na okně.",
+    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce se spícím koťátkem schouleným v půlměsíci s hvězdičkou. Na slunci se rozzáří duhovými barvami a rozsype po pokoji barevná prasátka. Něžná ozdoba do dětského pokoje i ložnice. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-zimni-vesnicka",
+    "name": "Zimní vesnička",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Zasněžené chaloupky plné duhového světla.",
+    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce se zasněženou vesničkou, chaloupkami a stromky. Zimní sluníčko ho rozzáří všemi barvami duhy a pokoj zaplní barevnými odlesky. Krásná zimní a vánoční výzdoba okna. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-vcelka",
+    "name": "Včelka",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Pilná včelka na rozkvetlé slunečnici.",
+    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s včelkou sedící na slunečnici. Na slunci se rozzáří duhovými barvami a po stěnách se rozběhnou barevná prasátka. Jarní a letní radost na každé okno. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-hasicske-auto",
+    "name": "Hasičské auto",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Pro všechny malé hasiče.",
+    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s hasičským autem a žebříkem. Za slunečného dne rozzáří okno duhovými barvami a pokoj zaplní barevnými odlesky. Oblíbený motiv do klučičího i holčičího pokojíčku. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-lednacek",
+    "name": "Ledňáček",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Duhový ptáček na kvetoucí větvičce.",
+    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s ledňáčkem sedícím na kvetoucí větvičce. Na slunci se rozzáří všemi barvami duhy a rozhází po místnosti barevné odlesky. Dárek pro milovníky přírody a ptactva. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
+  },
+  {
+    "id": "lapac-slunce-zajicek",
+    "name": "Zajíček",
+    "category": "lapace-slunce",
+    "price": 199,
+    "active": true,
+    "subtitle": "Ušatý kamarád pro slunečné okno.",
+    "notes": "Velikost cca 15 cm · statické přilnutí ke sklu",
+    "description": "Lapač slunce s roztomilým klapouchým zajíčkem. Na slunci se rozzáří duhovými barvami a rozběhnou se po pokoji barevná prasátka. Hodí se do dětského pokoje i jako jarní a velikonoční ozdoba. Nálepka se po sejmutí z podkladu přiloží na čisté hladké sklo a drží staticky, bez lepidla.",
+    "bulk": {
+      "min_qty": 2,
+      "price": 175
+    }
   }
 ]

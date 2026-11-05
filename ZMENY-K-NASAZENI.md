@@ -6,7 +6,8 @@ Poslední hromadné nasazení: 5. 11. 2026 (8 nových lapačů slunce, zvýrazn�
 
 Čeká na nasazení:
 
-- (nic)
+- **6 dalších lapačů slunce** (199 Kč, od 2 ks 175 Kč): Kotě na měsíci, Zimní vesnička, Včelka, Hasičské auto, Ledňáček, Zajíček.
+- Fotky lapačů na bílém pozadí doplněny na formát 3 : 4, aby vyplnily celou kartu i stránku produktu bez okrajů.
 
 Ke kontrole majitelkou:
 
