@@ -1,5 +1,5 @@
 /** Transactional e-mail through Resend. Keys come only from the environment. */
-import { seller, sellerAddress } from "../../assets/js/site.mjs";
+import { brand, seller, sellerAddress } from "../../assets/js/site.mjs";
 import { shippingSummary } from "../../assets/js/pricing.mjs";
 
 const esc = (s) =>
@@ -17,8 +17,24 @@ export const czk = (n) =>
     maximumFractionDigits: 0,
   }).format(n);
 
+/** Colours of the website (dark background, copper accents, green savings). */
+const C = {
+  page: "#171614",
+  card: "#1f1d1a",
+  line: "#3a352f",
+  text: "#ede6dc",
+  muted: "#aaa399",
+  copper: "#cb9568",
+  green: "#a9c99a",
+};
+const SERIF = "'Cormorant Garamond',Georgia,'Times New Roman',serif";
+const SANS = "Helvetica,Arial,sans-serif";
+/** PNG (not WebP) so the logo shows in every mail client, including Outlook. */
+const LOGO = `${brand.url}/assets/img/email-logo.png`;
+
 /**
- * blocks: strings (paragraphs), {rows:[[label, value]]}, {button:[label, url]}, {image:[src, alt]}
+ * blocks: strings (paragraphs), {rows:[[label, value, strong?, tone?]]} (tone "saving" = green),
+ * {button:[label, url, secondary?]}, {image:[src, alt]}
  */
 function render(title, blocks) {
   const text = [];
@@ -27,35 +43,35 @@ function render(title, blocks) {
     if (typeof b === "string") {
       text.push(b);
       html.push(
-        `<p style="margin:0 0 16px">${esc(b).replace(/\n/g, "<br>")}</p>`,
+        `<p style="margin:0 0 16px;color:${C.text}">${esc(b).replace(/\n/g, "<br>")}</p>`,
       );
     } else if (b.rows) {
       text.push(b.rows.map(([l, v]) => (l ? `${l}: ${v}` : v)).join("\n"));
       html.push(
-        `<table role="presentation" style="width:100%;border-collapse:collapse;margin:0 0 16px">${b.rows
-          .map(
-            ([l, v, strong]) =>
-              `<tr><td style="padding:6px 0;border-bottom:1px solid #eee">${esc(l)}</td><td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right;${strong ? "font-weight:bold" : ""}">${esc(v)}</td></tr>`,
-          )
+        `<table role="presentation" width="100%" style="width:100%;border-collapse:collapse;margin:4px 0 22px">${b.rows
+          .map(([l, v, strong, tone]) => {
+            const colour = tone === "saving" ? C.green : C.text;
+            const cell = `padding:9px 0;border-bottom:1px solid ${C.line};color:${colour};${strong ? `font-family:${SERIF};font-size:20px;font-weight:bold;` : ""}`;
+            return `<tr><td style="${cell}">${esc(l)}</td><td style="${cell}text-align:right;white-space:nowrap;${strong ? `color:${C.copper};` : ""}">${esc(v)}</td></tr>`;
+          })
           .join("")}</table>`,
       );
     } else if (b.button) {
-      text.push(`${b.button[0]}: ${b.button[1]}`);
+      const [label, url, secondary] = b.button;
+      text.push(`${label}: ${url}`);
       html.push(
-        `<p style="margin:0 0 20px"><a href="${esc(b.button[1])}" style="display:inline-block;background:#cb9568;color:#171614;padding:12px 20px;text-decoration:none;border-radius:3px;font-weight:bold">${esc(b.button[0])}</a></p>`,
+        `<p style="margin:0 0 14px"><a href="${esc(url)}" style="display:inline-block;padding:13px 24px;text-decoration:none;font-family:${SANS};font-size:15px;font-weight:bold;letter-spacing:.02em;${secondary ? `background:transparent;color:${C.copper};border:1px solid ${C.copper}` : `background:${C.copper};color:${C.page};border:1px solid ${C.copper}`}">${esc(label)} →</a></p>`,
       );
     } else if (b.image) {
       html.push(
-        `<p style="margin:0 0 16px"><img src="${esc(b.image[0])}" alt="${esc(b.image[1])}" width="220" height="220" style="display:block"></p>`,
+        `<p style="margin:0 0 16px"><img src="${esc(b.image[0])}" alt="${esc(b.image[1])}" width="220" height="220" style="display:block;background:#fff;padding:8px"></p>`,
       );
     }
   }
   const footer = `${seller.name} · IČO ${seller.ico} · ${sellerAddress}${seller.vatPayer === false ? " · neplátce DPH" : ""} · ${seller.email}`;
   return {
-    text: [...text, "", "LOOMOS — ručně vyráběné sójové svíčky", footer].join(
-      "\n\n",
-    ),
-    html: `<!doctype html><html lang="cs"><body style="margin:0;background:#f6f1ea;padding:24px 12px;font-family:Georgia,'Times New Roman',serif;color:#2a2621;font-size:16px;line-height:1.5"><div style="max-width:560px;margin:0 auto;background:#fff;padding:28px 24px;border-radius:4px"><p style="margin:0 0 20px;letter-spacing:.2em;font-size:13px;color:#8a6a4f">LOOMOS</p><h1 style="font-size:24px;font-weight:normal;margin:0 0 20px">${esc(title)}</h1>${html.join("")}</div><p style="max-width:560px;margin:16px auto 0;font-size:12px;color:#7a7067;text-align:center">${esc(footer)}</p></body></html>`,
+    text: [...text, "", "LOOMOS · loomos.cz", footer].join("\n\n"),
+    html: `<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;background:${C.page};padding:28px 12px;font-family:${SANS};color:${C.text};font-size:16px;line-height:1.6"><table role="presentation" width="100%" style="background:${C.page}"><tr><td align="center"><table role="presentation" width="100%" style="max-width:560px;background:${C.card};border:1px solid ${C.line}"><tr><td align="center" style="padding:28px 24px 8px"><a href="${brand.url}" style="text-decoration:none"><img src="${LOGO}" alt="LOOMOS" width="100" height="94" style="display:block;border:0"></a></td></tr><tr><td style="padding:12px 28px 26px"><h1 style="margin:8px 0 24px;text-align:center;font-family:${SERIF};font-size:30px;line-height:1.2;font-weight:normal;color:${C.text}">${esc(title)}</h1>${html.join("")}</td></tr></table><p style="max-width:560px;margin:18px auto 0;font-size:12px;line-height:1.5;color:${C.muted};text-align:center">${esc(footer)}<br><a href="${brand.url}" style="color:${C.copper}">loomos.cz</a></p></td></tr></table></body></html>`,
   };
 }
 
@@ -109,11 +125,15 @@ export function orderRows(order) {
     rows.push([
       "Sleva pro registrované (5 %)",
       `−${czk(order.pricing.memberSavings)}`,
+      false,
+      "saving",
     ]);
   if (order.pricing.codeDiscount)
     rows.push([
       `Slevový kód ${order.pricing.code}`,
       `−${czk(order.pricing.codeDiscount)}`,
+      false,
+      "saving",
     ]);
   rows.push([
     shippingSummary(order),
@@ -121,6 +141,6 @@ export function orderRows(order) {
   ]);
   rows.push(["Celkem", czk(order.pricing.total), true]);
   if (order.pricing.savings)
-    rows.push(["Ušetřili jste", czk(order.pricing.savings)]);
+    rows.push(["Ušetřili jste", czk(order.pricing.savings), false, "saving"]);
   return rows;
 }

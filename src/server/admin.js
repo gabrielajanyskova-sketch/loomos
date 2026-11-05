@@ -213,6 +213,8 @@ export async function setStatus(db, request, env, ctx) {
             button: [
               "Stav objednávky",
               `${origin}/objednavka?t=${row.public_token}`,
+              // Secondary next to "Ohodnotit nákup", so one action stands out.
+              ["odeslana", "k-vyzvednuti", "dokoncena"].includes(status),
             ],
           },
         ],
