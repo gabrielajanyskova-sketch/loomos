@@ -854,7 +854,7 @@ test("admin adds and edits products; quantity price and dynamic product page wor
       email: "lapac2@example.com",
       items: [
         { id: sun.id, qty: 1 },
-        { id: "lapac-slunce-sova", qty: 1 },
+        { id: "lapac-slunce-konik", qty: 1 },
       ],
     }),
   );
@@ -979,7 +979,7 @@ test("single-size sun catcher: admin stock, and it cannot be ordered without a p
         .status,
       200,
     );
-    const product_id = "lapac-slunce-sova";
+    const product_id = "lapac-slunce-liska";
     assert.equal(
       (await a("/api/admin/stock", { product_id, variant_id: "", quantity: 7 }))
         .status,
@@ -1195,7 +1195,7 @@ test("Heureka: product feed and Ověřeno zákazníky order log with opt-out", a
   assert.match(xmlText, /<ITEM_ID>morska-sul-paculi-mala<\/ITEM_ID>/);
   assert.match(xmlText, /<ITEMGROUP_ID>morska-sul-paculi<\/ITEMGROUP_ID>/);
   assert.match(xmlText, /<PRICE_VAT>349<\/PRICE_VAT>/);
-  assert.match(xmlText, /<ITEM_ID>lapac-slunce-sova<\/ITEM_ID>/);
+  assert.match(xmlText, /<ITEM_ID>lapac-slunce-kocicka<\/ITEM_ID>/);
   assert.doesNotMatch(xmlText, /kokos-limetka/);
 
   assert.equal((await client(shop.url)("/api/config")).body.heureka, false);

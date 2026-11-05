@@ -101,11 +101,11 @@ test("JSON-LD cannot break out of its non-executable script", () => {
   );
 });
 
-test("eighteen sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
+test("fourteen sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
   const catchers = validateCatalog(products).filter(
     (p) => p.category === "lapace-slunce",
   );
-  assert.equal(catchers.length, 18);
+  assert.equal(catchers.length, 14);
   // Licensed characters must never be offered (copyright and trademarks).
   assert.ok(
     !catchers.some((p) =>
@@ -169,15 +169,11 @@ test("nullable candle variant prices disable only that size, zero remains invali
   );
 });
 
-test("admin sees the real photos that ship with the website (never illustrations)", () => {
+test("admin sees the real photos that ship with the website", () => {
   const byId = Object.fromEntries(products.map((p) => [p.id, p]));
   assert.deepEqual(builtinPhotos(byId["lapac-slunce-vanocni-stromecek"]), [
     "/assets/img/lapac-slunce-vanocni-stromecek-960.webp",
     "/assets/img/lapac-slunce-vanocni-stromecek-2-960.webp",
-  ]);
-  // Window pictures are illustrations: only the real photo in packaging is offered.
-  assert.deepEqual(builtinPhotos(byId["lapac-slunce-sova"]), [
-    "/assets/img/lapac-slunce-sova-960.webp",
   ]);
   assert.deepEqual(builtinPhotos(byId["morska-sul-paculi"]), []);
   for (const p of products)

@@ -73,18 +73,6 @@ export const saleMarkup = (p) =>
     ? `<p class="sale-reference"><del aria-label="Původní běžná cena">${money(p.regular_price)}</del><span>Nejnižší cena za 30 dní před slevou: <strong>${money(p.lowest_30)}</strong></span></p>`
     : "";
 const isSuncatcher = (p) => p.category === "lapace-slunce";
-const suncatcherPhotos = new Set([
-  "lapac-slunce-sova",
-  "lapac-slunce-vila",
-  "lapac-slunce-medvidek",
-  "lapac-slunce-traktor",
-]);
-const suncatcherWindowPhotos = new Set([
-  "lapac-slunce-traktor",
-  "lapac-slunce-sova",
-  "lapac-slunce-vila",
-  "lapac-slunce-medvidek",
-]);
 /** Square studio photos on white (assets/img/<id>[-N]-480/960.webp); value = number of photos. */
 const suncatcherStudioPhotos = new Map([
   ["lapac-slunce-kocicka", 1],
@@ -113,7 +101,6 @@ export function builtinPhotos(p) {
       { length: suncatcherStudioPhotos.get(p.id) },
       (_, i) => `${studioSource(p.id, i)}-960.webp`,
     );
-  if (suncatcherWindowPhotos.has(p.id)) return [`/assets/img/${p.id}-960.webp`];
   return [];
 }
 /** Photos uploaded in admin (served from D1); the first one is the main photo. */
@@ -139,10 +126,9 @@ const gallery = (p) =>
 export function thumbSrc(p) {
   if (p.images?.length) return photoUrl(p.images[0]);
   if (p.category === "lapace-slunce") {
-    if (suncatcherStudioPhotos.has(p.id))
-      return `${studioSource(p.id, 0)}-480.webp`;
-    if (!suncatcherPhotos.has(p.id)) return null;
-    return `/assets/img/${p.id}${suncatcherWindowPhotos.has(p.id) ? "-window" : ""}-480.webp`;
+    return suncatcherStudioPhotos.has(p.id)
+      ? `${studioSource(p.id, 0)}-480.webp`
+      : null;
   }
   return "/assets/img/candle-480.webp";
 }
@@ -153,17 +139,12 @@ const suncatcherPicture = (p) => {
     const src = studioSource(esc(p.id), 0);
     return `<a class="product-image suncatcher-product-image studio-photo" href="${href}"><img src="${src}-480.webp" srcset="${src}-480.webp 480w, ${src}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="1280" alt="Lapač slunce ${esc(p.name)} — skutečná fotografie výrobku" loading="lazy" decoding="async" data-main-photo></a>`;
   }
-  if (suncatcherPhotos.has(p.id)) {
-    const visual = suncatcherWindowPhotos.has(p.id);
-    const source = esc(p.id) + (visual ? "-window" : "");
-    return `<a class="product-image suncatcher-product-image" href="${href}"><img src="/assets/img/${source}-480.webp" srcset="/assets/img/${source}-480.webp 480w, /assets/img/${source}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="${visual ? 1200 : 1280}" alt="Lapač slunce ${esc(p.name)} — ${visual ? "ilustrační vizualizace na okně" : "skutečná fotografie výrobku v obalu"}" loading="lazy" decoding="async">${visual ? '<span class="photo-note">Ilustrační vizualizace</span>' : ""}</a>`;
-  }
   return `<a class="product-image pending-photo" href="${href}" aria-label="${esc(p.name)} — detail produktu"><span class="pending-photo-circle"><span>${esc(p.name)}</span><small>Fotografii připravujeme</small></span></a>`;
 };
 const suncatcherCard = (p) =>
   `<article class="product-card">${suncatcherPicture(p)}<div class="product-meta"><small>LAPAČ SLUNCE${p.size ? ` · ${esc(p.size.toUpperCase())}` : ""}</small><div class="product-title-row"><h3><a href="/produkty/${esc(p.id)}.html">${esc(p.name)}</a></h3><span class="price" data-card-price>${money(p.price)}</span></div>${ratingLine(p)}<div data-sale-reference>${saleMarkup(p.variants?.[0] ?? p)}</div>${p.bulk ? `<p class="bulk-note">Od ${p.bulk.min_qty} ks jen ${money(p.bulk.price)} / ks${isCandle(p) ? "" : " (i různé motivy)"}</p>` : ""}<p class="product-notes">${esc(p.notes)}</p><span class="stock-note" aria-live="polite"></span><div class="card-buy"><div class="quantity card-qty"${p.price == null ? " hidden" : ""}><button type="button" data-card-qty="-1" aria-label="Ubrat kus">−</button><output data-card-quantity>1</output><button type="button" data-card-qty="1" aria-label="Přidat kus">＋</button></div><button class="add-button" data-add="${esc(p.id)}" ${p.price == null ? "disabled" : ""}><span class="add-label">${p.price == null ? "Cenu připravuji" : "Přidat do košíku"}</span></button></div></div></article>`;
 const suncatcherDetail = (p) =>
-  `<div class="detail-grid"><div class="detail-photo">${suncatcherPicture(p)}${gallery(p)}${!p.images?.length && suncatcherWindowPhotos.has(p.id) ? `<p><a class="text-link" href="/assets/img/${esc(p.id)}-960.webp">Skutečná fotografie výrobku v obalu →</a></p>` : ""}</div><section class="detail-copy"><div class="eyebrow">LAPAČ SLUNCE · LOOMOS</div><h1>${esc(p.name)}</h1>${p.rating?.count ? `<a class="rating-link" href="#reviews-title">${ratingLine(p)}</a>` : ""}<p class="lead">${esc(p.subtitle)}</p><p>${esc(p.description)}</p><span class="price" id="detail-price">${money(p.price)}</span><div data-sale-reference>${saleMarkup(p)}</div>${p.bulk ? `<p class="bulk-note">Od ${p.bulk.min_qty} ks jen ${money(p.bulk.price)} / ks${isCandle(p) ? "" : " — platí pro jakékoli lapače, motivy lze kombinovat"}. Cena se v košíku upraví sama.</p>` : ""}<span class="stock-note" aria-live="polite"></span><div class="buy-row"><div class="quantity"><button data-detail-qty="-1" aria-label="Ubrat kus">−</button><output id="detail-quantity">1</output><button data-detail-qty="1" aria-label="Přidat kus">＋</button></div><button class="button" data-add="${esc(p.id)}" ${p.price == null ? "disabled" : ""}>${p.price == null ? "Cenu připravuji" : "Přidat do košíku ＋"}</button></div><div class="detail-facts">${p.size ? `<span>${icon("sticker")} Velikost ${esc(p.size)}</span>` : ""}<span>${icon("window")} Statické přilnutí ke sklu</span><span>${icon("rainbow")} Duhy po celé místnosti</span><span>${icon("sun")} Bez elektřiny, jen slunce</span></div><details class="howto" id="jak-nalepit" open><summary>Jak lapač nalepit</summary><ol class="howto-steps"><li><strong>Umyjte sklo.</strong> Okno, sklo nebo zrcadlo očistěte a otřete do sucha — na čistém povrchu bez prachu a mastnoty drží nálepka nejlépe.</li><li><strong>Lehce navlhčete.</strong> Stačí pár střiků vody z rozprašovače. Díky vodě můžete nálepku ještě posunout na to správné místo.</li><li><strong>Sloupněte nálepku z podkladu.</strong> Je tenká a k podkladu přilne pevně, tak začněte od okraje a postupujte pomalu a trpělivě.</li><li><strong>Vytlačte vodu.</strong> Přiložte nálepku na sklo a plastovou kartičkou (třeba starou věrnostní) vytlačte vodu a bublinky od středu k okrajům. Pak ji nechte proschnout.</li></ol><p class="muted">Nejlépe vynikne na přímém slunci. Vzhled duhových odlesků závisí na světle a úhlu pohledu.</p></details><div class="detail-notice">Lapač slunce není hračka — obsahuje malé části, uchovávejte ho mimo dosah malých dětí.</div>${makerBlock(p)}</section></div>`;
+  `<div class="detail-grid"><div class="detail-photo">${suncatcherPicture(p)}${gallery(p)}</div><section class="detail-copy"><div class="eyebrow">LAPAČ SLUNCE · LOOMOS</div><h1>${esc(p.name)}</h1>${p.rating?.count ? `<a class="rating-link" href="#reviews-title">${ratingLine(p)}</a>` : ""}<p class="lead">${esc(p.subtitle)}</p><p>${esc(p.description)}</p><span class="price" id="detail-price">${money(p.price)}</span><div data-sale-reference>${saleMarkup(p)}</div>${p.bulk ? `<p class="bulk-note">Od ${p.bulk.min_qty} ks jen ${money(p.bulk.price)} / ks${isCandle(p) ? "" : " — platí pro jakékoli lapače, motivy lze kombinovat"}. Cena se v košíku upraví sama.</p>` : ""}<span class="stock-note" aria-live="polite"></span><div class="buy-row"><div class="quantity"><button data-detail-qty="-1" aria-label="Ubrat kus">−</button><output id="detail-quantity">1</output><button data-detail-qty="1" aria-label="Přidat kus">＋</button></div><button class="button" data-add="${esc(p.id)}" ${p.price == null ? "disabled" : ""}>${p.price == null ? "Cenu připravuji" : "Přidat do košíku ＋"}</button></div><div class="detail-facts">${p.size ? `<span>${icon("sticker")} Velikost ${esc(p.size)}</span>` : ""}<span>${icon("window")} Statické přilnutí ke sklu</span><span>${icon("rainbow")} Duhy po celé místnosti</span><span>${icon("sun")} Bez elektřiny, jen slunce</span></div><details class="howto" id="jak-nalepit" open><summary>Jak lapač nalepit</summary><ol class="howto-steps"><li><strong>Umyjte sklo.</strong> Okno, sklo nebo zrcadlo očistěte a otřete do sucha — na čistém povrchu bez prachu a mastnoty drží nálepka nejlépe.</li><li><strong>Lehce navlhčete.</strong> Stačí pár střiků vody z rozprašovače. Díky vodě můžete nálepku ještě posunout na to správné místo.</li><li><strong>Sloupněte nálepku z podkladu.</strong> Je tenká a k podkladu přilne pevně, tak začněte od okraje a postupujte pomalu a trpělivě.</li><li><strong>Vytlačte vodu.</strong> Přiložte nálepku na sklo a plastovou kartičkou (třeba starou věrnostní) vytlačte vodu a bublinky od středu k okrajům. Pak ji nechte proschnout.</li></ol><p class="muted">Nejlépe vynikne na přímém slunci. Vzhled duhových odlesků závisí na světle a úhlu pohledu.</p></details><div class="detail-notice">Lapač slunce není hračka — obsahuje malé části, uchovávejte ho mimo dosah malých dětí.</div>${makerBlock(p)}</section></div>`;
 export const picture = (p, tag = "") =>
   p.images?.length
     ? uploadedPicture(p, tag)
