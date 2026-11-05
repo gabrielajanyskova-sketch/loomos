@@ -2915,18 +2915,18 @@ a.category-card {
   max-width: 760px;
   margin-bottom: 28px;
 }
-/* Sun catchers are small products: four in a row on a wide screen. */
-.product-grid.suncatcher-grid {
+/* Product grids (candles and sun catchers): four in a row on a wide screen. */
+.product-grid.four-up {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 22px;
 }
 @media (max-width: 1200px) {
-  .product-grid.suncatcher-grid {
+  .product-grid.four-up {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (max-width: 860px) {
-  .product-grid.suncatcher-grid {
+  .product-grid.four-up {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
@@ -3966,24 +3966,33 @@ aside nav .ico {
   }
 }
 
-/* Two sun catchers side by side on a phone: quantity above the button. */
+/* Two products side by side on a phone: quantity above the button. */
 @media (max-width: 560px) {
-  .suncatcher-grid .card-buy {
+  .four-up .card-buy {
     flex-direction: column;
   }
-  .suncatcher-grid .card-qty {
+  .four-up .card-qty {
     justify-content: space-between;
   }
-  .suncatcher-grid .card-buy .add-button {
+  .four-up .card-buy .add-button {
     justify-content: center;
     padding: 11px 8px;
     font-size: 15px;
   }
-  .suncatcher-grid .product-title-row h3 {
+  .four-up .product-title-row h3 {
     font-size: 21px;
   }
-  .suncatcher-grid .bulk-note,
-  .suncatcher-grid .product-notes {
+  .four-up .bulk-note,
+  .four-up .product-notes {
     font-size: 13px;
+  }
+  .four-up .product-meta > small {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  .four-up .product-tag {
+    font-size: 10px;
+    padding: 5px 8px;
+    letter-spacing: 0.08em;
   }
 }

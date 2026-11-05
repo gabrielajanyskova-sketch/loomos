@@ -10,6 +10,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (e-maily ve vzhledu webu, logo a QR v
 - **Faktura s logem:** vlevo nahoře tisková verze loga místo textu LOOMOS.
 - **Stránka Lapače slunce zkrácená:** nahoře jen nadpis a jedna věta (návod je u každého lapače), bez druhého nadpisu „Nabídka“ a bez spodního odstavce o lapači na přání (je kartou mezi lapači). Lapače 4 vedle sebe (3 na menším notebooku, 2 na tabletu i mobilu).
 - **Odstoupení v e-mailech:** potvrzení objednávky a e-mail o odeslání / připravení k vyzvednutí mají dole drobným písmem poučení o 14 dnech a odkazy „Odstoupit od smlouvy“ (formulář s předvyplněným číslem objednávky) a „Obchodní podmínky“.
+- **Svíčky také 4 v řadě** (Svíčky, Dárek pro ni / pro něj, úvodní stránka); na kartě výběr velikosti zkrácený na „Malá — 349 Kč“ (celý popis zůstává u svíčky). Na mobilu 2 vedle sebe s menším štítkem.
 
 Ke kontrole majitelkou:
 
