@@ -8,6 +8,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (filtr lapačů podle tématu, nová 
 
 - **Vodítka pro stříhání u předních etiket:** tenké šedé čáry přes celý arch A4 na hranách etiket (zapnuto automaticky, tisknou se i bez „grafiky pozadí“).
 - **Filtr lapačů se nezapíná sám:** po otevření stránky (i po návratu zpět) jsou vždy vidět všechny lapače, téma se použije až po kliknutí. Odkaz `?tema=` už se nepoužívá.
+- **Košík: „Do dopravy zdarma vám chybí … — co přidat?“** Pod položkami 3 tipy s tlačítkem Přidat: nejdřív nejlevnější produkty, které hranici samy dorovnají (štítek „+ doprava zdarma“), pak ty, které se k ní nejvíc přiblíží. Nic, co už je v košíku nebo je vyprodané; svíčky v malé velikosti. Po dosažení hranice blok zmizí.
 
 Ke kontrole majitelkou:
 

@@ -596,6 +596,53 @@ function bindSummary(container, rerender) {
     rerender();
   });
 }
+/**
+ * Suggestions while the cart is below free shipping: first the cheapest products that reach
+ * it on their own, then the ones that get closest. Nothing already in the cart or sold out;
+ * at most two from one category so candles and sun catchers mix. Candles go in the small size.
+ */
+function upsellItems(t, limit = 3) {
+  const missing = t.missingForFreeShipping;
+  if (!missing || missing <= 0) return [];
+  const inCart = new Set(cart.map((i) => i.id));
+  const offers = products
+    .filter((p) => !inCart.has(p.id))
+    .map((p) => {
+      const variant = p.variants?.length ? p.variants[0] : null;
+      const price = variant ? variant.price : p.price;
+      return { p, variant, price };
+    })
+    .filter(
+      ({ p, variant, price }) =>
+        Number.isInteger(price) && stockOf(p, variant?.id ?? "") !== 0,
+    );
+  const reaching = offers
+    .filter((o) => o.price >= missing)
+    .sort((a, b) => a.price - b.price);
+  const closer = offers
+    .filter((o) => o.price < missing)
+    .sort((a, b) => b.price - a.price);
+  const picked = [];
+  const perCategory = {};
+  for (const o of [...reaching, ...closer]) {
+    const category = isCandle(o.p) ? "svicky" : "lapace";
+    if ((perCategory[category] || 0) >= 2) continue;
+    perCategory[category] = (perCategory[category] || 0) + 1;
+    picked.push({ ...o, reaches: o.price >= missing });
+    if (picked.length === limit) break;
+  }
+  return picked;
+}
+function upsellBlock(t) {
+  const items = upsellItems(t);
+  if (!items.length) return "";
+  return `<section class="upsell" aria-labelledby="upsell-title"><h2 id="upsell-title">Do dopravy zdarma vám chybí ${money(t.missingForFreeShipping)} — co přidat?</h2><div class="upsell-list">${items
+    .map(
+      ({ p, variant, price, reaches }) =>
+        `<article class="upsell-item"><a href="/produkty/${encodeURIComponent(p.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="64" height="76" loading="lazy" decoding="async" alt="">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(p))}</a><div><h3><a href="/produkty/${encodeURIComponent(p.id)}.html">${esc(p.name)}</a></h3><p>${variant ? `${esc(variant.name)} · ` : ""}${money(price)}${reaches ? ' <span class="upsell-free">+ doprava zdarma</span>' : ""}</p></div><button type="button" class="add-button" data-upsell="${esc(p.id)}" data-variant="${esc(variant?.id ?? "")}" aria-label="Přidat ${esc(p.name)} do košíku"><span class="add-label">Přidat</span></button></article>`,
+    )
+    .join("")}</div></section>`;
+}
 function renderCart() {
   const el = $("#cart-content");
   if (!lines().length) {
@@ -610,10 +657,16 @@ function renderCart() {
     )
     .join(
       "",
-    )}<a class="text-link spaced-top" href="/obchod.html">← Pokračovat v nákupu</a></section>${summary()}</div>`;
+    )}${upsellBlock(t)}<a class="text-link spaced-top" href="/obchod.html">← Pokračovat v nákupu</a></section>${summary()}</div>`;
   paintProgress();
 }
 $("#cart-content")?.addEventListener("click", (e) => {
+  const upsell = e.target.closest("[data-upsell]");
+  if (upsell) {
+    add(upsell.dataset.upsell, 1, upsell.dataset.variant || "mala");
+    renderCart();
+    return;
+  }
   const b = e.target.closest("[data-qty],[data-remove]");
   if (!b) return;
   if (b.dataset.remove)

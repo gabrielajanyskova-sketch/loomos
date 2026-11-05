@@ -3934,3 +3934,61 @@ aside nav .ico {
     margin-top: -0.075mm;
   }
 }
+
+/* Cart: suggestions up to free shipping */
+.upsell {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid var(--line);
+}
+.upsell h2 {
+  font-size: 22px;
+  margin: 0 0 14px;
+}
+.upsell-list {
+  display: grid;
+  gap: 12px;
+}
+.upsell-item {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.upsell-item .cart-thumb {
+  width: 64px;
+  height: 76px;
+}
+.upsell-item h3 {
+  font-size: 17px;
+  margin: 0 0 4px;
+}
+.upsell-item p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.upsell-free {
+  color: var(--copper);
+  white-space: nowrap;
+}
+.upsell-item .add-button {
+  padding: 10px 16px;
+  width: auto;
+}
+@media (max-width: 520px) {
+  .upsell {
+    padding: 16px;
+  }
+  .upsell-item {
+    grid-template-columns: 52px 1fr auto;
+    gap: 10px;
+  }
+  .upsell-item .cart-thumb {
+    width: 52px;
+    height: 62px;
+  }
+  .upsell-item .add-button {
+    padding: 9px 12px;
+  }
+}
