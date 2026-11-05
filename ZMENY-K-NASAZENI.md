@@ -13,4 +13,4 @@ Ke kontrole majitelkou:
 
 - Logo Balíkovny (pobočka) je z veřejného modulu jiného autora — ověřit, že odpovídá aktuálnímu logu; případně poslat oficiální.
 - Heureka: po registraci ověřit adresu API pro Ověřeno zákazníky (v kódu `https://api.heureka.cz/shop-certification/v2/order/log`, dá se změnit proměnnou `HEUREKA_API_URL`).
-- Nové lapače: ověřit velikost („cca 15 cm“) a zda jsou fotky skutečné, nebo ilustrační (pak doplnit popisek).
+- Nové lapače: ověřit velikost („cca 15 cm“). Fotky jsou skutečné (potvrzeno).

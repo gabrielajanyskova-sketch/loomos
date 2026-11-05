@@ -138,7 +138,7 @@ const suncatcherPicture = (p) => {
   const href = `/produkty/${esc(p.id)}.html`;
   if (suncatcherStudioPhotos.has(p.id)) {
     const src = studioSource(esc(p.id), 0);
-    return `<a class="product-image suncatcher-product-image studio-photo" href="${href}"><img src="${src}-480.webp" srcset="${src}-480.webp 480w, ${src}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="1280" alt="Lapač slunce ${esc(p.name)}" loading="lazy" decoding="async" data-main-photo></a>`;
+    return `<a class="product-image suncatcher-product-image studio-photo" href="${href}"><img src="${src}-480.webp" srcset="${src}-480.webp 480w, ${src}-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 36px), 480px" width="960" height="1280" alt="Lapač slunce ${esc(p.name)} — skutečná fotografie výrobku" loading="lazy" decoding="async" data-main-photo></a>`;
   }
   if (suncatcherPhotos.has(p.id)) {
     const visual = suncatcherWindowPhotos.has(p.id);
