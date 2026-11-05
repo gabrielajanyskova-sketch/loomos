@@ -1,4 +1,5 @@
 import { ORDER_STATUS } from "./orders.mjs";
+import { builtinPhotos, thumbSrc } from "./ui.mjs";
 import { shippingKind, shippingProvider, shippingSummary } from "./pricing.mjs";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -292,7 +293,7 @@ async function renderProducts(el) {
     list
       .map(
         (p) =>
-          `<tr><td><strong>${esc(p.name)}</strong>${p.badge ? ` <small class="status-label">${esc(p.badge)}</small>` : ""}<br><small class="muted">${esc(p.id)}${p.edited ? " · upraveno v adminu" : ""}</small></td><td>${p.variants?.length ? p.variants.map((v) => `${esc(v.name)} ${money(v.price)}`).join("<br>") : money(p.price)}${p.bulk || p.variants?.some((v) => v.bulk) ? '<br><small class="muted">s množstevní cenou</small>' : ""}</td><td>${p.deleted ? '<span class="status-label">Smazáno</span>' : p.active ? "Ano" : "Ne"}</td><td>${p.deleted ? `<button type="button" class="inline-button" data-product-restore="${esc(p.id)}">Obnovit</button>` : `<button type="button" class="inline-button" data-product-edit="${esc(p.id)}">Upravit</button> <button type="button" class="inline-button danger" data-product-delete="${esc(p.id)}">Smazat</button>`}</td></tr>`,
+          `<tr><td class="product-cell">${thumbSrc(p) ? `<img class="product-thumb" src="${thumbSrc(p)}" alt="" width="48" height="48" loading="lazy">` : ""}<strong>${esc(p.name)}</strong>${p.badge ? ` <small class="status-label">${esc(p.badge)}</small>` : ""}<br><small class="muted">${esc(p.id)}${p.edited ? " · upraveno v adminu" : ""}</small></td><td>${p.variants?.length ? p.variants.map((v) => `${esc(v.name)} ${money(v.price)}`).join("<br>") : money(p.price)}${p.bulk || p.variants?.some((v) => v.bulk) ? '<br><small class="muted">s množstevní cenou</small>' : ""}</td><td>${p.deleted ? '<span class="status-label">Smazáno</span>' : p.active ? "Ano" : "Ne"}</td><td>${p.deleted ? `<button type="button" class="inline-button" data-product-restore="${esc(p.id)}">Obnovit</button>` : `<button type="button" class="inline-button" data-product-edit="${esc(p.id)}">Upravit</button> <button type="button" class="inline-button danger" data-product-delete="${esc(p.id)}">Smazat</button>`}</td></tr>`,
       )
       .join("") ||
     '<tr><td colspan="4">V této kategorii zatím nic není.</td></tr>'
@@ -313,7 +314,7 @@ function productForm(p, isNew) {
     <label>Kód produktu (do adresy)<input name="product_id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="60" value="${v(p.id)}" ${isNew ? "" : "readonly"} placeholder="např. lapac-slunce-kocka"><small>malá písmena bez diakritiky a pomlčky; později nejde změnit</small></label>
     <label>Název<input name="name" required maxlength="120" value="${v(p.name)}"></label>
     <label>Podnadpis<input name="subtitle" maxlength="160" value="${v(p.subtitle)}"></label>
-    <label>Krátký popis na kartě<input name="notes" maxlength="160" value="${v(p.notes)}" placeholder="${candle ? "např. Vanilka · santal · pačuli" : "např. Kruh Ø 15 cm · kočička"}"></label>
+    <label>Krátký popis na kartě<input name="notes" maxlength="160" value="${v(p.notes)}" placeholder="${candle ? "např. Vanilka · santal · pačuli" : "např. Statické přilnutí ke sklu"}"></label>
     <label class="wide">Popis<textarea name="description" rows="4" maxlength="2000">${v(p.description)}</textarea></label>
     ${
       candle
@@ -327,6 +328,7 @@ function productForm(p, isNew) {
     <label>Množstevní cena od (ks)<input name="bulk_min" type="number" min="2" max="100" value="${v(bulk.min_qty)}" placeholder="např. 2"></label>
     <label>Množstevní cena za kus (Kč)<input name="bulk_price" type="number" min="1" value="${v(bulk.price)}" placeholder="např. 175"></label>`
     }
+    ${candle ? "" : `<label>Velikost (nepovinné)<input name="size" maxlength="40" value="${v(p.size)}" placeholder="např. 14 × 16 cm"><small>ukáže se na kartě i u produktu</small></label>`}
     <label>Štítek (nepovinné)<input name="badge" maxlength="40" value="${v(p.badge)}" placeholder="např. Nejoblíbenější vůně, Novinka"></label>
     <label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Zobrazit v e-shopu</label>
     <div class="wide product-actions"><button class="button">Uložit produkt</button>${!isNew && p.edited ? `<button type="button" class="inline-button danger" data-product-reset="${v(p.id)}">${p.bundled ? "Vrátit původní údaje" : "Smazat produkt"}</button>` : ""}<button type="button" class="inline-button" data-product-close>Zavřít</button></div>
@@ -335,7 +337,12 @@ function productForm(p, isNew) {
 }
 function photoAdmin(p) {
   const images = p.images || [];
-  return `<section class="photo-admin" data-photo-product="${esc(p.id)}"><h3>Fotky</h3><p class="muted">První fotka je hlavní — ukáže se v obchodě, v košíku i nahoře v detailu. Fotky se před nahráním samy zmenší.</p><div class="photo-admin-grid">${
+  const builtin = images.length ? [] : builtinPhotos(p);
+  const figure = (src, i, data) =>
+    `<figure><img src="${src}" alt="Fotka ${i + 1}" width="120" height="120" loading="lazy"><figcaption>${i === 0 ? '<span class="status-label">Hlavní</span>' : `<button type="button" class="inline-button" ${data}-main="${i}">Nastavit jako hlavní</button>`}<button type="button" class="inline-button danger" ${data}-delete="${i}">Smazat</button></figcaption></figure>`;
+  if (builtin.length)
+    return `<section class="photo-admin" data-photo-product="${esc(p.id)}" data-builtin="${esc(JSON.stringify(builtin))}"><h3>Fotky (${builtin.length})</h3><p class="muted">Tyto fotky jsou teď na webu. První je hlavní — ukáže se v obchodě, v košíku i nahoře v detailu. Když přidáte další nebo vyberete jinou hlavní, uloží se sem i tyto, ať o ně nepřijdete.</p><div class="photo-admin-grid">${builtin.map((src, i) => figure(src, i, "data-builtin")).join("")}</div><label class="inline-button photo-upload">＋ Přidat fotky<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-photo-upload hidden></label></section>`;
+  return `<section class="photo-admin" data-photo-product="${esc(p.id)}"><h3>Fotky${images.length ? ` (${images.length})` : ""}</h3><p class="muted">První fotka je hlavní — ukáže se v obchodě, v košíku i nahoře v detailu. Fotky se před nahráním samy zmenší.</p><div class="photo-admin-grid">${
     images
       .map(
         (img, i) =>
@@ -365,6 +372,23 @@ async function preparePhoto(file) {
   });
   return { type: blob.type, data, width: canvas.width, height: canvas.height };
 }
+/** Copies the website's own photos into admin photos (same order) and returns their new ids. */
+async function importBuiltin(productId, sources) {
+  const ids = [];
+  for (const [i, src] of sources.entries()) {
+    status(`Ukládám fotku z webu ${i + 1} z ${sources.length}…`);
+    const blob = await (await fetch(src)).blob();
+    const file = new File([blob], `foto-${i + 1}.webp`, { type: blob.type });
+    const result = await api("product-image", {
+      product_id: productId,
+      ...(await preparePhoto(file)),
+    });
+    ids.push(result.id);
+  }
+  return ids;
+}
+const builtinOf = (section) =>
+  section.dataset.builtin ? JSON.parse(section.dataset.builtin) : [];
 async function reopenProduct(id) {
   products = await api("products");
   const product = products.find((p) => p.id === id);
@@ -383,6 +407,7 @@ function productFromForm(form) {
     active: f.active.checked,
   };
   if (f.badge.value.trim()) product.badge = f.badge.value.trim();
+  if (f.size?.value.trim()) product.size = f.size.value.trim();
   if (candle) {
     product.variants = [
       ["mala", "Malá"],
@@ -643,6 +668,30 @@ document.addEventListener("click", (e) => {
   const photoButton = e.target.closest(
     "[data-photo-main], [data-photo-delete]",
   );
+  const builtinButton = e.target.closest(
+    "[data-builtin-main], [data-builtin-delete]",
+  );
+  if (builtinButton) {
+    const section = builtinButton.closest("[data-photo-product]");
+    const productId = section.dataset.photoProduct;
+    const deleting = builtinButton.dataset.builtinDelete !== undefined;
+    if (deleting && !confirm("Smazat fotku?")) return;
+    guard(async () => {
+      const ids = await importBuiltin(productId, builtinOf(section));
+      const index = Number(
+        deleting
+          ? builtinButton.dataset.builtinDelete
+          : builtinButton.dataset.builtinMain,
+      );
+      await api("product-image-update", {
+        id: ids[index],
+        action: deleting ? "delete" : "main",
+      });
+      status("Fotky jsou uložené.");
+      await reopenProduct(productId);
+    });
+    return;
+  }
   if (photoButton) {
     const id = Number(
       photoButton.dataset.photoMain || photoButton.dataset.photoDelete,
@@ -756,9 +805,12 @@ document.addEventListener("submit", (e) => {
 document.addEventListener("change", (e) => {
   const input = e.target.closest("[data-photo-upload]");
   if (!input?.files.length) return;
-  const productId = input.closest("[data-photo-product]").dataset.photoProduct;
+  const section = input.closest("[data-photo-product]");
+  const productId = section.dataset.photoProduct;
   guard(async () => {
     const files = [...input.files];
+    // Keep the photos that are on the website now; new ones go after them.
+    await importBuiltin(productId, builtinOf(section));
     for (const [i, file] of files.entries()) {
       status(`Nahrávám fotku ${i + 1} z ${files.length}…`);
       await api("product-image", {

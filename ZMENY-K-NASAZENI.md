@@ -2,7 +2,7 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 5. 11. 2026 (8 nových lapačů slunce, zvýraznění menu u lapačů).
+Poslední hromadné nasazení: 5. 11. 2026 (dalších 6 lapačů, velikost lapačů v adminu, fotky z webu v adminu, kontrola webu, Vůně do auta pryč z menu).
 
 Čeká na nasazení:
 
@@ -12,4 +12,4 @@ Ke kontrole majitelkou:
 
 - Logo Balíkovny (pobočka) je z veřejného modulu jiného autora — ověřit, že odpovídá aktuálnímu logu; případně poslat oficiální.
 - Heureka: po registraci ověřit adresu API pro Ověřeno zákazníky (v kódu `https://api.heureka.cz/shop-certification/v2/order/log`, dá se změnit proměnnou `HEUREKA_API_URL`).
-- Nové lapače: ověřit velikost („cca 15 cm“) a zda jsou fotky skutečné, nebo ilustrační (pak doplnit popisek).
+- Nové lapače: doplnit velikost v adminu u každého motivu.

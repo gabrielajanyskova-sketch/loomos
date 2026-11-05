@@ -3273,8 +3273,17 @@ a.category-card {
   filter: none;
 }
 
-.studio-photo {
-  background: #fff;
+/* Studio photos are 3:4 with their own background, so they fill the frame edge to edge. */
+.studio-photo,
+.detail-photo .studio-photo {
+  aspect-ratio: 3 / 4;
+  background: #f5f5f5;
+}
+.product-card .studio-photo img,
+.detail-photo .studio-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .sale-reference {
@@ -3302,6 +3311,11 @@ a.category-card {
 }
 
 /* Uploaded product photos */
+.uploaded-photo img,
+.product-card .uploaded-photo img,
+.detail-photo .uploaded-photo img {
+  filter: none;
+}
 .uploaded-photo img {
   width: 100%;
   height: auto;
@@ -3789,4 +3803,14 @@ aside nav .ico {
   color: var(--copper-light);
   letter-spacing: 2px;
   font-size: 14px;
+}
+
+/* Admin: main photo next to the product name */
+.product-cell .product-thumb {
+  float: left;
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 1px solid var(--line);
 }

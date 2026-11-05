@@ -48,6 +48,7 @@ export async function save(db, request) {
     "price_provisional",
     "bulk",
     "badge",
+    "size",
     "gift",
     "character",
     "pyramid",

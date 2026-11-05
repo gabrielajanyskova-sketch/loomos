@@ -51,9 +51,9 @@ const descriptions = {
   inquiry:
     "Lapač slunce na přání s vaším pejskem, kočičkou nebo jiným motivem podle fotky. Kruh 15 cm, od 299 Kč. Pošlete mi obrázek a já se ozvu s návrhem.",
   "gifts-her":
-    "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi a dřevěným knotem. Dárek pro ženu, přítelkyni i mámu k Vánocům, narozeninám nebo na Valentýna.",
+    "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi. Pro ženu, přítelkyni i mámu k Vánocům nebo narozeninám.",
   "gifts-him":
-    "Tip na dárek pro něj: pánské vonné svíčky ze sójového vosku s dřevěným knotem — cedr, pačuli, ambra, mořské tóny. Dárek pro muže, přítele i tátu k Vánocům, narozeninám nebo na svátek.",
+    "Tip na dárek pro něj: pánské sójové svíčky s dřevěným knotem — cedr, pačuli, ambra, mořské tóny. Pro muže, přítele i tátu k Vánocům nebo narozeninám.",
   suncatchers:
     "Lapače slunce LOOMOS: nálepky na okno z hranolové fólie, které ze slunečních paprsků vykouzlí duhy na stěnách i podlaze. Jak fungují, kam je nalepit a nabídka.",
   wholesale:
@@ -214,7 +214,15 @@ export function metadata({
         : {}),
       additionalProperty: !isCandle(product)
         ? [
-            { "@type": "PropertyValue", name: "Průměr", value: "15 cm" },
+            ...(product.size
+              ? [
+                  {
+                    "@type": "PropertyValue",
+                    name: "Velikost",
+                    value: product.size,
+                  },
+                ]
+              : []),
             {
               "@type": "PropertyValue",
               name: "Uchycení",

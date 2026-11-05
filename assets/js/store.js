@@ -406,6 +406,7 @@ async function renderReview() {
   const token = new URLSearchParams(location.search).get("t") || "";
   let data;
   try {
+    if (!token) throw Error("missing token");
     data = await api(`reviews/pending?t=${encodeURIComponent(token)}`);
   } catch {
     el.innerHTML =
@@ -883,6 +884,8 @@ async function renderOrderPage() {
   const el = $("#order-content");
   const token = new URLSearchParams(location.search).get("t") || "";
   try {
+    if (!token)
+      throw Error("Odkaz na objednávku najdete v potvrzovacím e-mailu.");
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
     el.innerHTML = `${orderTimeline(o)}${["odeslana", "k-vyzvednuti", "dokoncena"].includes(o.status) ? `<p class="notice review-invite">${icon("star", "ico-inline")} Jak se vám nákup líbí? <a href="/recenze.html?t=${encodeURIComponent(token)}">Ohodnotit →</a></p>` : ""}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.bulkSavings ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(p.bulkSavings)}</span></div>` : ""}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
