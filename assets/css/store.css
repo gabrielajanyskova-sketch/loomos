@@ -3561,3 +3561,23 @@ aside nav .ico {
     #9b7bff1f
   );
 }
+
+/* Manufacturer / GPSR block on product pages */
+.maker-info {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+.maker-info h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+.maker-info p {
+  margin: 0 0 6px;
+}
+.maker-info a {
+  color: var(--copper-light);
+}

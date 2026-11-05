@@ -24,6 +24,11 @@ test("public build includes searchable HTML and exactly seven selectable cards",
   assert.match(detail, /<h1>Okurka, zázvor a máta<\/h1>/);
   assert.match(detail, /BreadcrumbList/);
   assert.match(detail, /"@type":"Product"/);
+  // GPSR: manufacturer and product identification on the product page.
+  assert.match(
+    detail,
+    /Výrobce:<\/strong> Gabriela Janýšková, Starojická Lhota 45/,
+  );
 });
 test("deployment output never contains source, database, tests, secrets or old images", () => {
   for (const path of [
@@ -71,6 +76,7 @@ test("sun catcher collection and all four individual routes are built separately
   const collection = read("lapace-slunce.html");
   assert.equal((collection.match(/class="product-card[ "]/g) || []).length, 5);
   assert.match(collection, /Lapač na přání/);
+  assert.match(read("poptavka.html"), /nelze odstoupit od smlouvy/);
 
   const catalog = JSON.parse(read("data/products.json"));
   for (const p of catalog.filter((p) => p.category === "lapace-slunce")) {
@@ -81,6 +87,7 @@ test("sun catcher collection and all four individual routes are built separately
     assert.match(detail, /199/);
     assert.match(detail, /Od 2 ks jen 175/);
     assert.match(detail, /Jak lapač nalepit/);
+    assert.match(detail, /Výrobce:/);
   }
   assert.equal(
     (read("obchod.html").match(/class="product-card[ "]/g) || []).length,
