@@ -3,6 +3,8 @@ import { PDFDocument, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import regularFont from "./fonts/dm-sans-regular.bin";
 import boldFont from "./fonts/dm-sans-bold.bin";
+// Print version of the logo (dark ink, transparent PNG) for the invoice header.
+import logoPng from "./media/logo.bin";
 import { seller, sellerAddress } from "../../assets/js/site.mjs";
 import { shippingSummary } from "../../assets/js/pricing.mjs";
 import { now } from "./db.js";
@@ -97,7 +99,15 @@ export async function invoicePdf(invoice) {
       color,
     });
 
-  text("LOOMOS", left, y, { size: 13, font: bold, color: copper });
+  const logo = await pdf.embedPng(logoPng);
+  const logoHeight = 56;
+  const logoWidth = (logo.width / logo.height) * logoHeight;
+  page.drawImage(logo, {
+    x: left,
+    y: y - logoHeight + 14,
+    width: logoWidth,
+    height: logoHeight,
+  });
   textRight(`Faktura ${invoice.number}`, right, y, { size: 16, font: bold });
   y -= 18;
   if (data.test)
@@ -106,7 +116,8 @@ export async function invoicePdf(invoice) {
       font: bold,
       color: rgb(0.75, 0.2, 0.15),
     });
-  y -= 30;
+  // Leave room below the logo before the supplier and customer blocks.
+  y -= 44;
 
   const col2 = 310;
   text("Dodavatel", left, y, { size: 9, color: muted });

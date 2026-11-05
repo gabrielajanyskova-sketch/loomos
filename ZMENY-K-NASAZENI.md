@@ -6,7 +6,8 @@ Poslední hromadné nasazení: 5. 11. 2026 (e-maily ve vzhledu webu, logo a QR v
 
 Čeká na nasazení:
 
-- (nic)
+- **Horní lišta:** jen „Doprava zdarma od 1 200 Kč“ (bez „Ručně vyráběné sójové svíčky“).
+- **Faktura s logem:** vlevo nahoře tisková verze loga místo textu LOOMOS.
 
 Ke kontrole majitelkou:
 
