@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (vodítka pro stříhání etiket, fi
 
 Čeká na nasazení:
 
-- (nic)
+- **Košík — nabídka zjednodušená:** nadpis „Mohlo by se vám hodit“, bez opakované částky a štítků „+ doprava zdarma“ (částka je u ukazatele vpravo).
 
 Ke kontrole majitelkou:
 

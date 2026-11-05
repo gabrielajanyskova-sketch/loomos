@@ -628,7 +628,7 @@ function upsellItems(t, limit = 3) {
     const category = isCandle(o.p) ? "svicky" : "lapace";
     if ((perCategory[category] || 0) >= 2) continue;
     perCategory[category] = (perCategory[category] || 0) + 1;
-    picked.push({ ...o, reaches: o.price >= missing });
+    picked.push(o);
     if (picked.length === limit) break;
   }
   return picked;
@@ -636,10 +636,10 @@ function upsellItems(t, limit = 3) {
 function upsellBlock(t) {
   const items = upsellItems(t);
   if (!items.length) return "";
-  return `<section class="upsell" aria-labelledby="upsell-title"><h2 id="upsell-title">Do dopravy zdarma vám chybí ${money(t.missingForFreeShipping)} — co přidat?</h2><div class="upsell-list">${items
+  return `<section class="upsell" aria-labelledby="upsell-title"><h2 id="upsell-title">Mohlo by se vám hodit</h2><div class="upsell-list">${items
     .map(
-      ({ p, variant, price, reaches }) =>
-        `<article class="upsell-item"><a href="/produkty/${encodeURIComponent(p.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="64" height="76" loading="lazy" decoding="async" alt="">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(p))}</a><div><h3><a href="/produkty/${encodeURIComponent(p.id)}.html">${esc(p.name)}</a></h3><p>${variant ? `${esc(variant.name)} · ` : ""}${money(price)}${reaches ? ' <span class="upsell-free">+ doprava zdarma</span>' : ""}</p></div><button type="button" class="add-button" data-upsell="${esc(p.id)}" data-variant="${esc(variant?.id ?? "")}" aria-label="Přidat ${esc(p.name)} do košíku"><span class="add-label">Přidat</span></button></article>`,
+      ({ p, variant, price }) =>
+        `<article class="upsell-item"><a href="/produkty/${encodeURIComponent(p.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="64" height="76" loading="lazy" decoding="async" alt="">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(p))}</a><div><h3><a href="/produkty/${encodeURIComponent(p.id)}.html">${esc(p.name)}</a></h3><p>${variant ? `${esc(variant.name)} · ` : ""}${money(price)}</p></div><button type="button" class="add-button" data-upsell="${esc(p.id)}" data-variant="${esc(variant?.id ?? "")}" aria-label="Přidat ${esc(p.name)} do košíku"><span class="add-label">Přidat</span></button></article>`,
     )
     .join("")}</div></section>`;
 }
