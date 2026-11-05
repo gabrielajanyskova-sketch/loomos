@@ -9,6 +9,8 @@ import * as products from "./products.js";
 import * as inquiry from "./inquiry.js";
 import * as images from "./images.js";
 import * as alerts from "./alerts.js";
+import * as reviews from "./reviews.js";
+import * as heureka from "./heureka.js";
 import * as withdrawal from "./withdrawal.js";
 
 const routes = {
@@ -22,6 +24,11 @@ const routes = {
   "POST /api/inquiry": inquiry.create,
   "GET /api/img": images.serve,
   "POST /api/stock-alert": alerts.subscribe,
+  "GET /api/reviews": reviews.forProduct,
+  "GET /api/config": heureka.config,
+  "GET /api/feed/heureka.xml": heureka.feed,
+  "GET /api/reviews/pending": reviews.pending,
+  "POST /api/reviews": reviews.create,
 
   "GET /api/account/me": account.me,
   "POST /api/account/register": account.register,
@@ -58,6 +65,8 @@ const adminRoutes = {
   "POST /api/admin/product-image": images.upload,
   "POST /api/admin/product-image-update": images.update,
   "GET /api/admin/stock-alerts": alerts.overview,
+  "GET /api/admin/reviews": reviews.adminList,
+  "POST /api/admin/review": reviews.adminUpdate,
   "GET /api/admin/stock": admin.stock,
   "POST /api/admin/stock": admin.setStock,
   "POST /api/admin/prices": admin.setPrice,

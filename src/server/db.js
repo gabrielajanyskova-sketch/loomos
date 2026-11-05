@@ -186,6 +186,19 @@ const SCHEMA = [
     created INTEGER NOT NULL,
     PRIMARY KEY (email, product_id, variant_id)
   )`,
+  // Verified reviews: only customers of a shipped order can rate the products from it.
+  `CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_number TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    text TEXT NOT NULL DEFAULT '',
+    created INTEGER NOT NULL,
+    hidden INTEGER NOT NULL DEFAULT 0,
+    reply TEXT NOT NULL DEFAULT '',
+    UNIQUE (order_number, product_id)
+  )`,
   `CREATE TABLE IF NOT EXISTS inquiries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created INTEGER NOT NULL,

@@ -12,6 +12,7 @@ import {
 import { now } from "./db.js";
 import { limit, randomToken, readSession } from "./auth.js";
 import { publicCatalog, resolveItems, stockMap } from "./catalog.js";
+import { logOrder } from "./heureka.js";
 import {
   priceCart,
   SHIPPING,
@@ -323,6 +324,9 @@ export async function createOrder(db, request, env, ctx) {
     .bind(requestId)
     .first();
   ctx.waitUntil(sendOrderEmails(env, request, row.number, token, order, test));
+  // Heureka "Ověřeno zákazníky": not for test orders, and only without the customer's opt-out.
+  if (!test && data.heureka_optout !== true)
+    ctx.waitUntil(logOrder(env, order, row.number));
   return json({ ...publicOrder(row, env), token }, 201);
 }
 

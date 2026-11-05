@@ -43,6 +43,7 @@ export async function startShop(extra = {}) {
     RESEND_API_URL: `${fakeUrl}/emails`,
     PACKETA_API_PASSWORD: "packeta<&>secret",
     PACKETA_API_URL: `${fakeUrl}/packeta`,
+    HEUREKA_API_URL: `${fakeUrl}/heureka`,
     ...extra,
   };
   const child = spawn(

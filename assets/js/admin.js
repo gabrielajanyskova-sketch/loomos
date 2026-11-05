@@ -423,6 +423,23 @@ function productFromForm(form) {
   return product;
 }
 
+/* ---------- reviews ---------- */
+async function renderReviews(el) {
+  const [list, catalog] = await Promise.all([api("reviews"), api("products")]);
+  const nameOf = (id) => catalog.find((p) => p.id === id)?.name || id;
+  const starsText = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+  el.innerHTML = `<div class="admin-toolbar"><h2>Recenze</h2><span class="muted">${list.length} celkem</span></div><p class="muted">Hodnotit mohou jen zákazníci odeslaných objednávek (odkaz jim přijde v e-mailu o odeslání). Hodnocení se zveřejní hned. Skrývejte jen vulgární nebo nesouvisející — negativní hodnocení skrýt nesmíte, místo toho na něj veřejně odpovězte.</p>${
+    list.length
+      ? list
+          .map(
+            (r) =>
+              `<section class="panel review-admin ${r.hidden ? "is-hidden" : ""}"><div class="admin-toolbar"><h3>${esc(nameOf(r.product_id))} <span class="review-stars-text">${starsText(r.rating)}</span></h3><small class="muted">${date(r.created)} · objednávka ${esc(r.order_number)}${r.hidden ? " · skryto" : ""}</small></div><p><strong>${esc(r.name)}</strong>${r.text ? ": " + esc(r.text) : ""}</p><form class="inline-form review-reply-form" data-review="${r.id}"><label class="wide">Veřejná odpověď<textarea name="reply" rows="2" maxlength="1000">${esc(r.reply)}</textarea></label><button class="inline-button">Uložit odpověď</button><button type="button" class="inline-button ${r.hidden ? "" : "danger"}" data-review-toggle="${r.id}" data-hidden="${r.hidden ? "1" : ""}">${r.hidden ? "Znovu zobrazit" : "Skrýt"}</button></form></section>`,
+          )
+          .join("")
+      : '<div class="panel">Zatím žádná hodnocení. Zákazníci dostanou odkaz v e-mailu, až objednávku označíte jako odeslanou.</div>'
+  }`;
+}
+
 /* ---------- inquiries ---------- */
 async function renderInquiries(el) {
   const list = await api("inquiries");
@@ -509,6 +526,7 @@ const views = {
   orders: renderOrders,
   products: renderProducts,
   inquiries: renderInquiries,
+  reviews: renderReviews,
   stock: renderStock,
   customers: renderCustomers,
   codes: renderCodes,
@@ -555,6 +573,17 @@ document.addEventListener("click", (e) => {
   if (chip) {
     filter = chip.dataset.filter;
     show("orders");
+  }
+  const toggle = e.target.closest("[data-review-toggle]");
+  if (toggle) {
+    guard(async () => {
+      await api("review", {
+        id: Number(toggle.dataset.reviewToggle),
+        action: toggle.dataset.hidden ? "show" : "hide",
+      });
+      await show("reviews");
+    });
+    return;
   }
   const inq = e.target.closest("[data-inquiry]");
   if (inq) {
@@ -743,5 +772,20 @@ document.addEventListener("change", (e) => {
         : `Nahráno ${files.length} fotek.`,
     );
     await reopenProduct(productId);
+  });
+});
+
+document.addEventListener("submit", (e) => {
+  const form = e.target.closest(".review-reply-form");
+  if (!form) return;
+  e.preventDefault();
+  guard(async () => {
+    await api("review", {
+      id: Number(form.dataset.review),
+      action: "reply",
+      reply: form.elements.reply.value,
+    });
+    status("Odpověď je uložená a zveřejněná.");
+    await show("reviews");
   });
 });
