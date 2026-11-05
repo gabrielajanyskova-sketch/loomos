@@ -4,6 +4,16 @@ export const isCandle = (p) => (p.category || "svicky") === "svicky";
 /** Gift audiences: "pro-ni" (for her), "pro-nej" (for him); both = unisex. */
 export const GIFTS = { "pro-ni": "Pro ni", "pro-nej": "Pro něj" };
 export const giftFor = (p, who) => Boolean(p.gift?.includes(who));
+/** Sun catcher themes for the filter on /lapace-slunce (a motif can have several). */
+export const SUNCATCHER_THEMES = [
+  ["zvirata", "Zvířata"],
+  ["auta", "Auta a stroje"],
+  ["kvetiny", "Květiny"],
+  ["vanoce", "Vánoce a zima"],
+  ["podzim", "Podzim"],
+  ["pohadky", "Pohádky"],
+];
+const THEME_IDS = new Set(SUNCATCHER_THEMES.map(([id]) => id));
 
 /** Scent families for the shop filter, recognised from the notes and the scent pyramid. */
 export const SCENT_FAMILIES = [
@@ -96,6 +106,11 @@ export function validateCatalog(value) {
       (typeof p.badge !== "string" || !p.badge || p.badge.length > 40)
     )
       throw new TypeError("Neplatný štítek produktu.");
+    if (
+      p.themes !== undefined &&
+      (!Array.isArray(p.themes) || p.themes.some((t) => !THEME_IDS.has(t)))
+    )
+      throw new TypeError("Neplatné téma lapače.");
     if (
       p.size !== undefined &&
       (typeof p.size !== "string" || !p.size || p.size.length > 40)

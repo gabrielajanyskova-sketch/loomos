@@ -319,7 +319,8 @@
       "min_qty": 2,
       "price": 175
     },
-    "size": "Ø 15 cm"
+    "size": "Ø 15 cm",
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-vila",
@@ -334,7 +335,8 @@
       "min_qty": 2,
       "price": 175
     },
-    "size": "Ø 15 cm"
+    "size": "Ø 15 cm",
+    "themes": ["pohadky"]
   },
   {
     "id": "lapac-slunce-medvidek",
@@ -349,7 +351,8 @@
       "min_qty": 2,
       "price": 175
     },
-    "size": "Ø 15 cm"
+    "size": "Ø 15 cm",
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-traktor",
@@ -364,7 +367,8 @@
       "min_qty": 2,
       "price": 175
     },
-    "size": "Ø 15 cm"
+    "size": "Ø 15 cm",
+    "themes": ["auta"]
   },
   {
     "id": "lapac-slunce-kocicka",
@@ -378,7 +382,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-sova-na-vetvi",
@@ -392,7 +397,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-konik",
@@ -406,7 +412,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-liska",
@@ -420,7 +427,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata", "podzim"]
   },
   {
     "id": "lapac-slunce-dracek",
@@ -434,7 +442,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["pohadky"]
   },
   {
     "id": "lapac-slunce-pejsek-hasic",
@@ -448,7 +457,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-dyne",
@@ -462,7 +472,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["podzim"]
   },
   {
     "id": "lapac-slunce-vanocni-stromecek",
@@ -476,7 +487,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["vanoce"]
   },
   {
     "id": "lapac-slunce-kote-na-mesici",
@@ -490,7 +502,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata"]
   },
   {
     "id": "lapac-slunce-zimni-vesnicka",
@@ -504,7 +517,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["vanoce"]
   },
   {
     "id": "lapac-slunce-vcelka",
@@ -518,7 +532,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata", "kvetiny"]
   },
   {
     "id": "lapac-slunce-hasicske-auto",
@@ -532,7 +547,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["auta"]
   },
   {
     "id": "lapac-slunce-lednacek",
@@ -546,7 +562,8 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata", "kvetiny"]
   },
   {
     "id": "lapac-slunce-zajicek",
@@ -560,6 +577,7 @@
     "bulk": {
       "min_qty": 2,
       "price": 175
-    }
+    },
+    "themes": ["zvirata"]
   }
 ]

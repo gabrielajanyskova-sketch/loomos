@@ -2,7 +2,7 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 5. 11. 2026 (dalších 6 lapačů, velikost lapačů v adminu, fotky z webu v adminu, kontrola webu, Vůně do auta pryč z menu).
+Poslední hromadné nasazení: 5. 11. 2026 (filtr lapačů podle tématu, nová fotka na úvodní stránce, uložit vše ve skladu, přední etikety a víc vůní na arch v Dílničce).
 
 Čeká na nasazení:
 

@@ -242,3 +242,31 @@ test("shipping is free from 1 200 Kč of goods after discounts", () => {
   assert.equal(discounted.freeShipping, false);
   assert.equal(discounted.shippingPrice, 149);
 });
+
+test("front labels: 12 big (6 × 7 cm) and 16 small (5 × 6 cm) fit on A4, centred", async () => {
+  const { FRONT_SIZES, frontLayout, frontLabelHtml } = await import(
+    "../assets/js/labels.mjs"
+  );
+  const big = frontLayout(FRONT_SIZES.big);
+  const small = frontLayout(FRONT_SIZES.small);
+  assert.deepEqual([big.columns, big.rows], [3, 4]);
+  assert.deepEqual([small.columns, small.rows], [4, 4]);
+  for (const [layout, size] of [
+    [big, FRONT_SIZES.big],
+    [small, FRONT_SIZES.small],
+  ]) {
+    assert.ok(layout.margin_left >= 5 && layout.margin_top >= 5);
+    assert.ok(layout.margin_left * 2 + layout.columns * size.width <= 210);
+    assert.ok(layout.margin_top * 2 + layout.rows * size.height <= 297);
+  }
+  const html = frontLabelHtml({
+    size: "small",
+    name: "Moře & cedr",
+    notes: "Cedr · santal",
+    grams: 180,
+    hours: 50,
+  });
+  assert.match(html, /front-small/);
+  assert.match(html, /Moře &amp; cedr/);
+  assert.match(html, /180 g · hoří ±50 h/);
+});

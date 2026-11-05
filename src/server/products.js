@@ -49,6 +49,7 @@ export async function save(db, request) {
     "bulk",
     "badge",
     "size",
+    "themes",
     "gift",
     "character",
     "pyramid",

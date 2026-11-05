@@ -115,6 +115,8 @@ test("eighteen sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) r
     ),
   );
   for (const p of catchers) {
+    // Every motif belongs to at least one theme of the filter on /lapace-slunce.
+    assert.ok(p.themes?.length, `${p.id} has no theme`);
     assert.equal(p.price, 199);
     assert.deepEqual(p.bulk, { min_qty: 2, price: 175 });
     const html = productCard(p, 0) + renderProductDetail(p);
