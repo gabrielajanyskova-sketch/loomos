@@ -81,7 +81,9 @@ export const memberPrice = (price) =>
 
 /**
  * @param {object} input
- * @param {{key:string,name:string,price:number,qty:number}[]} input.lines unit prices from the catalog
+ * @param {{key:string,name:string,price:number,qty:number,group?:string,bulk?:{min_qty:number,price:number}}[]} input.lines
+ *   unit prices from the catalog; lines with the same group and quantity price count together
+ *   (e.g. any two sun catchers, whatever the motif, are 175 Kč each)
  * @param {boolean} input.member logged-in customer → 5 % off every item
  * @param {{code:string,type:"percent"|"fixed",value:number,min_total?:number}|null} input.code
  * @param {keyof SHIPPING|null} input.shipping
@@ -92,16 +94,23 @@ export function priceCart({
   code = null,
   shipping = null,
 }) {
+  const bulkKey = (line) =>
+    `${line.group ?? line.key}|${line.bulk.min_qty}|${line.bulk.price}`;
+  const bulkQty = new Map();
+  for (const line of lines)
+    if (line.bulk)
+      bulkQty.set(bulkKey(line), (bulkQty.get(bulkKey(line)) || 0) + line.qty);
   const priced = lines.map((line) => {
-    // Quantity price (e.g. 175 Kč per piece from 2 pieces) comes before the member discount.
-    // Never above the current price (e.g. while a sale price is lower than the quantity price).
+    // Quantity price (e.g. 175 Kč per piece from 2 pieces of any motif) comes before the member
+    // discount. Never above the current price (e.g. while a sale price is lower).
     const base =
-      line.bulk && line.qty >= line.bulk.min_qty
+      line.bulk && bulkQty.get(bulkKey(line)) >= line.bulk.min_qty
         ? Math.min(line.bulk.price, line.price)
         : line.price;
     const unit = member ? memberPrice(base) : base;
     return {
       ...line,
+      ...(line.bulk ? { bulkCount: bulkQty.get(bulkKey(line)) } : {}),
       listUnit: line.price,
       originalUnit: base,
       unit,

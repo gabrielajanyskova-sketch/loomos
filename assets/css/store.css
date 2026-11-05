@@ -3968,10 +3968,6 @@ aside nav .ico {
   font-size: 14px;
   color: var(--muted);
 }
-.upsell-free {
-  color: var(--copper);
-  white-space: nowrap;
-}
 .upsell-item .add-button {
   padding: 10px 16px;
   width: auto;

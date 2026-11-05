@@ -566,7 +566,7 @@ function renderLabels() {
   renderLabelRows();
 }
 /** Puts label HTML into A4 pages and opens the print dialog. */
-function printSheets(pages) {
+async function printSheets(pages) {
   let sheet = document.getElementById("label-sheet");
   if (!sheet) {
     sheet = document.createElement("div");
@@ -590,6 +590,20 @@ function printSheets(pages) {
       el.style.top = `${layout.margin_top + Math.floor(i / layout.columns) * (height + layout.gap)}mm`;
     });
   });
+  // Wait until every pictogram and logo is loaded and decoded, otherwise the print dialog
+  // can start before they arrive and some symbols are missing on paper.
+  await Promise.all(
+    [...sheet.querySelectorAll("img")].map((img) =>
+      img.decode().catch(
+        () =>
+          new Promise((resolve) => {
+            if (img.complete) resolve();
+            else img.addEventListener("load", resolve, { once: true });
+            img.addEventListener("error", resolve, { once: true });
+          }),
+      ),
+    ),
+  );
   document.body.classList.add("print-labels");
   document.body.classList.toggle(
     "print-guides",
@@ -673,7 +687,7 @@ function printLabels(kind) {
       pages.push({ items, layout, width: size.width, height: size.height });
     first = false;
   }
-  printSheets(pages);
+  return printSheets(pages);
 }
 
 function renderRows() {

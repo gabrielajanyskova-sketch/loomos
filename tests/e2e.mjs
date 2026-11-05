@@ -57,6 +57,8 @@ try {
   await page.locator(".cart-item").waitFor();
   assert.match(await page.locator(".summary-total").textContent(), /449/);
   assert.match(await page.locator(".member-hint").textContent(), /22/);
+  // Below free shipping the cart suggests up to three products to add.
+  assert.equal(await page.locator(".upsell-item").count(), 3);
 
   // Register from checkout and come back with the 5 % discount.
   await page.goto(base + "/ucet?navrat=pokladna");

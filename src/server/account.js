@@ -249,6 +249,7 @@ export async function myOrders(db, request) {
 export async function deleteAccount(db, request) {
   assertSameOrigin(request);
   const customer = await requireCustomer(db, request);
+  await limit(db, `account-delete:${customer.id}`, 5, 900);
   const data = await readJson(request, 1024);
   const row = await db
     .prepare("SELECT password_hash FROM customers WHERE id=?")

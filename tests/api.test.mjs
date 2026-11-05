@@ -847,6 +847,25 @@ test("admin adds and edits products; quantity price and dynamic product page wor
   assert.equal(bought.status, 201, JSON.stringify(bought.body));
   assert.equal(bought.body.pricing.items, 350);
   assert.equal(bought.body.pricing.bulkSavings, 48);
+  // Any two sun catchers, whatever the motif, are at the quantity price.
+  const mixed = await call(
+    "/api/orders",
+    order({
+      email: "lapac2@example.com",
+      items: [
+        { id: sun.id, qty: 1 },
+        { id: "lapac-slunce-konik", qty: 1 },
+      ],
+    }),
+  );
+  assert.equal(mixed.status, 201, JSON.stringify(mixed.body));
+  assert.equal(mixed.body.pricing.items, 350);
+  // Sun catchers removed from the offer lead to the sun catcher page.
+  const removed = await fetch(`${shop.url}/produkty/lapac-slunce-sova`, {
+    redirect: "manual",
+  });
+  assert.equal(removed.status, 301);
+  assert.match(removed.headers.get("location"), /\/lapace-slunce$/);
   const page = await fetch(`${shop.url}/produkty/${sun.id}`);
   assert.equal(page.status, 200);
   assert.match(await page.text(), /data-product="lapac-slunce-kocka"/);
@@ -966,7 +985,7 @@ test("single-size sun catcher: admin stock, and it cannot be ordered without a p
         .status,
       200,
     );
-    const product_id = "lapac-slunce-sova";
+    const product_id = "lapac-slunce-liska";
     assert.equal(
       (await a("/api/admin/stock", { product_id, variant_id: "", quantity: 7 }))
         .status,
@@ -1182,7 +1201,7 @@ test("Heureka: product feed and Ověřeno zákazníky order log with opt-out", a
   assert.match(xmlText, /<ITEM_ID>morska-sul-paculi-mala<\/ITEM_ID>/);
   assert.match(xmlText, /<ITEMGROUP_ID>morska-sul-paculi<\/ITEMGROUP_ID>/);
   assert.match(xmlText, /<PRICE_VAT>349<\/PRICE_VAT>/);
-  assert.match(xmlText, /<ITEM_ID>lapac-slunce-sova<\/ITEM_ID>/);
+  assert.match(xmlText, /<ITEM_ID>lapac-slunce-kocicka<\/ITEM_ID>/);
   assert.doesNotMatch(xmlText, /kokos-limetka/);
 
   assert.equal((await client(shop.url)("/api/config")).body.heureka, false);

@@ -129,7 +129,7 @@ test("admin prices persist, validate references, isolate sizes, and determine or
     });
     assert.equal(order.status, 201, JSON.stringify(order));
     assert.equal(order.body.pricing.total, expectedPrice);
-    const catcherKey = { product_id: "lapac-slunce-traktor", variant_id: "" };
+    const catcherKey = { product_id: "lapac-slunce-kocicka", variant_id: "" };
     let catcher = (await rows()).find(
       (r) => r.product_id === catcherKey.product_id,
     );
