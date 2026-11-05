@@ -160,6 +160,8 @@ export async function qrImage(db, request, env) {
   if (!info) fail(404, "Nenalezeno.");
   return binary(await qrPng(info.spayd), "image/png", {
     "Cache-Control": "private, max-age=86400",
+    // Shown in the payment e-mail: webmail pages on other domains must be allowed to load it.
+    "Cross-Origin-Resource-Policy": "cross-origin",
   });
 }
 
@@ -343,7 +345,7 @@ async function sendOrderEmails(env, request, number, token, order, test) {
     : [];
   const payBlocks = payment
     ? [
-        `Prosíme o úhradu převodem do ${PAYMENT_DAYS} dnů. Nejrychleji zaplatíte načtením QR kódu v bankovní aplikaci.`,
+        `Prosím o úhradu převodem do ${PAYMENT_DAYS} dnů. Nejrychleji zaplatíte načtením QR kódu v bankovní aplikaci.`,
         {
           rows: [
             ["Číslo účtu", payment.account],

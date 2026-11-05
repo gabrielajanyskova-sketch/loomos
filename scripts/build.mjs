@@ -110,6 +110,7 @@ for (const dir of ["img", "fonts"])
         name.endsWith("-LICENSE.txt") ||
         name === "og-image.jpg" ||
         name === "logo-print.png" ||
+        name === "email-logo.png" ||
         name === "icons.svg" ||
         /^carrier-[a-z-]+\.svg$/.test(name)
       )
@@ -337,7 +338,7 @@ await write(
 );
 await write(
   "_headers",
-  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/dilnicka/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/pokladna*\n  ! Content-Security-Policy\n  Content-Security-Policy: ${policy({ packeta: true })}\n  ! Permissions-Policy\n  Permissions-Policy: camera=(), microphone=(), geolocation=(self "${balikovnaOrigin}" "${packetaOrigin}"), payment=(), usb=()\n`,
+  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/img/email-logo.png\n  ! Cross-Origin-Resource-Policy\n  Cross-Origin-Resource-Policy: cross-origin\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/dilnicka/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/pokladna*\n  ! Content-Security-Policy\n  Content-Security-Policy: ${policy({ packeta: true })}\n  ! Permissions-Policy\n  Permissions-Policy: camera=(), microphone=(), geolocation=(self "${balikovnaOrigin}" "${packetaOrigin}"), payment=(), usb=()\n`,
 );
 await write(
   "_redirects",

@@ -6,7 +6,8 @@ Poslední hromadné nasazení: 5. 11. 2026 (kontrola kódu a bezpečnosti, úkli
 
 Čeká na nasazení:
 
-- (nic)
+- **E-maily ve vzhledu webu:** tmavé pozadí, logo nahoře, měděné nadpisy a tlačítka; slevy a „Ušetřili jste“ zeleně; u odeslané objednávky je hlavní „Ohodnotit nákup“, „Stav objednávky“ jen obrysově. „Prosím o úhradu“ v první osobě.
+- **Obrázky v e-mailech se načtou i ve webmailu (Seznam, Outlook):** logo (`email-logo.png`) a QR kód pro platbu smí načíst i jiná doména; zbytek webu zůstává chráněný.
 
 Ke kontrole majitelkou:
 
