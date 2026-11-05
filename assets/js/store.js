@@ -22,6 +22,7 @@ import {
   isCandle,
   giftFor,
   SCENT_FAMILIES,
+  SUNCATCHER_THEMES,
   scentFamilies,
 } from "./catalog.mjs";
 import {
@@ -1115,10 +1116,51 @@ async function init() {
       .join("");
   }
   if (page === "suncatchers") {
-    const list = products.filter((p) => !isCandle(p));
-    $("#suncatcher-products").innerHTML = list.length
-      ? list.map(productCard).join("") + customSuncatcherCard()
-      : '<div class="coming-soon"><span class="pill">PŘIPRAVUJEME</span><p>První lapače slunce právě vyrábím. Chcete vědět, až budou? <a href="mailto:info@loomos.cz?subject=Lapa%C4%8De%20slunce">Napište mi</a> a dám vám vědět.</p></div>';
+    const all = products.filter((p) => !isCandle(p));
+    const themes = SUNCATCHER_THEMES.filter(([id]) =>
+      all.some((p) => p.themes?.includes(id)),
+    );
+    let theme = themes.some(
+      ([id]) => id === new URLSearchParams(location.search).get("tema"),
+    )
+      ? new URLSearchParams(location.search).get("tema")
+      : "";
+    const chips = $("#theme-filter");
+    const render = () => {
+      chips?.querySelectorAll("[data-theme]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.theme === theme);
+        b.setAttribute("aria-pressed", String(b.dataset.theme === theme));
+      });
+      const list = all.filter((p) => !theme || p.themes?.includes(theme));
+      // The custom-made card stays last: any motif can be made to order.
+      $("#suncatcher-products").innerHTML =
+        list.map(productCard).join("") + customSuncatcherCard();
+      refreshCards();
+    };
+    if (chips && themes.length) {
+      chips.innerHTML =
+        '<span class="scent-filter-label">Téma:</span>' +
+        themes
+          .map(
+            ([id, label]) =>
+              `<button type="button" data-theme="${id}">${esc(label)}</button>`,
+          )
+          .join("");
+      chips.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-theme]");
+        if (!b) return;
+        theme = theme === b.dataset.theme ? "" : b.dataset.theme;
+        const url = new URL(location.href);
+        if (theme) url.searchParams.set("tema", theme);
+        else url.searchParams.delete("tema");
+        history.replaceState(null, "", url);
+        render();
+      });
+    }
+    if (all.length) render();
+    else
+      $("#suncatcher-products").innerHTML =
+        '<div class="coming-soon"><span class="pill">PŘIPRAVUJEME</span><p>První lapače slunce právě vyrábím. Chcete vědět, až budou? <a href="mailto:info@loomos.cz?subject=Lapa%C4%8De%20slunce">Napište mi</a> a dám vám vědět.</p></div>';
   }
   if (page === "shop") {
     const tabs = [...document.querySelectorAll("[data-filter]")];

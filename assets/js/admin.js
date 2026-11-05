@@ -1,5 +1,6 @@
 import { ORDER_STATUS } from "./orders.mjs";
 import { builtinPhotos, thumbSrc } from "./ui.mjs";
+import { SUNCATCHER_THEMES } from "./catalog.mjs";
 import { shippingKind, shippingProvider, shippingSummary } from "./pricing.mjs";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -328,6 +329,7 @@ function productForm(p, isNew) {
     <label>Množstevní cena od (ks)<input name="bulk_min" type="number" min="2" max="100" value="${v(bulk.min_qty)}" placeholder="např. 2"></label>
     <label>Množstevní cena za kus (Kč)<input name="bulk_price" type="number" min="1" value="${v(bulk.price)}" placeholder="např. 175"></label>`
     }
+    ${candle ? "" : `<fieldset class="variant-fields"><legend>Témata (filtr na stránce Lapače slunce)</legend>${SUNCATCHER_THEMES.map(([id, label]) => `<label class="check"><input type="checkbox" name="theme_${id}" ${p.themes?.includes(id) ? "checked" : ""}>${label}</label>`).join("")}</fieldset>`}
     ${candle ? "" : `<label>Velikost (nepovinné)<input name="size" maxlength="40" value="${v(p.size)}" placeholder="např. 14 × 16 cm"><small>ukáže se na kartě i u produktu</small></label>`}
     <label>Štítek (nepovinné)<input name="badge" maxlength="40" value="${v(p.badge)}" placeholder="např. Nejoblíbenější vůně, Novinka"></label>
     <label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Zobrazit v e-shopu</label>
@@ -408,6 +410,12 @@ function productFromForm(form) {
   };
   if (f.badge.value.trim()) product.badge = f.badge.value.trim();
   if (f.size?.value.trim()) product.size = f.size.value.trim();
+  if (!candle) {
+    const themes = SUNCATCHER_THEMES.map(([id]) => id).filter(
+      (id) => f["theme_" + id]?.checked,
+    );
+    if (themes.length) product.themes = themes;
+  }
   if (candle) {
     product.variants = [
       ["mala", "Malá"],

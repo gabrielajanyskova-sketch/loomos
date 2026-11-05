@@ -7,6 +7,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (dalších 6 lapačů, velikost lapa�
 Čeká na nasazení:
 
 - **Úvodní stránka:** u Lapačů slunce místo smazané sovy skutečná fotka lapače Kotě na měsíci (verze na šířku, motiv celý).
+- **Filtr podle tématu u lapačů slunce:** Zvířata, Auta a stroje, Květiny, Vánoce a zima, Podzim, Pohádky (lapač může mít víc témat). Témata se zaškrtávají v adminu u produktu; odkaz na téma např. `/lapace-slunce?tema=vanoce`.
 
 Ke kontrole majitelkou:
 
