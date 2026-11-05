@@ -2,15 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 5. 11. 2026 (8 nových lapačů slunce, zvýraznění menu u lapačů).
+Poslední hromadné nasazení: 5. 11. 2026 (dalších 6 lapačů, velikost lapačů v adminu, fotky z webu v adminu, kontrola webu, Vůně do auta pryč z menu).
 
 Čeká na nasazení:
 
-- **6 dalších lapačů slunce** (199 Kč, od 2 ks 175 Kč): Kotě na měsíci, Zimní vesnička, Včelka, Hasičské auto, Ledňáček, Zajíček.
-- Fotky lapačů na bílém pozadí doplněny na formát 3 : 4, aby vyplnily celou kartu i stránku produktu bez okrajů.
-- **Velikost lapače** je nové pole v adminu (Produkty → Upravit → Velikost). Ukáže se na kartě, u produktu i v údajích o výrobku. Kulaté lapače mají „Ø 15 cm“, nové motivy zatím bez velikosti.
-- **Fotky v adminu:** u produktu jsou vidět i fotky, které jsou teď na webu. Když přidáte další nebo vyberete jinou hlavní, uloží se automaticky i ty původní. V seznamu produktů je náhled hlavní fotky. Nahrané fotky už nejsou na webu ztmavené.
-- **Kontrola celého webu před spuštěním:** v patičce přibyl odkaz na Lapače slunce; zkráceny popisy pro Google u stránek Dárek pro ni / pro něj; stránky objednávky a hodnocení otevřené bez odkazu z e-mailu už zbytečně nevolají server. Smazán zastaralý pracovní soubor `SUN-CATCHERS-DRAFT.md`.
+- (nic)
 
 Ke kontrole majitelkou:
 
