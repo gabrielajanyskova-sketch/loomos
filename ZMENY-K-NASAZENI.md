@@ -7,6 +7,7 @@ Poslední hromadné nasazení: 5. 11. 2026 (vodítka pro stříhání etiket, fi
 Čeká na nasazení:
 
 - **Košík — nabídka zjednodušená:** nadpis „Mohlo by se vám hodit“, bez opakované částky a štítků „+ doprava zdarma“ (částka je u ukazatele vpravo).
+- **Množstevní cena lapačů platí pro libovolné motivy:** od 2 lapačů v košíku (jakékoli kombinace) stojí každý 175 Kč — v košíku, objednávce i na faktuře. Na kartách „(i různé motivy)“, v nabídce v košíku cena 175 Kč, pokud už lapač v košíku je.
 
 Ke kontrole majitelkou:
 

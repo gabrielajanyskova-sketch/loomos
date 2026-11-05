@@ -131,7 +131,9 @@ function lines() {
         variant: v?.id || "",
         name: p.name + (v ? " — " + v.name : ""),
         price: v ? v.price : p.price,
-        ...((v?.bulk ?? p.bulk) ? { bulk: v?.bulk ?? p.bulk } : {}),
+        ...((v?.bulk ?? p.bulk)
+          ? { bulk: v?.bulk ?? p.bulk, group: p.category || "svicky" }
+          : {}),
         qty: i.qty,
       };
     })
@@ -605,12 +607,22 @@ function upsellItems(t, limit = 3) {
   const missing = t.missingForFreeShipping;
   if (!missing || missing <= 0) return [];
   const inCart = new Set(cart.map((i) => i.id));
+  // Quantity price applies when the pieces already in the cart plus this one reach it.
+  const sameGroup = (p) =>
+    t.lines
+      .filter((l) => l.bulk && l.group === (p.category || "svicky"))
+      .reduce((n, l) => n + l.qty, 0);
   const offers = products
     .filter((p) => !inCart.has(p.id))
     .map((p) => {
       const variant = p.variants?.length ? p.variants[0] : null;
-      const price = variant ? variant.price : p.price;
-      return { p, variant, price };
+      const list = variant ? variant.price : p.price;
+      const bulk = variant?.bulk ?? p.bulk;
+      const price =
+        bulk && Number.isInteger(list) && sameGroup(p) + 1 >= bulk.min_qty
+          ? Math.min(bulk.price, list)
+          : list;
+      return { p, variant, price, list };
     })
     .filter(
       ({ p, variant, price }) =>
@@ -638,8 +650,8 @@ function upsellBlock(t) {
   if (!items.length) return "";
   return `<section class="upsell" aria-labelledby="upsell-title"><h2 id="upsell-title">Mohlo by se vám hodit</h2><div class="upsell-list">${items
     .map(
-      ({ p, variant, price }) =>
-        `<article class="upsell-item"><a href="/produkty/${encodeURIComponent(p.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="64" height="76" loading="lazy" decoding="async" alt="">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(p))}</a><div><h3><a href="/produkty/${encodeURIComponent(p.id)}.html">${esc(p.name)}</a></h3><p>${variant ? `${esc(variant.name)} · ` : ""}${money(price)}</p></div><button type="button" class="add-button" data-upsell="${esc(p.id)}" data-variant="${esc(variant?.id ?? "")}" aria-label="Přidat ${esc(p.name)} do košíku"><span class="add-label">Přidat</span></button></article>`,
+      ({ p, variant, price, list }) =>
+        `<article class="upsell-item"><a href="/produkty/${encodeURIComponent(p.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="64" height="76" loading="lazy" decoding="async" alt="">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(p))}</a><div><h3><a href="/produkty/${encodeURIComponent(p.id)}.html">${esc(p.name)}</a></h3><p>${variant ? `${esc(variant.name)} · ` : ""}${money(price)}${price !== list ? ` <s>${money(list)}</s>` : ""}</p></div><button type="button" class="add-button" data-upsell="${esc(p.id)}" data-variant="${esc(variant?.id ?? "")}" aria-label="Přidat ${esc(p.name)} do košíku"><span class="add-label">Přidat</span></button></article>`,
     )
     .join("")}</div></section>`;
 }
@@ -653,7 +665,7 @@ function renderCart() {
   el.innerHTML = `<div class="cart-layout"><section aria-label="Položky košíku">${t.lines
     .map(
       (l) =>
-        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(products.find((p) => p.id === l.id) || {}))}</a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.qty < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.qty} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
+        `<article class="cart-item"><a href="/produkty/${encodeURIComponent(l.id)}.html">${((src) => (src ? `<img class="cart-thumb" src="${esc(src)}" width="90" height="105" loading="lazy" decoding="async" alt="${esc(l.name)}">` : '<span class="cart-thumb rainbow-fill" aria-hidden="true"></span>'))(thumbSrc(products.find((p) => p.id === l.id) || {}))}</a><div><h3><a href="/produkty/${encodeURIComponent(l.id)}.html">${esc(l.name)}</a></h3><p>${money(l.unit)} / ks${l.unit !== l.listUnit ? ` <s>${money(l.listUnit)}</s>` : ""}</p>${l.bulk && l.bulkCount < l.bulk.min_qty ? `<p class="bulk-note">Od ${l.bulk.min_qty} ks (motivy lze kombinovat) jen ${money(l.bulk.price)} / ks — přidejte ještě ${l.bulk.min_qty - l.bulkCount} ks.</p>` : l.bulk ? `<p class="bulk-note">Množstevní cena ${money(l.bulk.price)} / ks ✓</p>` : ""}<div class="quantity"><button data-qty="${esc(l.key)}" data-delta="-1" aria-label="Ubrat ${esc(l.name)}" ${l.qty === 1 ? "disabled" : ""}>−</button><output>${l.qty}</output><button data-qty="${esc(l.key)}" data-delta="1" aria-label="Přidat ${esc(l.name)}" ${l.qty === MAX_QTY ? "disabled" : ""}>＋</button></div></div><div><span class="price">${money(l.total)}</span>${l.total !== l.listUnit * l.qty ? `<s class="old-price">${money(l.listUnit * l.qty)}</s>` : ""}<button class="remove" data-remove="${esc(l.key)}" aria-label="Odebrat ${esc(l.name)}">Odebrat</button></div></article>`,
     )
     .join(
       "",

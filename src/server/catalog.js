@@ -163,7 +163,9 @@ export function resolveItems(items, pricedCatalog) {
       variant: variant.id,
       name: product.name + (variant.name ? ` — ${variant.name}` : ""),
       price: variant.price,
-      ...(variant.bulk ? { bulk: variant.bulk } : {}),
+      ...(variant.bulk
+        ? { bulk: variant.bulk, group: product.category || "svicky" }
+        : {}),
       qty,
     };
   });

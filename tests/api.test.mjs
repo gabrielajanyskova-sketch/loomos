@@ -847,6 +847,19 @@ test("admin adds and edits products; quantity price and dynamic product page wor
   assert.equal(bought.status, 201, JSON.stringify(bought.body));
   assert.equal(bought.body.pricing.items, 350);
   assert.equal(bought.body.pricing.bulkSavings, 48);
+  // Any two sun catchers, whatever the motif, are at the quantity price.
+  const mixed = await call(
+    "/api/orders",
+    order({
+      email: "lapac2@example.com",
+      items: [
+        { id: sun.id, qty: 1 },
+        { id: "lapac-slunce-sova", qty: 1 },
+      ],
+    }),
+  );
+  assert.equal(mixed.status, 201, JSON.stringify(mixed.body));
+  assert.equal(mixed.body.pricing.items, 350);
   const page = await fetch(`${shop.url}/produkty/${sun.id}`);
   assert.equal(page.status, 200);
   assert.match(await page.text(), /data-product="lapac-slunce-kocka"/);

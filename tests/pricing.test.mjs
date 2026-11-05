@@ -223,6 +223,28 @@ test("quantity price applies from the minimum count, before the member discount"
   assert.equal(member.items, 3 * memberPrice(175));
 });
 
+test("quantity price counts different motifs of one group together", () => {
+  const bulk = { min_qty: 2, price: 175 };
+  const sun = (key, qty) => ({
+    key,
+    name: key,
+    price: 199,
+    qty,
+    bulk,
+    group: "lapace-slunce",
+  });
+  const mixed = priceCart({ lines: [sun("kocicka", 1), sun("konik", 1)] });
+  assert.equal(mixed.items, 350);
+  assert.equal(mixed.lines[0].bulkCount, 2);
+  const alone = priceCart({ lines: [sun("kocicka", 1)] });
+  assert.equal(alone.items, 199);
+  // A candle in the cart does not count towards the sun catcher quantity price.
+  const withCandle = priceCart({
+    lines: [sun("kocicka", 1), { key: "c", name: "C", price: 349, qty: 1 }],
+  });
+  assert.equal(withCandle.items, 199 + 349);
+});
+
 test("shipping is free from 1 200 Kč of goods after discounts", () => {
   const line = (price, qty) => ({ key: "x", name: "X", price, qty });
   const below = priceCart({ lines: [line(349, 3)], shipping: "zasilkovna" });
