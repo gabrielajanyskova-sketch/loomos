@@ -339,7 +339,10 @@ document.addEventListener("click", (e) => {
   const thumb = e.target.closest("[data-photo]");
   if (!thumb) return;
   const main = $(".detail-photo [data-main-photo]");
-  if (main) main.src = thumb.dataset.photo;
+  if (main) {
+    main.removeAttribute("srcset");
+    main.src = thumb.dataset.photo;
+  }
   thumb.parentElement
     .querySelectorAll("[data-photo]")
     .forEach((b) => b.classList.toggle("active", b === thumb));
