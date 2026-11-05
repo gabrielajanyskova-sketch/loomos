@@ -1120,11 +1120,8 @@ async function init() {
     const themes = SUNCATCHER_THEMES.filter(([id]) =>
       all.some((p) => p.themes?.includes(id)),
     );
-    let theme = themes.some(
-      ([id]) => id === new URLSearchParams(location.search).get("tema"),
-    )
-      ? new URLSearchParams(location.search).get("tema")
-      : "";
+    // Always start with every motif; a theme applies only after a click.
+    let theme = "";
     const chips = $("#theme-filter");
     const render = () => {
       chips?.querySelectorAll("[data-theme]").forEach((b) => {
@@ -1150,13 +1147,16 @@ async function init() {
         const b = e.target.closest("[data-theme]");
         if (!b) return;
         theme = theme === b.dataset.theme ? "" : b.dataset.theme;
-        const url = new URL(location.href);
-        if (theme) url.searchParams.set("tema", theme);
-        else url.searchParams.delete("tema");
-        history.replaceState(null, "", url);
         render();
       });
     }
+    // Coming back with the Back button (page kept in memory) also shows every motif again.
+    window.addEventListener("pageshow", (e) => {
+      if (e.persisted && theme) {
+        theme = "";
+        render();
+      }
+    });
     if (all.length) render();
     else
       $("#suncatcher-products").innerHTML =
