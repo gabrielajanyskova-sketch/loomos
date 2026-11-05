@@ -92,7 +92,7 @@ const STATUS_MAIL = {
   ],
   odeslana: [
     "Objednávka je na cestě",
-    "vaše objednávka je odeslaná. Jakmile dorazí na výdejní místo, Zásilkovna vám pošle zprávu.",
+    "vaše objednávka je odeslaná. Jakmile dorazí, dopravce vám pošle zprávu.",
   ],
   "k-vyzvednuti": [
     "Objednávka je připravená",
@@ -198,6 +198,17 @@ export async function setStatus(db, request, env, ctx) {
               ]
             : []),
           { rows: orderRows(order) },
+          ...(["odeslana", "k-vyzvednuti", "dokoncena"].includes(status)
+            ? [
+                "Až svíčky nebo lapače vyzkoušíte, budu moc ráda za vaše hodnocení — pomůže dalším zákazníkům i mně.",
+                {
+                  button: [
+                    "Ohodnotit nákup",
+                    `${origin}/recenze?t=${row.public_token}`,
+                  ],
+                },
+              ]
+            : []),
           {
             button: [
               "Stav objednávky",

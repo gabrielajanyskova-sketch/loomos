@@ -73,6 +73,8 @@ export const PAYMENT = {
   card: { label: "Platba kartou online", available: false },
 };
 export const MAX_QTY = 20;
+/** Goods total (after discounts) from which every delivery option is free. */
+export const FREE_SHIPPING_FROM = 1200;
 
 export const memberPrice = (price) =>
   Math.round((price * (100 - MEMBER_DISCOUNT_PERCENT)) / 100);
@@ -125,7 +127,10 @@ export function priceCart({
           ? Math.round((items * code.value) / 100)
           : Math.min(code.value, items);
   }
-  const shippingPrice = shipping ? (SHIPPING[shipping]?.price ?? 0) : 0;
+  const goods = items - codeDiscount;
+  const freeShipping = goods >= FREE_SHIPPING_FROM;
+  const shippingPrice =
+    shipping && !freeShipping ? (SHIPPING[shipping]?.price ?? 0) : 0;
   const total = items - codeDiscount + shippingPrice;
   return {
     lines: priced,
@@ -136,6 +141,8 @@ export function priceCart({
     codeDiscount,
     codeError,
     shippingPrice,
+    freeShipping,
+    missingForFreeShipping: Math.max(0, FREE_SHIPPING_FROM - goods),
     bulkSavings,
     savings: memberSavings + codeDiscount + bulkSavings,
     total,

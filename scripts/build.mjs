@@ -134,6 +134,7 @@ const pages = [
   ["darek-pro-ni.html", "gifts-her"],
   ["darek-pro-nej.html", "gifts-him"],
   ["poptavka.html", "inquiry"],
+  ["recenze.html", "review"],
   ["kosik.html", "cart"],
   ["pokladna.html", "checkout"],
   ["admin/index.html", "admin"],

@@ -5,6 +5,7 @@ import { withSafety } from "../../assets/js/safety.mjs";
 import labels from "../../data/labels.json";
 import { fail } from "./http.js";
 import { priceRows, effectivePrice } from "./product-prices.js";
+import { ratingSummary } from "./reviews.js";
 import { MAX_QTY } from "../../assets/js/pricing.mjs";
 
 const bundled = validateCatalog(products);
@@ -77,7 +78,13 @@ export async function stockMap(db) {
 }
 
 export async function publicCatalog(db) {
-  return withStock(db, (await loadCatalog(db)).active);
+  const [list, ratings] = await Promise.all([
+    withStock(db, (await loadCatalog(db)).active),
+    ratingSummary(db),
+  ]);
+  return list.map((p) =>
+    ratings.has(p.id) ? { ...p, rating: ratings.get(p.id) } : p,
+  );
 }
 
 /** Prices from D1 (product_prices, with history) applied to products; missing rows are seeded. */

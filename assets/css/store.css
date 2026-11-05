@@ -3561,3 +3561,228 @@ aside nav .ico {
     #9b7bff1f
   );
 }
+
+/* Manufacturer / GPSR block on product pages */
+.maker-info {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+.maker-info h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+.maker-info p {
+  margin: 0 0 6px;
+}
+.maker-info a {
+  color: var(--copper-light);
+}
+
+/* Free shipping progress */
+.free-shipping {
+  margin: 10px 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.free-shipping p {
+  margin: 0 0 6px;
+}
+.free-shipping strong {
+  color: var(--copper-light);
+}
+.free-shipping.reached {
+  color: var(--copper-light);
+}
+.free-shipping-bar {
+  height: 6px;
+  border-radius: 6px;
+  background: #ffffff14;
+  overflow: hidden;
+}
+.free-shipping-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--copper);
+  transition: width 0.4s;
+}
+
+/* Hlídat dostupnost */
+.stock-alert {
+  margin-top: 10px;
+  font-size: 13px;
+}
+.stock-alert .link-button {
+  color: var(--copper-light);
+}
+.stock-alert-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+}
+.stock-alert-form small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+}
+.stock-alert-done {
+  color: var(--copper-light);
+  margin: 0;
+}
+.stock-alert-form input {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Reviews */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.stars {
+  display: inline-flex;
+  gap: 1px;
+  vertical-align: -2px;
+}
+.stars .ico {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.4;
+}
+.stars .star-on {
+  fill: var(--copper-light);
+  color: var(--copper-light);
+}
+.stars .star-off {
+  color: #ffffff40;
+}
+.rating-line {
+  margin: -2px 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.rating-line span {
+  margin-left: 6px;
+}
+.rating-link {
+  text-decoration: none;
+}
+.reviews {
+  margin-top: 60px;
+  padding-top: 36px;
+  border-top: 1px solid var(--line);
+}
+.reviews h2 {
+  margin: 6px 0 16px;
+}
+.reviews-summary {
+  font-size: 15px;
+}
+.reviews-summary .ico {
+  width: 18px;
+  height: 18px;
+}
+.review-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  display: grid;
+  gap: 16px;
+}
+.review-list li {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 16px 18px;
+}
+.review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.review-head time {
+  margin-left: auto;
+  color: var(--muted);
+}
+.verified {
+  color: var(--copper-light);
+  font-size: 11px;
+}
+.review-list p {
+  margin: 10px 0 0;
+}
+.review-reply {
+  border-left: 2px solid var(--copper);
+  padding-left: 12px;
+  color: var(--muted);
+}
+.review-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+.review-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.review-item {
+  border: 1px solid var(--line);
+  padding: 16px 18px;
+  display: grid;
+  gap: 12px;
+}
+.review-item legend {
+  padding: 0 6px;
+  color: var(--copper-light);
+}
+/* 5 stars, picked right-to-left so :checked ~ lights the lower ones */
+.star-input {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.star-input input {
+  position: absolute;
+  opacity: 0;
+}
+.star-input label {
+  cursor: pointer;
+  color: #ffffff40;
+}
+.star-input .ico {
+  width: 32px;
+  height: 32px;
+}
+.star-input label:hover,
+.star-input label:hover ~ label,
+.star-input input:checked ~ label {
+  color: var(--copper-light);
+}
+.star-input label:hover .ico,
+.star-input label:hover ~ label .ico,
+.star-input input:checked ~ label .ico {
+  fill: currentColor;
+}
+.star-input input:focus-visible + label {
+  outline: 2px solid var(--copper);
+}
+.review-admin.is-hidden {
+  opacity: 0.6;
+}
+.review-stars-text {
+  color: var(--copper-light);
+  letter-spacing: 2px;
+  font-size: 14px;
+}

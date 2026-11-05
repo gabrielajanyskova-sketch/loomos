@@ -8,6 +8,8 @@ import {
   thumbSrc,
   icon,
   customSuncatcherCard,
+  reviewsSection,
+  stars,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -24,6 +26,7 @@ import {
 } from "./catalog.mjs";
 import {
   priceCart,
+  FREE_SHIPPING_FROM,
   SHIPPING,
   PAYMENT,
   MAX_QTY,
@@ -197,6 +200,49 @@ function add(id, qty = 1, variantId = "mala") {
   );
   track("add_to_cart", product, variant, qty);
 }
+/** "Hlídat dostupnost" under a sold-out product: one e-mail when it is back in stock. */
+function stockAlert(button, product, variantId, soldOut) {
+  const row = button.closest(".card-buy, .buy-row");
+  if (!row) return;
+  let box = row.nextElementSibling?.classList.contains("stock-alert")
+    ? row.nextElementSibling
+    : null;
+  if (!soldOut) return box?.remove();
+  if (!box) {
+    box = document.createElement("div");
+    box.className = "stock-alert";
+    row.after(box);
+  }
+  if (box.dataset.variant !== variantId || !box.innerHTML) {
+    box.dataset.product = product.id;
+    box.dataset.variant = variantId;
+    box.innerHTML = `<button type="button" class="link-button" data-alert-open>${icon("mail", "ico-inline")} Hlídat dostupnost</button>`;
+  }
+}
+document.addEventListener("click", (e) => {
+  const open = e.target.closest("[data-alert-open]");
+  if (!open) return;
+  const box = open.closest(".stock-alert");
+  box.innerHTML = `<form class="stock-alert-form"><label>Pošlu vám e-mail, až bude zase skladem<span class="code-row"><input type="email" name="email" required maxlength="200" autocomplete="email" placeholder="váš e-mail" value="${esc(member?.email || "")}"><button class="inline-button">Hlídat</button></span></label><small class="muted">Jediný e-mail o naskladnění, potom adresu smažu.</small><p class="error" role="alert"></p></form>`;
+  $("input", box).focus();
+});
+document.addEventListener("submit", async (e) => {
+  const form = e.target.closest(".stock-alert-form");
+  if (!form) return;
+  e.preventDefault();
+  const box = form.closest(".stock-alert");
+  try {
+    await api("stock-alert", {
+      product_id: box.dataset.product,
+      variant_id: box.dataset.variant,
+      email: form.elements.email.value,
+    });
+    box.innerHTML = `<p class="stock-alert-done">${icon("sparkle", "ico-inline")} Hlídám. Jakmile bude zase skladem, napíšu vám.</p>`;
+  } catch (err) {
+    $(".error", form).textContent = err.message;
+  }
+});
+
 function availability(button, product, variantId) {
   if (!button || !product) return;
   const stock = stockOf(product, variantId);
@@ -211,8 +257,9 @@ function availability(button, product, variantId) {
     plus.hidden = soldOut || selectedPrice == null;
     plus.textContent = "＋";
   }
+  stockAlert(button, product, variantId, soldOut);
   if (soldOut) label.textContent = "Vyprodáno";
-  else if (selectedPrice == null) label.textContent = "Cenu připravujeme";
+  else if (selectedPrice == null) label.textContent = "Cenu připravuji";
   else
     label.textContent = button.querySelector(".add-label")
       ? "Přidat do košíku"
@@ -333,6 +380,11 @@ function renderProduct() {
     parent.textContent = "Lapače slunce";
   }
   $("#product-detail").innerHTML = renderProductDetail(p);
+  const reviewsBox = $("#product-reviews");
+  if (reviewsBox)
+    api(`reviews?product=${encodeURIComponent(p.id)}`)
+      .then((list) => (reviewsBox.innerHTML = reviewsSection(p, list)))
+      .catch(() => {});
   const related = $("#product-related");
   if (related) {
     related.innerHTML = renderRelated(p, products);
@@ -343,6 +395,62 @@ function renderProduct() {
     $("#size-choice").value = size;
   updateDetail();
   track("view_item", p, variantOf(p, $("#size-choice")?.value), 1);
+}
+
+/* ---------- verified review ---------- */
+async function renderReview() {
+  const el = $("#review-content");
+  const token = new URLSearchParams(location.search).get("t") || "";
+  let data;
+  try {
+    data = await api(`reviews/pending?t=${encodeURIComponent(token)}`);
+  } catch {
+    el.innerHTML =
+      '<p class="notice">Odkaz na hodnocení nefunguje. Použijte prosím odkaz z e-mailu o odeslání objednávky.</p>';
+    return;
+  }
+  const open = data.items.filter((i) => !i.reviewed);
+  if (!data.open) {
+    el.innerHTML = `<p class="notice">Hodnotit půjde, až bude objednávka ${esc(data.number)} odeslaná. Pošlu vám odkaz e-mailem.</p>`;
+    return;
+  }
+  if (!open.length) {
+    el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Děkuji za hodnocení!</h2><p>Všechno z objednávky ${esc(data.number)} už máte ohodnocené.</p><a class="button" href="/obchod.html">Zpět do obchodu →</a></div>`;
+    return;
+  }
+  el.innerHTML = `<form id="review-form" class="review-form">${open
+    .map(
+      (i) =>
+        `<fieldset class="review-item" data-product="${esc(i.id)}"><legend>${esc(i.name)}</legend><div class="star-input" role="radiogroup" aria-label="Počet hvězdiček">${[5, 4, 3, 2, 1].map((n) => `<input type="radio" id="r-${esc(i.id)}-${n}" name="rating-${esc(i.id)}" value="${n}"><label for="r-${esc(i.id)}-${n}" title="${n} z 5">${icon("star")}<span class="visually-hidden">${n} z 5</span></label>`).join("")}</div><label>Co se vám líbilo? (nepovinné)<textarea name="text-${esc(i.id)}" rows="3" maxlength="1500" placeholder="Jak voní, jak hoří, komu jste ji dali…"></textarea></label></fieldset>`,
+    )
+    .join(
+      "",
+    )}<label>Jméno u hodnocení<input name="name" maxlength="40" value="${esc(data.name)}"></label><p class="muted small-note">Hodnocení se zveřejní u produktu s označením „Ověřený nákup“. Celé příjmení ani e-mail se nezobrazí. Produkty bez hvězdiček se neodešlou.</p><p class="error" id="review-error" role="alert"></p><button class="button">Odeslat hodnocení →</button></form>`;
+  $("#review-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const reviews = open
+      .map((i) => ({
+        product_id: i.id,
+        rating: Number(
+          form.querySelector(`[name="rating-${CSS.escape(i.id)}"]:checked`)
+            ?.value || 0,
+        ),
+        text: form.elements[`text-${i.id}`].value,
+      }))
+      .filter((r) => r.rating);
+    if (!reviews.length) {
+      $("#review-error").textContent =
+        "Vyberte prosím u produktu počet hvězdiček.";
+      return;
+    }
+    try {
+      await api("reviews", { token, name: form.elements.name.value, reviews });
+      el.innerHTML = `<div class="success-panel"><span class="tiny-star">${icon("sparkle")}</span><h2>Moc děkuji za hodnocení!</h2><p>Pomůže dalším zákazníkům s výběrem.</p><a class="button" href="/obchod.html">Zpět do obchodu →</a></div>`;
+    } catch (err) {
+      $("#review-error").textContent = err.message;
+    }
+  });
 }
 
 /* ---------- individual inquiry ---------- */
@@ -419,6 +527,18 @@ function renderInquiry() {
 }
 
 /* ---------- cart ---------- */
+/** Progress bar width is set through CSSOM: the CSP forbids inline style attributes. */
+const paintProgress = () =>
+  document
+    .querySelectorAll(".free-shipping-bar [data-progress]")
+    .forEach((el) => (el.style.width = `${el.dataset.progress}%`));
+/** "Do dopravy zdarma vám chybí 150 Kč" with a progress bar, or a confirmation once reached. */
+const freeShippingBar = (t) =>
+  t.items
+    ? t.freeShipping
+      ? `<p class="free-shipping reached">${icon("sparkle", "ico-inline")} Máte <strong>dopravu zdarma</strong>.</p>`
+      : `<div class="free-shipping"><p>Do dopravy zdarma vám chybí <strong>${money(t.missingForFreeShipping)}</strong>.</p><div class="free-shipping-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${FREE_SHIPPING_FROM}" aria-valuenow="${FREE_SHIPPING_FROM - t.missingForFreeShipping}"><span data-progress="${Math.round(((FREE_SHIPPING_FROM - t.missingForFreeShipping) / FREE_SHIPPING_FROM) * 100)}"></span></div></div>`
+    : "";
 function summary({ checkout = false, shipping = null } = {}) {
   const t = pricing(shipping);
   const memberRow = member
@@ -444,7 +564,7 @@ function summary({ checkout = false, shipping = null } = {}) {
           )
           .join("")
       : ""
-  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal + t.bulkSavings)}</span></div>${bulkRow}${memberRow}${codeRow}${codeForm}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
+  }<div class="summary-row"><span>Zboží</span><span>${money(t.itemsOriginal + t.bulkSavings)}</span></div>${bulkRow}${memberRow}${codeRow}${codeForm}${freeShippingBar(t)}<div class="summary-row"><span>Doprava</span><span id="shipping-price">${shipping ? (t.shippingPrice ? money(t.shippingPrice) : "Zdarma") : "Dle výběru"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span id="order-total">${money(t.total)}</span></div>${t.savings ? `<p class="savings">Ušetříte <strong>${money(t.savings)}</strong></p>` : ""}${checkout ? "" : `<a href="/pokladna.html" class="button">Pokračovat k údajům →</a><p class="muted">Dopravu a platbu vyberete v dalším kroku.</p>`}</aside>`;
 }
 async function applyCode(form, rerender) {
   const error = $("#code-error");
@@ -486,6 +606,7 @@ function renderCart() {
     .join(
       "",
     )}<a class="text-link spaced-top" href="/obchod.html">← Pokračovat v nákupu</a></section>${summary()}</div>`;
+  paintProgress();
 }
 $("#cart-content")?.addEventListener("click", (e) => {
   const b = e.target.closest("[data-qty],[data-remove]");
@@ -542,7 +663,7 @@ function renderCheckout() {
   const shippingOptions = Object.entries(SHIPPING)
     .map(
       ([id, s], i) =>
-        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}><span class="carrier-logo-box">${s.logo ? `<img class="carrier-logo${s.logo.includes("balikovna") ? " on-light" : ""}" src="${esc(s.logo)}" alt="" width="96" height="24" loading="lazy">` : icon("hand", "carrier-ico")}</span><span class="shipping-label">${esc(s.logo && s.short ? s.short : s.label)}</span><span>${s.price ? money(s.price) : "Zdarma"}</span></label>`,
+        `<label class="radio shipping-option"><input type="radio" name="shipping" value="${id}" ${i === 0 ? "checked" : ""}><span class="carrier-logo-box">${s.logo ? `<img class="carrier-logo${s.logo.includes("balikovna") ? " on-light" : ""}" src="${esc(s.logo)}" alt="" width="96" height="24" loading="lazy">` : icon("hand", "carrier-ico")}</span><span class="shipping-label">${esc(s.logo && s.short ? s.short : s.label)}</span><span data-ship-price="${id}">${s.price ? money(s.price) : "Zdarma"}</span></label>`,
     )
     .join("");
   const paymentOptions = Object.entries(PAYMENT)
@@ -551,16 +672,27 @@ function renderCheckout() {
         `<label class="radio ${p.available ? "" : "disabled"}"><input type="radio" name="payment" value="${id}" ${p.available ? (id === "transfer" ? "checked" : "") : "disabled"}>${esc(p.label)}<span>${p.available ? "Zdarma" : "Připravuji"}</span></label>`,
     )
     .join("");
-  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvím po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><input type="hidden" name="balikovna_id"><input type="hidden" name="balikovna_zip"><input type="hidden" name="balikovna_name"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesílám po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bychom měli vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
+  el.innerHTML = `<div class="checkout-layout"><form id="checkout-form" class="checkout-form" novalidate>${member ? `<p class="notice">Jste přihlášeni jako ${esc(member.email)}. Sleva 5 % je započítaná.</p>` : `<p class="notice">Máte účet? <a href="/ucet.html?navrat=pokladna">Přihlaste se</a> a ušetříte 5 % na všem.</p>`}<h2>01 / Kontakt</h2><div class="form-grid"><label>Jméno a příjmení<input name="name" required autocomplete="name" maxlength="120" value="${esc(member?.name || "")}"></label><label>E-mail<input name="email" type="email" required autocomplete="email" maxlength="200" value="${esc(member?.email || "")}"></label><label class="full">Telefon<input name="phone" type="tel" required autocomplete="tel" maxlength="30" value="${esc(member?.phone || "")}"></label></div><h2>02 / Doprava</h2>${shippingOptions}<div id="pickup-address" class="notice">Osobní odběr ve Starojické Lhotě — čas předání domluvím po zaplacení.</div><div class="form-grid" id="delivery-fields" hidden><div class="full packeta-pick"><button type="button" class="inline-button" id="packeta-pick">Vybrat na mapě →</button><p id="packeta-selected" class="muted" aria-live="polite"></p></div><input type="hidden" name="packeta_point_id"><input type="hidden" name="balikovna_id"><input type="hidden" name="balikovna_zip"><input type="hidden" name="balikovna_name"><label class="full" id="pickup-point-label">Výdejní místo<input name="pickup_point" maxlength="200" placeholder="Vyberte na mapě nebo napište název"></label></div><div class="form-grid" id="home-fields" hidden><label class="full">Ulice a číslo domu<input name="street" maxlength="120" autocomplete="street-address" placeholder="např. Hlavní 12"></label><label>Obec<input name="city" maxlength="80" autocomplete="address-level2"></label><label>PSČ<input name="zip" maxlength="6" inputmode="numeric" autocomplete="postal-code" pattern="\\d{3} ?\\d{2}" placeholder="741 01"></label></div><h2>03 / Platba</h2>${paymentOptions}<p class="muted">Po odeslání objednávky uvidíte QR kód pro platbu a stejné údaje vám přijdou e-mailem. Zboží odesílám po připsání platby.</p><h2>04 / Poznámka</h2><label class="muted">Je něco, co bych měla vědět?<textarea name="note" rows="3" maxlength="1000"></textarea></label><label class="check" id="heureka-optout" hidden><input type="checkbox" name="heureka_optout"><span>Nesouhlasím se zasláním dotazníku spokojenosti v rámci programu Ověřeno zákazníky (Heureka), který pomáhá zlepšovat služby.</span></label><label class="check"><input type="checkbox" name="terms" required><span>Souhlasím s <a href="/obchodni-podminky.html" target="_blank" rel="noopener">obchodními podmínkami</a> a beru na vědomí <a href="/ochrana-osobnich-udaju.html" target="_blank" rel="noopener">zpracování osobních údajů</a>.</span></label>${live ? "" : '<p class="notice">Zkušební provoz: objednávka se uloží jen pro testování a nebude vyřízena.</p>'}<p id="checkout-error" class="error" role="alert"></p><button id="place-order" class="button">Objednat s povinností platby →</button></form><div id="checkout-summary"></div></div>`;
   const form = $("#checkout-form");
   const renderSummary = () => {
     $("#checkout-summary").innerHTML = summary({
       checkout: true,
       shipping: form.elements.shipping.value,
     });
+    // With free shipping every delivery option shows "Zdarma".
+    const free = pricing(form.elements.shipping.value).freeShipping;
+    form.querySelectorAll("[data-ship-price]").forEach((el) => {
+      const price = SHIPPING[el.dataset.shipPrice]?.price;
+      el.textContent = free || !price ? "Zdarma" : money(price);
+    });
+    paintProgress();
   };
   renderSummary();
   bindSummary($("#checkout-summary"), renderSummary);
+  // The Heureka opt-out is shown only when the shop takes part in "Ověřeno zákazníky".
+  api("config")
+    .then((c) => ($("#heureka-optout").hidden = !c.heureka))
+    .catch(() => {});
   track("begin_checkout");
   // A point chosen for one Packeta option is kept separately from the other option.
   const chosen = {};
@@ -692,6 +824,7 @@ function renderCheckout() {
       const result = await api("orders", {
         ...f,
         terms: form.elements.terms.checked,
+        heureka_optout: form.elements.heureka_optout.checked,
         code: code?.code || "",
         items: cart.map((i) => ({ id: i.id, variant: i.variant, qty: i.qty })),
         request_id: requestId,
@@ -749,7 +882,7 @@ async function renderOrderPage() {
   try {
     const o = await api("orders/view?t=" + encodeURIComponent(token));
     const p = o.pricing;
-    el.innerHTML = `${orderTimeline(o)}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.bulkSavings ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(p.bulkSavings)}</span></div>` : ""}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
+    el.innerHTML = `${orderTimeline(o)}${["odeslana", "k-vyzvednuti", "dokoncena"].includes(o.status) ? `<p class="notice review-invite">${icon("star", "ico-inline")} Jak se vám nákup líbí? <a href="/recenze.html?t=${encodeURIComponent(token)}">Ohodnotit →</a></p>` : ""}<section class="panel"><h2>Objednávka ${esc(o.number)}</h2>${o.test ? '<p class="muted">Zkušební objednávka</p>' : ""}${o.items.map((i) => `<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.total)}</span></div>`).join("")}${p.bulkSavings ? `<div class="summary-row saving"><span>Množstevní sleva</span><span>−${money(p.bulkSavings)}</span></div>` : ""}${p.memberSavings ? `<div class="summary-row saving"><span>Sleva s účtem (5 %)</span><span>−${money(p.memberSavings)}</span></div>` : ""}${p.codeDiscount ? `<div class="summary-row saving"><span>Kód ${esc(p.code)}</span><span>−${money(p.codeDiscount)}</span></div>` : ""}<div class="summary-row"><span>${esc(shippingSummary(o))}</span><span>${p.shippingPrice ? money(p.shippingPrice) : "Zdarma"}</span></div><div class="summary-row summary-total"><span>Celkem</span><span>${money(p.total)}</span></div></section>${o.payment ? paymentBlock(o.payment, o.test) : ""}<div class="order-actions">${o.invoice ? `<a class="button" href="/api/invoice?t=${encodeURIComponent(token)}" target="_blank" rel="noopener">Faktura ${esc(o.invoice)} (PDF)</a>` : ""}${o.status !== "zrusena" ? `<a class="text-link" href="/odstoupeni.html?objednavka=${encodeURIComponent(o.number)}">Odstoupit od smlouvy zde</a>` : ""}</div>`;
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h2>Objednávku se nepodařilo najít.</h2><p>${esc(err.message)}</p><a class="button" href="/ucet.html">Můj účet →</a></div>`;
   }
@@ -1064,6 +1197,7 @@ async function init() {
   }
   refreshCards();
   if (page === "inquiry") renderInquiry();
+  if (page === "review") renderReview();
   if (page === "product") renderProduct();
   if (page === "cart") renderCart();
   if (page === "checkout") renderCheckout();

@@ -19,6 +19,7 @@ const privatePages = new Set([
   "workshop",
   "withdrawal",
   "product-template",
+  "review",
 ]);
 const titles = {
   home: "LOOMOS | Ručně vyráběné sójové svíčky s dřevěným knotem",
@@ -37,6 +38,7 @@ const titles = {
   order: "Vaše objednávka | LOOMOS",
   workshop: "Dílnička | LOOMOS",
   "product-template": "LOOMOS",
+  review: "Hodnocení nákupu | LOOMOS",
   withdrawal: "Odstoupení od smlouvy | LOOMOS",
   terms: "Obchodní podmínky | LOOMOS",
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",

@@ -1044,3 +1044,174 @@ test("product photos: upload, serve, main photo, delete", async () => {
     404,
   );
 });
+
+test("Hlídat dostupnost: only sold-out goods, one e-mail when back in stock", async () => {
+  const a = await admin();
+  const call = client(shop.url);
+  const product_id = "zazvor-zeleny-caj";
+  const variant_id = "velka";
+  const set = (quantity) =>
+    a("/api/admin/stock", { product_id, variant_id, quantity });
+  await set(5);
+  assert.equal(
+    (
+      await call("/api/stock-alert", {
+        product_id,
+        variant_id,
+        email: "hlidam@example.com",
+      })
+    ).status,
+    409,
+  );
+  await set(0);
+  const ok = await call("/api/stock-alert", {
+    product_id,
+    variant_id,
+    email: "hlidam@example.com",
+  });
+  assert.equal(ok.status, 201, JSON.stringify(ok.body));
+  const waiting = (await a("/api/admin/stock-alerts")).body;
+  assert.ok(waiting.some((r) => r.product_id === product_id && r.count === 1));
+  const before = shop.mails.length;
+  await set(3);
+  const mail = await mailTo("hlidam@example.com", /je zase skladem/);
+  assert.match(mail.body.text, /Zázvor a zelený čaj — Velká/);
+  // Sent once: the alert is gone, another stock change sends nothing.
+  await set(4);
+  await new Promise((r) => setTimeout(r, 300));
+  assert.equal(
+    shop.mails
+      .slice(before)
+      .filter((m) => m.body.to[0] === "hlidam@example.com").length,
+    1,
+  );
+  assert.ok(
+    !(await a("/api/admin/stock-alerts")).body.some(
+      (r) => r.product_id === product_id && r.variant_id === variant_id,
+    ),
+  );
+  await set(null);
+});
+
+test("verified reviews: only after shipping, once per product, shown with rating", async () => {
+  const call = client(shop.url);
+  const created = await call(
+    "/api/orders",
+    order({
+      name: "Petra Svobodová",
+      email: "recenze@example.com",
+      items: [{ id: "pomeranc-vanilka", variant: "mala", qty: 1 }],
+    }),
+  );
+  assert.equal(created.status, 201, JSON.stringify(created.body));
+  const token = created.body.token;
+  const review = (extra = {}) =>
+    call("/api/reviews", {
+      token,
+      reviews: [
+        { product_id: "pomeranc-vanilka", rating: 5, text: "Krásně voní." },
+      ],
+      ...extra,
+    });
+  assert.equal((await review()).status, 409);
+  const a = await admin();
+  assert.equal(
+    (
+      await a("/api/admin/order-status", {
+        number: created.body.number,
+        status: "odeslana",
+      })
+    ).status,
+    200,
+  );
+  const shipped = await mailTo("recenze@example.com", /na cestě/);
+  assert.match(shipped.body.text, /Ohodnotit nákup: .*\/recenze\?t=/);
+  const pending = (await call(`/api/reviews/pending?t=${token}`)).body;
+  assert.equal(pending.open, true);
+  assert.equal(pending.name, "Petra S.");
+  assert.deepEqual(
+    pending.items.map((i) => i.id),
+    ["pomeranc-vanilka"],
+  );
+  // A product that was not in the order is ignored; a bad rating is refused.
+  assert.equal(
+    (
+      await review({
+        reviews: [{ product_id: "more-cedr", rating: 5, text: "" }],
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await review({
+        reviews: [{ product_id: "pomeranc-vanilka", rating: 9 }],
+      })
+    ).status,
+    400,
+  );
+  assert.equal((await review()).status, 201);
+  await review({
+    reviews: [{ product_id: "pomeranc-vanilka", rating: 1, text: "Podruhé" }],
+  });
+  const shown = (await call("/api/reviews?product=pomeranc-vanilka")).body;
+  assert.equal(shown.length, 1);
+  assert.equal(shown[0].name, "Petra S.");
+  assert.equal(shown[0].rating, 5);
+  const product = (await call("/api/products")).body.find(
+    (p) => p.id === "pomeranc-vanilka",
+  );
+  assert.deepEqual(product.rating, { average: 5, count: 1 });
+  const id = (await a("/api/admin/reviews")).body[0].id;
+  await a("/api/admin/review", { id, action: "reply", reply: "Děkuji!" });
+  assert.equal(
+    (await call("/api/reviews?product=pomeranc-vanilka")).body[0].reply,
+    "Děkuji!",
+  );
+  await a("/api/admin/review", { id, action: "hide" });
+  assert.equal(
+    (await call("/api/reviews?product=pomeranc-vanilka")).body.length,
+    0,
+  );
+});
+
+test("Heureka: product feed and Ověřeno zákazníky order log with opt-out", async () => {
+  const feed = await fetch(`${shop.url}/api/feed/heureka.xml`);
+  assert.equal(feed.status, 200);
+  const xmlText = await feed.text();
+  assert.match(xmlText, /<ITEM_ID>morska-sul-paculi-mala<\/ITEM_ID>/);
+  assert.match(xmlText, /<ITEMGROUP_ID>morska-sul-paculi<\/ITEMGROUP_ID>/);
+  assert.match(xmlText, /<PRICE_VAT>349<\/PRICE_VAT>/);
+  assert.match(xmlText, /<ITEM_ID>lapac-slunce-sova<\/ITEM_ID>/);
+  assert.doesNotMatch(xmlText, /kokos-limetka/);
+
+  assert.equal((await client(shop.url)("/api/config")).body.heureka, false);
+  const live = await startShop({
+    SHOP_LIVE: "1",
+    HEUREKA_API_KEY: "heureka-test-key",
+  });
+  try {
+    const call = client(live.url);
+    assert.equal((await call("/api/config")).body.heureka, true);
+    const optOut = await call(
+      "/api/orders",
+      order({ email: "nechci@example.com", heureka_optout: true }),
+    );
+    assert.equal(optOut.status, 201, JSON.stringify(optOut.body));
+    const yes = await call("/api/orders", order({ email: "ano@example.com" }));
+    assert.equal(yes.status, 201, JSON.stringify(yes.body));
+    await waitFor(
+      () => live.packets.find((p) => p.includes("ano@example.com")),
+      "heureka log",
+    );
+    const logged = live.packets
+      .filter((p) => p.includes("heureka-test-key"))
+      .map((p) => JSON.parse(p));
+    assert.equal(logged.length, 1);
+    assert.equal(logged[0].email, "ano@example.com");
+    assert.equal(logged[0].orderId, Number(yes.body.number));
+    assert.deepEqual(logged[0].productItemIds, ["okurka-zazvor-mata-mala"]);
+  } finally {
+    await live.stop();
+  }
+});

@@ -238,8 +238,16 @@ function orderDetail(number) {
 
 /* ---------- stock ---------- */
 async function renderStock(el) {
-  const rows = (await api("stock")).filter((r) => r.category === category);
-  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2>${categoryTabs(category)}</div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}<br><small>Aktuálně: ${money(r.price)}</small></td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
+  const [allRows, waiting] = await Promise.all([
+    api("stock"),
+    api("stock-alerts"),
+  ]);
+  const rows = allRows.filter((r) => r.category === category);
+  const waitingFor = (r) =>
+    waiting.find(
+      (w) => w.product_id === r.product_id && w.variant_id === r.variant_id,
+    )?.count || 0;
+  el.innerHTML = `<div class="admin-toolbar"><h2>Sklad a ceny</h2>${categoryTabs(category)}</div><p class="muted">Ceny v Kč můžete měnit přímo zde. Prázdná běžná cena znamená, že produkt nelze objednat. Prázdný sklad se nehlídá, 0 znamená vyprodáno. Prázdná zlevněná cena ukončí slevu.</p><p class="muted">Nejnižší cenu za 30 dní před začátkem slevy počítám z historie. Dokud není úplných 30 dní záznamů, při první slevě vyplňte ověřenou nejnižší cenu za předchozích 30 dní. Nejde o libovolnou původní cenu. Při postupném zlevňování v jedné akci se reference zachová.</p><div class="table-wrap"><table class="stock-price-table"><thead><tr><th>Produkt</th><th>Běžná cena Kč</th><th>Zlevněná cena Kč</th><th>Nejnižší cena před slevou Kč</th><th>Kusů skladem</th><th></th></tr></thead><tbody>${rows.map((r) => `<tr data-revision="${r.revision}" class="${r.quantity === 0 ? "sold-out" : r.quantity !== null && r.quantity <= 2 ? "low" : ""}"><td>${esc(r.name)}${r.active ? "" : ' <small class="muted">(není v e-shopu)</small>'}<br><small>Aktuálně: ${money(r.price)}</small>${waitingFor(r) ? `<br><small class="status-label">Hlídá ${waitingFor(r)}× — po naskladnění dostanou e-mail</small>` : ""}</td><td><input class="regular-price-input" type="number" min="1" max="100000" step="1" value="${r.regular_price ?? ""}" placeholder="neprodává se" aria-label="Běžná cena ${esc(r.name)}"></td><td><input class="sale-price-input" type="number" min="1" max="100000" step="1" value="${r.sale_price ?? ""}" placeholder="bez slevy" aria-label="Zlevněná cena ${esc(r.name)}"></td><td><input class="reference-price-input" type="number" min="1" max="100000" step="1" value="${r.lowest_30 ?? ""}" placeholder="při neúplné historii" aria-label="Ověřená nejnižší cena za 30 dní ${esc(r.name)}"><small>Historie od ${unixToDay(r.tracked_since)}</small></td><td><input class="stock-input" type="number" min="0" max="100000" step="1" value="${r.quantity ?? ""}" placeholder="nehlídá se" data-product="${esc(r.product_id)}" data-variant="${esc(r.variant_id)}" aria-label="Počet kusů ${esc(r.name)}"></td><td><button class="inline-button" data-save-stock>Uložit</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 async function saveStock(row) {
   const inputs = [...row.querySelectorAll("input")];
@@ -415,6 +423,23 @@ function productFromForm(form) {
   return product;
 }
 
+/* ---------- reviews ---------- */
+async function renderReviews(el) {
+  const [list, catalog] = await Promise.all([api("reviews"), api("products")]);
+  const nameOf = (id) => catalog.find((p) => p.id === id)?.name || id;
+  const starsText = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+  el.innerHTML = `<div class="admin-toolbar"><h2>Recenze</h2><span class="muted">${list.length} celkem</span></div><p class="muted">Hodnotit mohou jen zákazníci odeslaných objednávek (odkaz jim přijde v e-mailu o odeslání). Hodnocení se zveřejní hned. Skrývejte jen vulgární nebo nesouvisející — negativní hodnocení skrýt nesmíte, místo toho na něj veřejně odpovězte.</p>${
+    list.length
+      ? list
+          .map(
+            (r) =>
+              `<section class="panel review-admin ${r.hidden ? "is-hidden" : ""}"><div class="admin-toolbar"><h3>${esc(nameOf(r.product_id))} <span class="review-stars-text">${starsText(r.rating)}</span></h3><small class="muted">${date(r.created)} · objednávka ${esc(r.order_number)}${r.hidden ? " · skryto" : ""}</small></div><p><strong>${esc(r.name)}</strong>${r.text ? ": " + esc(r.text) : ""}</p><form class="inline-form review-reply-form" data-review="${r.id}"><label class="wide">Veřejná odpověď<textarea name="reply" rows="2" maxlength="1000">${esc(r.reply)}</textarea></label><button class="inline-button">Uložit odpověď</button><button type="button" class="inline-button ${r.hidden ? "" : "danger"}" data-review-toggle="${r.id}" data-hidden="${r.hidden ? "1" : ""}">${r.hidden ? "Znovu zobrazit" : "Skrýt"}</button></form></section>`,
+          )
+          .join("")
+      : '<div class="panel">Zatím žádná hodnocení. Zákazníci dostanou odkaz v e-mailu, až objednávku označíte jako odeslanou.</div>'
+  }`;
+}
+
 /* ---------- inquiries ---------- */
 async function renderInquiries(el) {
   const list = await api("inquiries");
@@ -501,6 +526,7 @@ const views = {
   orders: renderOrders,
   products: renderProducts,
   inquiries: renderInquiries,
+  reviews: renderReviews,
   stock: renderStock,
   customers: renderCustomers,
   codes: renderCodes,
@@ -547,6 +573,17 @@ document.addEventListener("click", (e) => {
   if (chip) {
     filter = chip.dataset.filter;
     show("orders");
+  }
+  const toggle = e.target.closest("[data-review-toggle]");
+  if (toggle) {
+    guard(async () => {
+      await api("review", {
+        id: Number(toggle.dataset.reviewToggle),
+        action: toggle.dataset.hidden ? "show" : "hide",
+      });
+      await show("reviews");
+    });
+    return;
   }
   const inq = e.target.closest("[data-inquiry]");
   if (inq) {
@@ -735,5 +772,20 @@ document.addEventListener("change", (e) => {
         : `Nahráno ${files.length} fotek.`,
     );
     await reopenProduct(productId);
+  });
+});
+
+document.addEventListener("submit", (e) => {
+  const form = e.target.closest(".review-reply-form");
+  if (!form) return;
+  e.preventDefault();
+  guard(async () => {
+    await api("review", {
+      id: Number(form.dataset.review),
+      action: "reply",
+      reply: form.elements.reply.value,
+    });
+    status("Odpověď je uložená a zveřejněná.");
+    await show("reviews");
   });
 });
