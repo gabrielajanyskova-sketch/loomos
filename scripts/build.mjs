@@ -187,7 +187,10 @@ for (const [file, page, product] of pages) {
     }),
   );
   if (!["admin", "workshop"].includes(page)) {
-    html = slot(html, "site-header", renderHeader(page, { live }));
+    // Sun catcher product pages highlight "Lapače slunce" in the menu, not "Svíčky".
+    const navPage =
+      product?.category === "lapace-slunce" ? "suncatchers" : page;
+    html = slot(html, "site-header", renderHeader(navPage, { live }));
     html = slot(html, "site-footer", renderFooter());
     if (page === "home") {
       html = slot(

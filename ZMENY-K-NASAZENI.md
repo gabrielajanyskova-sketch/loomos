@@ -6,7 +6,8 @@ Poslední hromadné nasazení: 5. 11. 2026 (GPSR výrobce, doprava zdarma od 1 2
 
 Čeká na nasazení:
 
-- (nic)
+- **8 nových lapačů slunce** (199 Kč, od 2 ks 175 Kč): Kočička, Sova na větvi, Koník, Liška, Dráček, Pejsek hasič, Dýně, Vánoční stromeček (2 fotky v galerii). Fotky na bílém pozadí, velikost uvedena jako „cca 15 cm“ (nejsou to kruhy).
+- Na stránce lapače se v menu zvýrazní „Lapače slunce“ místo „Svíčky“.
 
 Ke kontrole majitelkou:
 
