@@ -372,7 +372,7 @@ async function sendOrderEmails(env, request, number, token, order, test) {
       replyTo: shopEmail(env),
       blocks: [
         ...testNote,
-        `Dobrý den, ${order.customer.name},\nděkuji za objednávku ručně vyráběných svíček LOOMOS. Číslo objednávky je ${number}.`,
+        `Dobrý den, ${order.customer.name},\nděkuji za vaši objednávku v LOOMOS. Číslo objednávky je ${number}.`,
         { rows: orderRows(order) },
         ...payBlocks,
         { button: ["Zobrazit objednávku", orderUrl(request, token)] },
