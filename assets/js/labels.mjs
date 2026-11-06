@@ -121,5 +121,5 @@ export function frontLabelHtml({ size, name, notes, grams, hours }) {
   const meta = [grams ? `${grams} g` : "", hours ? `hoří ±${hours} h` : ""]
     .filter(Boolean)
     .join(" · ");
-  return `<div class="front-label front-${size === "small" ? "small" : "big"}"><img class="front-logo" src="/assets/img/logo-print.png" alt="LOOMOS" width="600" height="561"><p class="front-kind">Sójová svíčka</p><p class="front-name">${esc(name)}</p>${notes ? `<p class="front-notes">${esc(notes.charAt(0).toLowerCase() + notes.slice(1))}</p>` : ""}<p class="front-meta">${esc(meta)}</p><p class="front-made">Ručně vyrobeno · loomos.cz</p></div>`;
+  return `<div class="front-label front-${size === "small" ? "small" : "big"}"><img class="front-logo" src="/assets/img/logo-print.png" alt="LOOMOS" width="1000" height="937"><p class="front-kind">Sójová svíčka</p><p class="front-name">${esc(name)}</p>${notes ? `<p class="front-notes">${esc(notes.charAt(0).toLowerCase() + notes.slice(1))}</p>` : ""}<p class="front-meta">${esc(meta)}</p><p class="front-made">Ručně vyrobeno · loomos.cz</p></div>`;
 }
