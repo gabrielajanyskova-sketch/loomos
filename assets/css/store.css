@@ -2488,6 +2488,11 @@ tr.muted td {
 }
 
 /* ---------- round bottom labels ---------- */
+/* Labels print in pure black; the front label also a slightly heavier text (thin text comes
+   out faint on laser printers). The bottom label keeps its weight so its text still fits. */
+.front-label {
+  font-weight: 500;
+}
 .label-circle {
   --label-d: 60mm;
   --label-font: 6.5pt;
@@ -2496,7 +2501,7 @@ tr.muted td {
   height: var(--label-d);
   border-radius: 50%;
   background: #fff;
-  color: #111;
+  color: #000;
   overflow: hidden;
   position: relative;
   flex: none;
@@ -2529,7 +2534,7 @@ tr.muted td {
 }
 .label-text p {
   margin: 0 0 0.2em;
-  color: #111;
+  color: #000;
   font-size: inherit;
 }
 .label-text p:first-of-type {
@@ -3815,7 +3820,7 @@ aside nav .ico {
   box-sizing: border-box;
   padding: 5mm 4mm 4mm;
   background: #fff;
-  color: #1a1816;
+  color: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3866,7 +3871,7 @@ aside nav .ico {
 }
 .front-meta {
   padding-top: 1.2mm;
-  border-top: 0.2mm solid #1a1816;
+  border-top: 0.2mm solid #000;
   font-weight: 600;
 }
 .front-made {

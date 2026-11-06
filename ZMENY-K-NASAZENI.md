@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 6. 11. 2026 (lišta jen s dopravou zdarma, logo n
 
 Čeká na nasazení:
 
-- (nic)
+- **Etikety tmavší:** text etiket na dno i předních etiket a tiskové logo jsou čistě černé; přední etiketa má o něco silnější písmo (etiketa na dno ne, aby se text vešel do 60mm kolečka).
 
 Ke kontrole majitelkou:
 
