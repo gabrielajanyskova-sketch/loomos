@@ -8,6 +8,7 @@ Poslední hromadné nasazení: 6. 11. 2026 (lišta jen s dopravou zdarma, logo n
 
 - **Etikety tmavší:** text etiket na dno i předních etiket a tiskové logo jsou čistě černé; přední etiketa má o něco silnější písmo (etiketa na dno ne, aby se text vešel do 60mm kolečka).
 - **Logo na etiketách ostřejší a sytější:** tiskové logo znovu z originálu ve vyšším rozlišení (1000 px), čáry plně černé místo poloprůhledných (laser je tiskl šedivě). Stejně i logo na faktuře a v PDF podmínek.
+- **Tisk sytější všude:** etiketa na dno silnější písmo (všech 9 vůní se dál vejde do 60 mm), přední etiketa silnější drobné řádky a čára; faktura a PDF podmínek čistě černý text, tmavší popisky a čáry.
 
 Ke kontrole majitelkou:
 

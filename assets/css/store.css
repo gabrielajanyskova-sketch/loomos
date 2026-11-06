@@ -2488,10 +2488,14 @@ tr.muted td {
 }
 
 /* ---------- round bottom labels ---------- */
-/* Labels print in pure black; the front label also a slightly heavier text (thin text comes
-   out faint on laser printers). The bottom label keeps its weight so its text still fits. */
+/* Labels print in pure black and a heavier text: thin text comes out faint on laser
+   printers. The bottom label is a little tighter so the longest scent still fits 60 mm. */
 .front-label {
   font-weight: 500;
+}
+.label-circle {
+  font-weight: 550;
+  letter-spacing: -0.02em;
 }
 .label-circle {
   --label-d: 60mm;
@@ -3855,6 +3859,7 @@ aside nav .ico {
   width: 17mm;
 }
 .front-kind {
+  font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-size: 0.8em !important;
@@ -3871,10 +3876,11 @@ aside nav .ico {
 }
 .front-meta {
   padding-top: 1.2mm;
-  border-top: 0.2mm solid #000;
+  border-top: 0.3mm solid #000;
   font-weight: 600;
 }
 .front-made {
+  font-weight: 600;
   font-size: 0.75em !important;
   letter-spacing: 0.08em;
 }

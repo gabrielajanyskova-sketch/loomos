@@ -62,9 +62,9 @@ export async function termsPdf(root) {
   const H = 841.89;
   const left = 56;
   const width = W - 2 * left;
-  const ink = rgb(0.13, 0.12, 0.11);
-  const muted = rgb(0.42, 0.39, 0.36);
-  const copper = rgb(0.62, 0.42, 0.26);
+  const ink = rgb(0, 0, 0);
+  const muted = rgb(0.3, 0.3, 0.3);
+  const copper = rgb(0.5, 0.32, 0.17);
   let page;
   let y;
   const newPage = () => {
