@@ -1,6 +1,6 @@
 import { brand, faqs, seller } from "../assets/js/site.mjs";
 import { isCandle } from "../assets/js/catalog.mjs";
-import { esc } from "../assets/js/ui.mjs";
+import { candlePhoto, candlePhotos, esc } from "../assets/js/ui.mjs";
 
 export const ogImage = {
   path: "/assets/img/og-image.jpg",
@@ -199,10 +199,12 @@ export function metadata({
       category: isCandle(product) ? "Vonné svíčky" : "Lapače slunce",
       ...(isCandle(product)
         ? {
-            image: [
-              siteUrl + "/assets/img/candle-1536.webp",
-              siteUrl + ogImage.path,
-            ],
+            image: candlePhotos.has(product.id)
+              ? [siteUrl + candlePhoto(product.id)]
+              : [
+                  siteUrl + "/assets/img/candle-1536.webp",
+                  siteUrl + ogImage.path,
+                ],
           }
         : {}),
       brand: { "@type": "Brand", name: brand.name },

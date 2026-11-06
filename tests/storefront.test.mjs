@@ -101,11 +101,11 @@ test("JSON-LD cannot break out of its non-executable script", () => {
   );
 });
 
-test("fourteen sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
+test("twenty-seven sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
   const catchers = validateCatalog(products).filter(
     (p) => p.category === "lapace-slunce",
   );
-  assert.equal(catchers.length, 14);
+  assert.equal(catchers.length, 27);
   // Licensed characters must never be offered (copyright and trademarks).
   assert.ok(
     !catchers.some((p) =>
@@ -175,7 +175,11 @@ test("admin sees the real photos that ship with the website", () => {
     "/assets/img/lapac-slunce-vanocni-stromecek-960.webp",
     "/assets/img/lapac-slunce-vanocni-stromecek-2-960.webp",
   ]);
-  assert.deepEqual(builtinPhotos(byId["morska-sul-paculi"]), []);
+  // Real photos of small candles; candles without one keep the illustration.
+  assert.deepEqual(builtinPhotos(byId["morska-sul-paculi"]), [
+    "/assets/img/svicka-morska-sul-paculi-960.webp",
+  ]);
+  assert.deepEqual(builtinPhotos(byId["okurka-zazvor-mata"]), []);
   for (const p of products)
     for (const src of builtinPhotos(p))
       assert.ok(readFileSync(new URL(".." + src, import.meta.url)).length);

@@ -1706,7 +1706,7 @@ em {
   flex-direction: column;
   gap: 8px;
   margin-top: 25px;
-  max-width: 300px;
+  max-width: 100%;
   color: var(--muted);
   font-size: 12px;
 }
@@ -4029,4 +4029,20 @@ aside nav .ico {
 .product-grid .product-meta .product-notes {
   margin-bottom: auto;
   padding-bottom: 6px;
+}
+
+.howto-note {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* Real candle photos: no darkening, centred */
+.product-image.candle-photo img {
+  filter: none;
+  object-position: 50% 50%;
+}
+.photo-caption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
 }

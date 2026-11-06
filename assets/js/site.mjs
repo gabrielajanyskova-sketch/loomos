@@ -44,7 +44,7 @@ export const faqs = [
   {
     question: "Jaké velikosti svíček připravujete?",
     answer:
-      "Každou vůni nabízím ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot.",
+      "Každou vůni nabízím ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku, má křížový dřevěný knot a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g, má plochý dřevěný knot a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot.",
   },
   {
     question: "Svíčka má na skle světlejší skvrny nebo bílý povlak. Je vadná?",
