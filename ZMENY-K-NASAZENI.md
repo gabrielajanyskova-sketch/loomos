@@ -2,11 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 6. 11. 2026 (sytější tisk etiket, faktury a podmínek; ostřejší logo).
+Poslední hromadné nasazení: 6. 11. 2026 (sytější tisk etiket, faktury a podmínek; ostřejší logo; šarže na etiketě na dno u všech vůní).
 
 Čeká na nasazení:
 
-- **Etiketa na dno s šarží se vejde u všech vůní:** šarže je na řádku s výrobcem (ne na vlastním řádku); když se text přesto nevejde, vynechá se jen nepovinná věta o pálení (piktogramy zůstávají). Ověřeno pro všech 9 vůní i s telefonem.
+- (nic)
 
 Ke kontrole majitelkou:
 
