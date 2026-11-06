@@ -87,6 +87,7 @@ test("sun catcher collection and all twenty-seven individual routes are built se
     assert.match(detail, /199/);
     assert.match(detail, /Od 2 ks jen 175/);
     assert.match(detail, /Jak lapač nalepit/);
+    assert.match(detail, /antistatická fólie/);
     assert.match(detail, /Výrobce:/);
   }
   assert.equal(

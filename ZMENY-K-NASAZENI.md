@@ -2,7 +2,7 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů slunce, celkem 27).
+Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů slunce, celkem 27; u každého lapače „Jak vzniká duha“).
 
 Čeká na nasazení:
 

@@ -4030,3 +4030,8 @@ aside nav .ico {
   margin-bottom: auto;
   padding-bottom: 6px;
 }
+
+.howto-note {
+  color: var(--muted);
+  font-size: 15px;
+}
