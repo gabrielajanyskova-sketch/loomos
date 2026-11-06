@@ -284,11 +284,12 @@ test("front labels: 12 big (6 × 7 cm) and 16 small (5 × 6 cm) fit on A4, centr
   const html = frontLabelHtml({
     size: "small",
     name: "Moře & cedr",
-    notes: "Cedr · santal",
+    notes: "Mořská sůl · cedr",
     grams: 180,
     hours: 50,
   });
   assert.match(html, /front-small/);
   assert.match(html, /Moře &amp; cedr/);
   assert.match(html, /180 g · hoří ±50 h/);
+  assert.match(html, />mořská sůl · cedr</);
 });
