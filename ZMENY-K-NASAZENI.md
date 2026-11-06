@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 6. 11. 2026 (sytější tisk etiket, faktury a po
 
 Čeká na nasazení:
 
-- (nic)
+- **13 nových lapačů slunce** (199 Kč, od 2 ks 175 Kč): Vlčí máky, Sluníčko, Vánoční zvonky, Sobík, Kotě v čepici, Sova s dýní, Ptáček na mašli, Ježek, Veverka, Liška v šále, Kopretiny, Slunečnice, Perníková chaloupka — s tématy pro filtr. Celkem 27 lapačů.
 
 Ke kontrole majitelkou:
 

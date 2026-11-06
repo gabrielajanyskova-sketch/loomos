@@ -89,6 +89,19 @@ const suncatcherStudioPhotos = new Map([
   ["lapac-slunce-hasicske-auto", 1],
   ["lapac-slunce-lednacek", 1],
   ["lapac-slunce-zajicek", 1],
+  ["lapac-slunce-vlci-maky", 1],
+  ["lapac-slunce-slunicko", 1],
+  ["lapac-slunce-vanocni-zvonky", 1],
+  ["lapac-slunce-sobik", 1],
+  ["lapac-slunce-kote-v-cepici", 1],
+  ["lapac-slunce-sova-s-dyni", 1],
+  ["lapac-slunce-ptacek-na-masli", 1],
+  ["lapac-slunce-jezek", 1],
+  ["lapac-slunce-veverka", 1],
+  ["lapac-slunce-liska-v-sale", 1],
+  ["lapac-slunce-kopretiny", 1],
+  ["lapac-slunce-slunecnice", 1],
+  ["lapac-slunce-pernikova-chaloupka", 1],
 ]);
 const studioSource = (id, i) => `/assets/img/${id}${i ? `-${i + 1}` : ""}`;
 /**

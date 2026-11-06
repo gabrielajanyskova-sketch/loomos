@@ -101,11 +101,11 @@ test("JSON-LD cannot break out of its non-executable script", () => {
   );
 });
 
-test("fourteen sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
+test("twenty-seven sun catchers (own motifs only) (199 Kč, 175 Kč from 2 pieces) render without wax claims; unpriced ones cannot be bought", () => {
   const catchers = validateCatalog(products).filter(
     (p) => p.category === "lapace-slunce",
   );
-  assert.equal(catchers.length, 14);
+  assert.equal(catchers.length, 27);
   // Licensed characters must never be offered (copyright and trademarks).
   assert.ok(
     !catchers.some((p) =>
