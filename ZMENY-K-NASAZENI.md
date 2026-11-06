@@ -2,11 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 5. 11. 2026 (e-maily ve vzhledu webu, logo a QR ve webmailu).
+Poslední hromadné nasazení: 6. 11. 2026 (lišta jen s dopravou zdarma, logo na faktuře, zkrácená stránka lapačů, 4 v řadě se zarovnanými kartami, odstoupení v e-mailech, obchodní podmínky v PDF, přední etiketa).
 
 Čeká na nasazení:
 
-- (nic)
+- **E-maily o stavu podle objednávky:** u osobního odběru se nepíše o dopravci ani o odeslání (místo toho „připravená k vyzvednutí“); věta k hodnocení jmenuje, co zákazník koupil (svíčku / svíčky / lapač / lapače / svíčky i lapače); e-mail o platbě už nepíše „Svíčky připravuji“ u objednávky bez svíček.
 
 Ke kontrole majitelkou:
 

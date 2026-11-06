@@ -109,6 +109,21 @@ test("guest order: server prices, QR payment, e-mails, idempotency", async () =>
   assert.ok(!mail.body.html.includes("<b>Nová"));
   assert.match(mail.body.html, new RegExp(`/api/qr\\?t=${o.token}`));
   assert.match(mail.body.text, /Variabilní symbol: \d{7}/);
+  // The confirmation explains the right of withdrawal and links to the prefilled form.
+  assert.ok(
+    mail.body.html.includes(`/odstoupeni?objednavka=${o.number}`),
+    "withdrawal link in the confirmation",
+  );
+  assert.match(mail.body.text, /odstoupit do 14 dnů/);
+  // Terms (with the withdrawal form) as a PDF attachment in textual form.
+  const terms = mail.body.attachments?.find(
+    (x) => x.filename === "obchodni-podminky-loomos.pdf",
+  );
+  assert.ok(terms, "terms PDF attached to the confirmation");
+  assert.equal(
+    Buffer.from(terms.content, "base64").subarray(0, 4).toString(),
+    "%PDF",
+  );
   await mailTo("info@loomos.cz", /Nová objednávka/);
   for (const bad of [
     { terms: false },
@@ -1233,4 +1248,34 @@ test("Heureka: product feed and Ověřeno zákazníky order log with opt-out", a
   } finally {
     await live.stop();
   }
+});
+
+test("status e-mails fit the order: pickup has no carrier, review text names what was bought", async () => {
+  const call = client(shop.url);
+  const placed = await call(
+    "/api/orders",
+    order({
+      email: "odber@example.com",
+      shipping: "pickup",
+      pickup_point: undefined,
+      packeta_point_id: undefined,
+      items: [{ id: "lapac-slunce-kocicka", qty: 1 }],
+    }),
+  );
+  assert.equal(placed.status, 201, JSON.stringify(placed.body));
+  const a = await admin();
+  await a("/api/admin/order-status", {
+    number: placed.body.number,
+    status: "zaplacena",
+  });
+  const paid = await mailTo("odber@example.com", /Platba přijata/);
+  assert.match(paid.body.text, /až bude připravená k vyzvednutí/);
+  assert.doesNotMatch(paid.body.text, /Svíčky/);
+  await a("/api/admin/order-status", {
+    number: placed.body.number,
+    status: "odeslana",
+  });
+  const ready = await mailTo("odber@example.com", /Objednávka je připravená/);
+  assert.doesNotMatch(ready.body.text, /dopravce/);
+  assert.match(ready.body.text, /Až lapač vyzkoušíte/);
 });

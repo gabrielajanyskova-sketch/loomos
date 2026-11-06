@@ -2913,46 +2913,23 @@ a.category-card {
 }
 .suncatcher-hero {
   max-width: 760px;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
-.rainbow-strip {
-  height: 6px;
-  margin-top: 28px;
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #ffb347,
-    #fff176,
-    #6bd49a,
-    #5cb8ff,
-    #9b7bff
-  );
-  opacity: 0.85;
+/* Product grids (candles and sun catchers): four in a row on a wide screen. */
+.product-grid.four-up {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
 }
-.suncatcher-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  margin-bottom: 50px;
+@media (max-width: 1200px) {
+  .product-grid.four-up {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
-.suncatcher-info article {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  padding: 24px;
-}
-.suncatcher-info h2 {
-  font-size: 24px;
-  margin: 8px 0 10px;
-}
-.suncatcher-info p {
-  color: var(--muted);
-  margin: 0;
-}
-.suncatcher-step {
-  color: var(--copper-light);
-  font-size: 12px;
-  letter-spacing: 0.14em;
+@media (max-width: 860px) {
+  .product-grid.four-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
 }
 .suncatcher-image {
   display: block;
@@ -3987,4 +3964,51 @@ aside nav .ico {
   .upsell-item .add-button {
     padding: 9px 12px;
   }
+}
+
+/* Two products side by side on a phone: quantity above the button. */
+@media (max-width: 560px) {
+  .four-up .card-buy {
+    flex-direction: column;
+  }
+  .four-up .card-qty {
+    justify-content: space-between;
+  }
+  .four-up .card-buy .add-button {
+    justify-content: center;
+    padding: 11px 8px;
+    font-size: 15px;
+  }
+  .four-up .product-title-row h3 {
+    font-size: 21px;
+  }
+  .four-up .bulk-note,
+  .four-up .product-notes {
+    font-size: 13px;
+  }
+  .four-up .product-meta > small {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  .four-up .product-tag {
+    font-size: 10px;
+    padding: 5px 8px;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* Cards in one row line up: the size choice and the buy buttons sit at the same height,
+   whatever the length of the name or the notes above them. */
+.product-grid .product-card {
+  display: flex;
+  flex-direction: column;
+}
+.product-grid .product-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.product-grid .product-meta .product-notes {
+  margin-bottom: auto;
+  padding-bottom: 6px;
 }

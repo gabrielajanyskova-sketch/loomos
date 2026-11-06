@@ -18,7 +18,7 @@ import { saveProductPrice } from "./product-prices.js";
 import { loadCatalog, priceProducts, variantsOf } from "./catalog.js";
 import { ORDER_STATUS, trackingOf } from "../../assets/js/orders.mjs";
 import { shippingKind, shippingProvider } from "../../assets/js/pricing.mjs";
-import { czk, orderRows, sendMail, shopEmail } from "./mail.js";
+import { czk, orderRows, sendMail, shopEmail, withdrawalNote } from "./mail.js";
 import { createPacket } from "./packeta.js";
 import { invoiceFor, invoicePdf, issueInvoice, pdfBase64 } from "./invoice.js";
 import { binary } from "./http.js";
@@ -85,24 +85,45 @@ export async function orders(db) {
   return json(results.map(adminOrder));
 }
 
-const STATUS_MAIL = {
-  zaplacena: [
-    "Platba přijata",
-    "děkuji, vaše platba dorazila. Svíčky teď pečlivě připravuji a brzy vám dám vědět o odeslání.",
-  ],
-  odeslana: [
-    "Objednávka je na cestě",
-    "vaše objednávka je odeslaná. Jakmile dorazí, dopravce vám pošle zprávu.",
-  ],
-  "k-vyzvednuti": [
-    "Objednávka je připravená",
-    "vaše objednávka je připravená k osobnímu vyzvednutí. Ozvu se vám a domluvíme čas předání.",
-  ],
-  zrusena: [
-    "Objednávka byla zrušena",
-    "vaše objednávka byla zrušena. Pokud jste už platili, peníze vám vrátím na účet, ze kterého platba přišla. S dotazy mi napište.",
-  ],
-};
+/** "svíčku", "lapače", "svíčky i lapače"… — what the customer ordered, for the e-mail texts. */
+function goodsWord(items, catalog) {
+  const category = new Map(catalog.map((p) => [p.id, p.category || "svicky"]));
+  let candles = 0;
+  let catchers = 0;
+  for (const i of items)
+    if (category.get(i.id) === "lapace-slunce") catchers += i.qty;
+    else candles += i.qty;
+  const candleWord = candles === 1 ? "svíčku" : "svíčky";
+  const catcherWord = catchers === 1 ? "lapač" : "lapače";
+  if (candles && catchers) return `${candleWord} i ${catcherWord}`;
+  return catchers ? catcherWord : candleWord;
+}
+
+/** Status e-mail [title, text]; personal pickup never talks about carriers or sending. */
+function statusMail(status, order) {
+  const pickup = order.shipping === "pickup";
+  if (status === "zaplacena")
+    return [
+      "Platba přijata",
+      `děkuji, vaše platba dorazila. Objednávku teď pečlivě připravuji a brzy vám dám vědět, až bude ${pickup ? "připravená k vyzvednutí" : "odeslaná"}.`,
+    ];
+  if (status === "k-vyzvednuti" || (status === "odeslana" && pickup))
+    return [
+      "Objednávka je připravená",
+      "vaše objednávka je připravená k osobnímu vyzvednutí. Ozvu se vám a domluvíme čas předání.",
+    ];
+  if (status === "odeslana")
+    return [
+      "Objednávka je na cestě",
+      "vaše objednávka je odeslaná. Jakmile dorazí, dopravce vám pošle zprávu.",
+    ];
+  if (status === "zrusena")
+    return [
+      "Objednávka byla zrušena",
+      "vaše objednávka byla zrušena. Pokud jste už platili, peníze vám vrátím na účet, ze kterého platba přišla. S dotazy mi napište.",
+    ];
+  return null;
+}
 
 export async function setStatus(db, request, env, ctx) {
   assertSameOrigin(request);
@@ -154,7 +175,7 @@ export async function setStatus(db, request, env, ctx) {
       );
   await db.batch(statements);
   const mail = statusChanged
-    ? STATUS_MAIL[status]
+    ? statusMail(status, order)
     : note || trackingChanged
       ? ["Novinka k vaší objednávce", "mám pro vás novinku k objednávce."]
       : null;
@@ -200,7 +221,7 @@ export async function setStatus(db, request, env, ctx) {
           { rows: orderRows(order) },
           ...(["odeslana", "k-vyzvednuti", "dokoncena"].includes(status)
             ? [
-                "Až svíčky nebo lapače vyzkoušíte, budu moc ráda za vaše hodnocení — pomůže dalším zákazníkům i mně.",
+                `Až ${goodsWord(order.items, (await loadCatalog(db)).all)} vyzkoušíte, budu moc ráda za vaše hodnocení — pomůže dalším zákazníkům i mně.`,
                 {
                   button: [
                     "Ohodnotit nákup",
@@ -217,6 +238,10 @@ export async function setStatus(db, request, env, ctx) {
               ["odeslana", "k-vyzvednuti", "dokoncena"].includes(status),
             ],
           },
+          // The 14 days run from delivery, so the shipping e-mails repeat how to withdraw.
+          ...(["odeslana", "k-vyzvednuti"].includes(status)
+            ? [withdrawalNote(origin, number)]
+            : []),
         ],
       }),
     );

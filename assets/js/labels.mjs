@@ -115,10 +115,11 @@ export function frontLayout({ width, height }, gap = 0) {
     margin_top: round((297 - rows * height - (rows - 1) * gap) / 2),
   };
 }
-/** HTML of one front label; the size class sets its dimensions in mm. */
+/** HTML of one front label; the size class sets its dimensions in mm. The notes (what the scent
+ * smells of, e.g. "mořská sůl · citrusy") start with a small letter, like a description. */
 export function frontLabelHtml({ size, name, notes, grams, hours }) {
   const meta = [grams ? `${grams} g` : "", hours ? `hoří ±${hours} h` : ""]
     .filter(Boolean)
     .join(" · ");
-  return `<div class="front-label front-${size === "small" ? "small" : "big"}"><img class="front-logo" src="/assets/img/logo-print.png" alt="LOOMOS" width="600" height="561"><p class="front-kind">Sójová svíčka</p><p class="front-name">${esc(name)}</p>${notes ? `<p class="front-notes">${esc(notes)}</p>` : ""}<p class="front-meta">${esc(meta)}</p><p class="front-made">Ručně vyrobeno · loomos.cz</p></div>`;
+  return `<div class="front-label front-${size === "small" ? "small" : "big"}"><img class="front-logo" src="/assets/img/logo-print.png" alt="LOOMOS" width="600" height="561"><p class="front-kind">Sójová svíčka</p><p class="front-name">${esc(name)}</p>${notes ? `<p class="front-notes">${esc(notes.charAt(0).toLowerCase() + notes.slice(1))}</p>` : ""}<p class="front-meta">${esc(meta)}</p><p class="front-made">Ručně vyrobeno · loomos.cz</p></div>`;
 }
