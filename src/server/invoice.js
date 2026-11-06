@@ -78,9 +78,9 @@ export async function invoicePdf(invoice) {
   pdf.setAuthor(seller.name);
   pdf.setCreator("LOOMOS");
   const page = pdf.addPage([595.28, 841.89]);
-  const ink = rgb(0.13, 0.12, 0.11);
-  const muted = rgb(0.42, 0.39, 0.36);
-  const copper = rgb(0.62, 0.42, 0.26);
+  const ink = rgb(0, 0, 0);
+  const muted = rgb(0.3, 0.3, 0.3);
+  const copper = rgb(0.5, 0.32, 0.17);
   const left = 50;
   const right = 545;
   let y = 790;
@@ -91,7 +91,7 @@ export async function invoicePdf(invoice) {
     const font = opts.font || regular;
     text(s, xr - font.widthOfTextAtSize(String(s), size), yy, opts);
   };
-  const line = (yy, color = rgb(0.85, 0.82, 0.78)) =>
+  const line = (yy, color = rgb(0.55, 0.55, 0.55)) =>
     page.drawLine({
       start: { x: left, y: yy },
       end: { x: right, y: yy },
