@@ -175,7 +175,11 @@ test("admin sees the real photos that ship with the website", () => {
     "/assets/img/lapac-slunce-vanocni-stromecek-960.webp",
     "/assets/img/lapac-slunce-vanocni-stromecek-2-960.webp",
   ]);
-  assert.deepEqual(builtinPhotos(byId["morska-sul-paculi"]), []);
+  // Real photos of small candles; candles without one keep the illustration.
+  assert.deepEqual(builtinPhotos(byId["morska-sul-paculi"]), [
+    "/assets/img/svicka-morska-sul-paculi-960.webp",
+  ]);
+  assert.deepEqual(builtinPhotos(byId["okurka-zazvor-mata"]), []);
   for (const p of products)
     for (const src of builtinPhotos(p))
       assert.ok(readFileSync(new URL(".." + src, import.meta.url)).length);

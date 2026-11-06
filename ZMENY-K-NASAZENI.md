@@ -7,6 +7,8 @@ Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů slunce, celkem 2
 Čeká na nasazení:
 
 - (nic)
+- **Skutečné fotky svíček:** Mořská sůl a pačuli, Zázvor a zelený čaj, Vanilka pačuli a santal, Pomeranč a vanilka (malá svíčka) — na kartě, v detailu, košíku, adminu, Heurece i pro Google; bez „Ilustrační fotografie“. Pod fotkou poznámka o knotu.
+- **Knot u velikostí:** malá svíčka křížový dřevěný knot, velká plochý dřevěný knot (výběr velikosti, Složení a bezpečnost, časté otázky). Výběr velikosti v detailu na celou šířku.
 
 Ke kontrole majitelkou:
 

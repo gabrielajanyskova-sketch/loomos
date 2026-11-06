@@ -6,6 +6,7 @@ import { json } from "./http.js";
 import { publicCatalog, variantsOf } from "./catalog.js";
 import { SHIPPING, FREE_SHIPPING_FROM } from "../../assets/js/pricing.mjs";
 import { isCandle } from "../../assets/js/catalog.mjs";
+import { candlePhoto, candlePhotos } from "../../assets/js/ui.mjs";
 
 /** Public flags the checkout needs (no secrets). */
 export const config = (db, request, env) =>
@@ -75,7 +76,7 @@ export async function feed(db, request) {
         const image = p.images?.length
           ? `${origin}/api/img?id=${p.images[0].id}`
           : isCandle(p)
-            ? `${origin}/assets/img/candle-960.webp`
+            ? `${origin}${candlePhotos.has(p.id) ? candlePhoto(p.id) : "/assets/img/candle-960.webp"}`
             : `${origin}/assets/img/${p.id}-960.webp`;
         const stock = p.stock?.[v.id];
         return `<SHOPITEM><ITEM_ID>${xml(id)}</ITEM_ID>${p.variants?.length ? `<ITEMGROUP_ID>${xml(p.id)}</ITEMGROUP_ID>` : ""}<PRODUCTNAME>${xml(isCandle(p) ? `Sójová svíčka LOOMOS ${p.name}${v.name ? " — " + v.name.toLowerCase() : ""}` : `Lapač slunce LOOMOS ${p.name}`)}</PRODUCTNAME><PRODUCT>${xml(p.name)}</PRODUCT><DESCRIPTION>${xml(p.description)}</DESCRIPTION><URL>${xml(`${origin}/produkty/${p.id}${v.id ? `?velikost=${v.id}` : ""}`)}</URL><IMGURL>${xml(image)}</IMGURL><PRICE_VAT>${v.price}</PRICE_VAT><MANUFACTURER>LOOMOS</MANUFACTURER><CATEGORYTEXT>${xml(isCandle(p) ? "Dům a zahrada | Bytové doplňky | Svíčky" : "Dům a zahrada | Bytové doplňky | Dekorace")}</CATEGORYTEXT><DELIVERY_DATE>${stock === 0 ? "" : stock == null ? 7 : 3}</DELIVERY_DATE>${deliveries.map(([name, s]) => `<DELIVERY><DELIVERY_ID>${name}</DELIVERY_ID><DELIVERY_PRICE>${v.price >= FREE_SHIPPING_FROM ? 0 : s.price}</DELIVERY_PRICE></DELIVERY>`).join("")}${v.detail ? `<PARAM><PARAM_NAME>Velikost</PARAM_NAME><VAL>${xml(v.detail)}</VAL></PARAM>` : ""}</SHOPITEM>`;
