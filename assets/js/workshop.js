@@ -8,6 +8,7 @@ import {
 import {
   CLP_FORMAT,
   fitLabel,
+  sizeLabel,
   FRONT_SIZES,
   frontLabelHtml,
   frontLayout,
@@ -583,13 +584,17 @@ async function printSheets(pages) {
     if (!round && $("#label-print").elements.cut.checked)
       cutLines(pageEl, layout, width, height, labels.length);
     labels.forEach((el, i) => {
-      if (round) fitLabel(el, data.label);
+      if (round) sizeLabel(el, data.label);
       el.style.left = `${layout.margin_left + (i % layout.columns) * (width + layout.gap)}mm`;
       el.style.top = `${layout.margin_top + Math.floor(i / layout.columns) * (height + layout.gap)}mm`;
     });
   });
   // Wait until every pictogram and logo is loaded and decoded, otherwise the print dialog
   // can start before they arrive and some symbols are missing on paper.
+  // The sheet is laid out off screen while measuring: a hidden sheet has no size, so every
+  // label would look as if it fitted and long ones would be cut off on paper.
+  sheet.classList.add("measuring");
+  await document.fonts.ready;
   await Promise.all(
     [...sheet.querySelectorAll("img")].map((img) =>
       img.decode().catch(
@@ -602,6 +607,19 @@ async function printSheets(pages) {
       ),
     ),
   );
+  const problems = [];
+  sheet.querySelectorAll(".label-circle").forEach((el) => {
+    if (!fitLabel(el, data.label).fits)
+      problems.push(el.querySelector(".label-name strong")?.textContent);
+  });
+  sheet.classList.remove("measuring");
+  if (
+    problems.length &&
+    !confirm(
+      `Na etiketu se nevejde celý text: ${[...new Set(problems)].join(", ")}. Zvětšete průměr nebo zmenšete písmo v nastavení. Tisknout přesto?`,
+    )
+  )
+    return;
   document.body.classList.add("print-labels");
   document.body.classList.toggle(
     "print-guides",

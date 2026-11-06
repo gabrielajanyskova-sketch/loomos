@@ -2500,7 +2500,7 @@ tr.muted td {
 .label-circle {
   --label-d: 60mm;
   --label-font: 6.5pt;
-  --label-pad: 1.6mm;
+  --label-pad: 1.2mm;
   width: var(--label-d);
   height: var(--label-d);
   border-radius: 50%;
@@ -2569,6 +2569,13 @@ tr.muted td {
 }
 #label-sheet {
   display: none;
+}
+#label-sheet.measuring {
+  display: block;
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  visibility: hidden;
 }
 @media print {
   @page {

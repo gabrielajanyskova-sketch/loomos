@@ -95,14 +95,20 @@ export function sizeLabel(el, { diameter, font }) {
  * (the safety pictograms above it say the same). Mandatory texts are never removed.
  * Returns {fits, dropped}.
  */
-export function fitLabel(el, settings) {
-  sizeLabel(el, settings);
-  if (!overflows(el)) return { fits: true, dropped: false };
+export function fitLabel(el, settings, reserveMm = 1) {
+  // Measured in a slightly smaller circle: print renders text a hair wider than the screen.
+  const check = () => {
+    sizeLabel(el, { ...settings, diameter: settings.diameter - reserveMm });
+    const over = overflows(el);
+    sizeLabel(el, settings);
+    return !over;
+  };
+  if (check()) return { fits: true, dropped: false };
   const tip = el.querySelector(".label-safety");
   if (!tip || !el.querySelector(".label-icons"))
     return { fits: false, dropped: false };
   tip.remove();
-  return { fits: !overflows(el), dropped: true };
+  return { fits: check(), dropped: true };
 }
 /** True when the text does not fit inside the circle. */
 export const overflows = (el) => {
