@@ -2,11 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 6. 11. 2026 (sytější tisk etiket, faktury a podmínek; ostřejší logo; šarže na etiketě na dno u všech vůní).
+Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů slunce, celkem 27).
 
 Čeká na nasazení:
 
-- **13 nových lapačů slunce** (199 Kč, od 2 ks 175 Kč): Vlčí máky, Sluníčko, Vánoční zvonky, Sobík, Kotě v čepici, Sova s dýní, Ptáček na mašli, Ježek, Veverka, Liška v šále, Kopretiny, Slunečnice, Perníková chaloupka — s tématy pro filtr. Celkem 27 lapačů.
+- (nic)
 
 Ke kontrole majitelkou:
 
