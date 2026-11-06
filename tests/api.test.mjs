@@ -1249,3 +1249,33 @@ test("Heureka: product feed and Ověřeno zákazníky order log with opt-out", a
     await live.stop();
   }
 });
+
+test("status e-mails fit the order: pickup has no carrier, review text names what was bought", async () => {
+  const call = client(shop.url);
+  const placed = await call(
+    "/api/orders",
+    order({
+      email: "odber@example.com",
+      shipping: "pickup",
+      pickup_point: undefined,
+      packeta_point_id: undefined,
+      items: [{ id: "lapac-slunce-kocicka", qty: 1 }],
+    }),
+  );
+  assert.equal(placed.status, 201, JSON.stringify(placed.body));
+  const a = await admin();
+  await a("/api/admin/order-status", {
+    number: placed.body.number,
+    status: "zaplacena",
+  });
+  const paid = await mailTo("odber@example.com", /Platba přijata/);
+  assert.match(paid.body.text, /až bude připravená k vyzvednutí/);
+  assert.doesNotMatch(paid.body.text, /Svíčky/);
+  await a("/api/admin/order-status", {
+    number: placed.body.number,
+    status: "odeslana",
+  });
+  const ready = await mailTo("odber@example.com", /Objednávka je připravená/);
+  assert.doesNotMatch(ready.body.text, /dopravce/);
+  assert.match(ready.body.text, /Až lapač vyzkoušíte/);
+});

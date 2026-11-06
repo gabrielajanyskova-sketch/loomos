@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 6. 11. 2026 (lišta jen s dopravou zdarma, logo n
 
 Čeká na nasazení:
 
-- (nic)
+- **E-maily o stavu podle objednávky:** u osobního odběru se nepíše o dopravci ani o odeslání (místo toho „připravená k vyzvednutí“); věta k hodnocení jmenuje, co zákazník koupil (svíčku / svíčky / lapač / lapače / svíčky i lapače); e-mail o platbě už nepíše „Svíčky připravuji“ u objednávky bez svíček.
 
 Ke kontrole majitelkou:
 
