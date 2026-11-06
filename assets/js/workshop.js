@@ -7,12 +7,11 @@ import {
 } from "./workshop-calc.mjs";
 import {
   CLP_FORMAT,
+  fitLabel,
   FRONT_SIZES,
   frontLabelHtml,
   frontLayout,
   labelHtml,
-  overflows,
-  sizeLabel,
   smallestFit,
   xHeightMm,
 } from "./labels.mjs";
@@ -430,18 +429,17 @@ function renderLabelPreview() {
     labelHtml(labelValues(r, $("#label-print").elements.batch.value.trim())) +
     frontLabelHtml(frontValues(r));
   const circle = $(".label-circle", preview);
-  sizeLabel(circle, data.label);
-  const fits = !overflows(circle);
   const x = xHeightMm(data.label.font);
   const clpOk = x >= CLP_FORMAT.minXHeightMm;
+  // Smallest circle for the full text, then the label as it prints (tip left out if needed).
   const minimum = smallestFit(circle, data.label);
-  sizeLabel(circle, data.label);
+  const { fits, dropped } = fitLabel(circle, data.label);
   $("#label-fit").innerHTML =
     `Náhled: <strong>${esc(labelValues(r).name)}</strong> · ${esc(jarOf(r)?.name)} — přední etiketa ${FRONT_SIZES[frontSize(jarOf(r))].name.toLowerCase()} ${FRONT_SIZES[frontSize(jarOf(r))].width} × ${FRONT_SIZES[frontSize(jarOf(r))].height} mm.<br>${
       fits
-        ? `Text na dno se vejde (průměr ${num(data.label.diameter)} mm, písmo ${num(data.label.font)} pt).`
+        ? `Text na dno se vejde (průměr ${num(data.label.diameter)} mm, písmo ${num(data.label.font)} pt)${dropped ? " — bez doplňující věty o pálení, piktogramy zůstávají" : ""}.`
         : "Text na dno se nevejde — zvětšete průměr nebo zmenšete písmo."
-    }<br>${minimum ? `Nejmenší kolečko pro tuto vůni: <strong>${minimum} mm</strong>.` : "Ani 140 mm nestačí — text je pro dno příliš dlouhý."}<br>CLP (od 2028): výška malých písmen ${num(x, 2)} mm ${clpOk ? "✓" : "✗ — potřeba aspoň 1,2 mm (písmo 6,6 pt)"}, řádkování 120 % ✓`;
+    }<br>${minimum ? `Nejmenší kolečko pro celý text: <strong>${minimum} mm</strong>.` : "Ani 140 mm nestačí — text je pro dno příliš dlouhý."}<br>CLP (od 2028): výška malých písmen ${num(x, 2)} mm ${clpOk ? "✓" : "✗ — potřeba aspoň 1,2 mm (písmo 6,6 pt)"}, řádkování 120 % ✓`;
   $("#label-fit").className = "label-fit" + (fits && clpOk ? "" : " bad");
   const missing = [
     ...new Set(
@@ -585,7 +583,7 @@ async function printSheets(pages) {
     if (!round && $("#label-print").elements.cut.checked)
       cutLines(pageEl, layout, width, height, labels.length);
     labels.forEach((el, i) => {
-      if (round) sizeLabel(el, data.label);
+      if (round) fitLabel(el, data.label);
       el.style.left = `${layout.margin_left + (i % layout.columns) * (width + layout.gap)}mm`;
       el.style.top = `${layout.margin_top + Math.floor(i / layout.columns) * (height + layout.gap)}mm`;
     });
