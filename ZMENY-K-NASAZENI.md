@@ -2,14 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů slunce, celkem 27; u každého lapače „Jak vzniká duha“).
+Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů, „Jak vzniká duha“, skutečné fotky 4 svíček, knot u velikostí, odkaz janyskovadigital.cz v patičce).
 
 Čeká na nasazení:
 
 - (nic)
-- **Skutečné fotky svíček:** Mořská sůl a pačuli, Zázvor a zelený čaj, Vanilka pačuli a santal, Pomeranč a vanilka (malá svíčka) — na kartě, v detailu, košíku, adminu, Heurece i pro Google; bez „Ilustrační fotografie“. Pod fotkou poznámka o knotu.
-- **Knot u velikostí:** malá svíčka křížový dřevěný knot, velká plochý dřevěný knot (výběr velikosti, Složení a bezpečnost, časté otázky). Výběr velikosti v detailu na celou šířku.
-- **Patička:** odkaz „Web vytvořila janyskovadigital.cz“ (místo obecné poznámky „Ilustrační fotografie“, ta zůstává přímo u ilustračních fotek).
 
 Ke kontrole majitelkou:
 
