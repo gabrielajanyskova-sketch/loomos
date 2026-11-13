@@ -4046,3 +4046,30 @@ aside nav .ico {
   color: var(--muted);
   font-size: 14px;
 }
+
+/* 3D printing on request: three steps */
+.print3d-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 28px 0;
+}
+.print3d-steps article {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 20px;
+}
+.print3d-steps h2 {
+  font-size: 22px;
+  margin: 6px 0 8px;
+}
+.print3d-steps p {
+  color: var(--muted);
+  margin: 0;
+  font-size: 15px;
+}
+.suncatcher-step {
+  color: var(--copper-light);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}

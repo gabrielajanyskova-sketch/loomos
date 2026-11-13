@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 6. 11. 2026 (13 nových lapačů, „Jak vzniká 
 
 Čeká na nasazení:
 
-- (nic)
+- **3D tisk na zakázku:** nová stránka `/3d-tisk` (jak to funguje ve 3 krocích, upozornění na § 1837 a licence modelů, poptávkový formulář s rozměry, materiálem, souborem STL/3MF/OBJ nebo obrázkem a odkazem na model). Dlaždice „3D tvorba“ na úvodní stránce vede sem s pilulkou „Na zakázku“, odkaz i v patičce. V adminu u poptávky „Materiál“ a odkaz na model.
 
 Ke kontrole majitelkou:
 
@@ -14,3 +14,4 @@ Ke kontrole majitelkou:
 - Heureka: po registraci ověřit adresu API pro Ověřeno zákazníky (v kódu `https://api.heureka.cz/shop-certification/v2/order/log`, dá se změnit proměnnou `HEUREKA_API_URL`).
 - Nové lapače: doplnit velikost v adminu u každého motivu.
 - Dílnička → Etikety → Nastavení tisku etiket na dno: doplnit **telefon** (CLP vyžaduje na etiketě jméno, adresu a telefon dodavatele).
+- 3D tisk: ověřit text „Tisknu menší předměty z plastů PLA a PETG“ (materiály a velikost podle tiskárny).

@@ -29,6 +29,7 @@ const titles = {
   "gifts-her": "Dárek pro ni — vonné svíčky pro ženy | LOOMOS",
   "gifts-him": "Dárek pro něj — pánské vonné svíčky | LOOMOS",
   inquiry: "Lapač slunce na přání s vaším motivem | LOOMOS",
+  print3d: "3D tisk na zakázku — menší zakázková výroba | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
   admin: "Administrace | LOOMOS",
@@ -50,6 +51,8 @@ const descriptions = {
   shop: "Vyberte si z vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
   inquiry:
     "Lapač slunce na přání s vaším pejskem, kočičkou nebo jiným motivem podle fotky. Kruh 15 cm, od 299 Kč. Pošlete mi obrázek a já se ozvu s návrhem.",
+  print3d:
+    "Menší zakázková výroba na 3D tiskárně: dárek se jménem, figurka, držák, cedulka nebo náhradní díl. Pošlete nápad či model a já se ozvu s návrhem a cenou.",
   "gifts-her":
     "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi. Pro ženu, přítelkyni i mámu k Vánocům nebo narozeninám.",
   "gifts-him":
@@ -69,6 +72,7 @@ const crumbs = {
   suncatchers: "Lapače slunce",
   "gifts-her": "Dárek pro ni",
   inquiry: "Lapač slunce na přání",
+  print3d: "3D tisk na zakázku",
   "gifts-him": "Dárek pro něj",
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",

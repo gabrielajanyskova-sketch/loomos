@@ -1279,3 +1279,48 @@ test("status e-mails fit the order: pickup has no carrier, review text names wha
   assert.doesNotMatch(ready.body.text, /dopravce/);
   assert.match(ready.body.text, /Až lapač vyzkoušíte/);
 });
+
+test("3D printing on request: inquiry with a model file and a link", async () => {
+  const own = await startShop();
+  try {
+    const call = client(own.url);
+    const base = {
+      type: "3d-tisk",
+      size: "8 × 5 cm",
+      quantity: 2,
+      material: "bílá PETG",
+      motif: "Cedulka se jménem na dveře",
+      name: "Petr Malý",
+      email: "tisk@example.com",
+      consent: true,
+    };
+    const bad = await call("/api/inquiry", {
+      ...base,
+      link: "javascript:alert(1)",
+    });
+    assert.equal(bad.status, 400);
+    const stl = Buffer.from("solid cedulka\nendsolid cedulka\n").toString(
+      "base64",
+    );
+    const sent = await call("/api/inquiry", {
+      ...base,
+      link: "https://www.printables.com/model/123",
+      file: { name: "cedulka.stl", type: "", data: stl },
+    });
+    assert.equal(sent.status, 201, JSON.stringify(sent.body));
+    const mail = await waitFor(
+      () =>
+        own.mails.find(
+          (m) =>
+            m.body.to[0] === own.env.SHOP_EMAIL ||
+            /Poptávka č\./.test(m.body.subject),
+        ),
+      "shop inquiry mail",
+    );
+    assert.match(mail.body.subject, /3D tisk na zakázku/);
+    assert.match(mail.body.text, /printables\.com\/model\/123/);
+    assert.equal(mail.body.attachments[0].filename, "cedulka.stl");
+  } finally {
+    await own.stop();
+  }
+});

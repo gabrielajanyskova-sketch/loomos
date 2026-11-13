@@ -515,7 +515,10 @@ function renderInquiry() {
       const file = f.file.files[0] ? await prepareFile(f.file.files[0]) : null;
       await api("inquiry", {
         type: f.type.value,
-        size: "kruh 15 cm",
+        // Sun catchers on request are always a 15 cm circle; other inquiries say their size.
+        size: f.size ? f.size.value : "kruh 15 cm",
+        material: f.material?.value || "",
+        link: f.link?.value || "",
         quantity: Number(f.quantity.value),
         motif: f.motif.value,
         deadline: f.deadline.value,
@@ -1309,7 +1312,7 @@ async function init() {
     render();
   }
   refreshCards();
-  if (page === "inquiry") renderInquiry();
+  if (page === "inquiry" || page === "print3d") renderInquiry();
   if (page === "review") renderReview();
   if (page === "product") renderProduct();
   if (page === "cart") renderCart();
