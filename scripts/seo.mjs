@@ -57,7 +57,7 @@ const descriptions = {
   inquiry:
     "Lapač slunce na přání s vaším pejskem, kočičkou nebo jiným motivem podle fotky. Kruh 15 cm, od 299 Kč. Pošlete mi obrázek a já se ozvu s návrhem.",
   print3d:
-    "3D tisk LOOMOS: hotové výrobky z 3D tiskárny i menší zakázková výroba — dárek se jménem, figurka, držák, cedulka nebo náhradní díl podle vás.",
+    "3D tisk LOOMOS: hotové výrobky i menší zakázková výroba z PLA, PETG, ABS, ASA nebo TPU, i vícebarevně — dárek se jménem, figurka, držák či náhradní díl.",
   "gifts-her":
     "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi. Pro ženu, přítelkyni i mámu k Vánocům nebo narozeninám.",
   "gifts-him":
