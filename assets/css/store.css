@@ -4073,3 +4073,14 @@ aside nav .ico {
   font-size: 12px;
   letter-spacing: 0.14em;
 }
+
+/* /3d-tisk is a narrow page: quantity above the add button so it fits the card */
+#print3d-products .card-buy {
+  flex-direction: column;
+}
+#print3d-products .card-qty {
+  justify-content: space-between;
+}
+#print3d-products .card-buy .add-button {
+  justify-content: center;
+}

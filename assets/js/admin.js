@@ -47,7 +47,11 @@ let config = {};
 let orders = [];
 let filter = "aktivni";
 let category = "svicky";
-const CATEGORIES = { svicky: "Svíčky", "lapace-slunce": "Lapače slunce" };
+const CATEGORIES = {
+  svicky: "Svíčky",
+  "lapace-slunce": "Lapače slunce",
+  "3d-tisk": "3D tisk",
+};
 const categoryTabs = (current) =>
   `<div class="filter-tabs admin-cats">${Object.entries(CATEGORIES)
     .map(
@@ -353,6 +357,7 @@ async function renderProducts(el) {
 }
 function productForm(p, isNew) {
   const candle = (p.category || category) === "svicky";
+  const sun = (p.category || category) === "lapace-slunce";
   const variant = (id) => p.variants?.find((v) => v.id === id) || {};
   const bulk = p.bulk || {};
   const v = (x) => esc(x ?? "");
@@ -362,7 +367,7 @@ function productForm(p, isNew) {
   };
   const editor = $("#product-editor");
   editor.hidden = false;
-  editor.innerHTML = `<h3>${isNew ? "Nový produkt" : "Upravit: " + esc(p.name)}</h3><form id="product-form" class="product-admin" data-new="${isNew ? "1" : ""}" data-category="${candle ? "svicky" : "lapace-slunce"}">
+  editor.innerHTML = `<h3>${isNew ? "Nový produkt" : "Upravit: " + esc(p.name)}</h3><form id="product-form" class="product-admin" data-new="${isNew ? "1" : ""}" data-category="${esc(p.category || category)}">
     <label>Kód produktu (do adresy)<input name="product_id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="60" value="${v(p.id)}" ${isNew ? "" : "readonly"} placeholder="např. lapac-slunce-kocka"><small>malá písmena bez diakritiky a pomlčky; později nejde změnit</small></label>
     <label>Název<input name="name" required maxlength="120" value="${v(p.name)}"></label>
     <label>Podnadpis<input name="subtitle" maxlength="160" value="${v(p.subtitle)}"></label>
@@ -380,7 +385,7 @@ function productForm(p, isNew) {
     <label>Množstevní cena od (ks)<input name="bulk_min" type="number" min="2" max="100" value="${v(bulk.min_qty)}" placeholder="např. 2"></label>
     <label>Množstevní cena za kus (Kč)<input name="bulk_price" type="number" min="1" value="${v(bulk.price)}" placeholder="např. 175"></label>`
     }
-    ${candle ? "" : `<fieldset class="variant-fields"><legend>Témata (filtr na stránce Lapače slunce)</legend>${SUNCATCHER_THEMES.map(([id, label]) => `<label class="check"><input type="checkbox" name="theme_${id}" ${p.themes?.includes(id) ? "checked" : ""}>${label}</label>`).join("")}</fieldset>`}
+    ${!sun ? "" : `<fieldset class="variant-fields"><legend>Témata (filtr na stránce Lapače slunce)</legend>${SUNCATCHER_THEMES.map(([id, label]) => `<label class="check"><input type="checkbox" name="theme_${id}" ${p.themes?.includes(id) ? "checked" : ""}>${label}</label>`).join("")}</fieldset>`}
     ${candle ? "" : `<label>Velikost (nepovinné)<input name="size" maxlength="40" value="${v(p.size)}" placeholder="např. 14 × 16 cm"><small>ukáže se na kartě i u produktu</small></label>`}
     <label>Štítek (nepovinné)<input name="badge" maxlength="40" value="${v(p.badge)}" placeholder="např. Nejoblíbenější vůně, Novinka"></label>
     <label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Zobrazit v e-shopu</label>
@@ -461,7 +466,7 @@ function productFromForm(form) {
   };
   if (f.badge.value.trim()) product.badge = f.badge.value.trim();
   if (f.size?.value.trim()) product.size = f.size.value.trim();
-  if (!candle) {
+  if (form.dataset.category === "lapace-slunce") {
     const themes = SUNCATCHER_THEMES.map(([id]) => id).filter(
       (id) => f["theme_" + id]?.checked,
     );

@@ -20,6 +20,10 @@ import {
   validateCatalog,
   readCart,
   isCandle,
+  isPrint3d,
+  isSuncatcher,
+  CATEGORY_LABEL,
+  CATEGORY_PAGE,
   giftFor,
   SCENT_FAMILIES,
   SUNCATCHER_THEMES,
@@ -378,12 +382,12 @@ function renderProduct() {
       '<div class="empty-state"><h2>Tenhle produkt právě není v nabídce.</h2><a class="button" href="/obchod.html">Zpět do obchodu</a></div>';
     return;
   }
-  document.title = `${p.name} — ${isCandle(p) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`;
+  document.title = `${p.name} — ${isCandle(p) ? "sójová svíčka" : isPrint3d(p) ? "3D tisk" : "lapač slunce"} | LOOMOS`;
   $("#product-breadcrumb").textContent = p.name;
   const parent = $("#product-breadcrumb")?.previousElementSibling;
   if (parent && !isCandle(p)) {
-    parent.href = "/lapace-slunce.html";
-    parent.textContent = "Lapače slunce";
+    parent.href = CATEGORY_PAGE[p.category];
+    parent.textContent = CATEGORY_LABEL[p.category];
   }
   $("#product-detail").innerHTML = renderProductDetail(p);
   const reviewsBox = $("#product-reviews");
@@ -640,7 +644,7 @@ function upsellItems(t, limit = 3) {
   const picked = [];
   const perCategory = {};
   for (const o of [...reaching, ...closer]) {
-    const category = isCandle(o.p) ? "svicky" : "lapace";
+    const category = o.p.category || "svicky";
     if ((perCategory[category] || 0) >= 2) continue;
     perCategory[category] = (perCategory[category] || 0) + 1;
     picked.push(o);
@@ -1183,8 +1187,16 @@ async function init() {
       .map(productCard)
       .join("");
   }
+  if (page === "print3d") {
+    const list = products.filter(isPrint3d);
+    const box = $("#print3d-products");
+    if (box) {
+      box.innerHTML = list.map(productCard).join("");
+      $("#hotove-vyrobky").hidden = !list.length;
+    }
+  }
   if (page === "suncatchers") {
-    const all = products.filter((p) => !isCandle(p));
+    const all = products.filter(isSuncatcher);
     const themes = SUNCATCHER_THEMES.filter(([id]) =>
       all.some((p) => p.themes?.includes(id)),
     );

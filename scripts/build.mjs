@@ -14,7 +14,13 @@ import {
   safetyTable,
   esc,
 } from "../assets/js/ui.mjs";
-import { validateCatalog, isCandle, giftFor } from "../assets/js/catalog.mjs";
+import {
+  validateCatalog,
+  isCandle,
+  isPrint3d,
+  isSuncatcher,
+  giftFor,
+} from "../assets/js/catalog.mjs";
 import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
 import { termsPdf } from "./terms-pdf.mjs";
@@ -172,10 +178,15 @@ for (const [file, page, product] of pages) {
           `<title>${esc(product.name)} — LOOMOS</title>`,
         );
     });
-  if (product?.category === "lapace-slunce")
+  if (product && isSuncatcher(product))
     html = html.replace(
       '<a href="/obchod.html">Svíčky</a>',
       '<a href="/lapace-slunce.html">Lapače slunce</a>',
+    );
+  if (product && isPrint3d(product))
+    html = html.replace(
+      '<a href="/obchod.html">Svíčky</a>',
+      '<a href="/3d-tisk.html">3D tisk</a>',
     );
   html = html.replace(/<head>[\s\S]*?<\/head>/, () =>
     renderHead({
@@ -194,8 +205,7 @@ for (const [file, page, product] of pages) {
   );
   if (!["admin", "workshop"].includes(page)) {
     // Sun catcher product pages highlight "Lapače slunce" in the menu, not "Svíčky".
-    const navPage =
-      product?.category === "lapace-slunce" ? "suncatchers" : page;
+    const navPage = product && isSuncatcher(product) ? "suncatchers" : page;
     html = slot(html, "site-header", renderHeader(navPage, { live }));
     html = slot(html, "site-footer", renderFooter());
     if (page === "home") {
@@ -230,8 +240,18 @@ for (const [file, page, product] of pages) {
           .map(productCard)
           .join(""),
       );
+    if (page === "print3d") {
+      const list = products.filter(isPrint3d);
+      if (list.length) {
+        html = slot(html, "print3d-products", list.map(productCard).join(""));
+        html = html.replace(
+          /(<section\s+id="hotove-vyrobky"[^>]*?)\s+hidden(\s*>)/,
+          "$1$2",
+        );
+      }
+    }
     if (page === "suncatchers") {
-      const list = products.filter((p) => !isCandle(p));
+      const list = products.filter(isSuncatcher);
       if (list.length)
         html = slot(
           html,

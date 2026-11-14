@@ -1,5 +1,10 @@
 import { brand, faqs, seller } from "../assets/js/site.mjs";
-import { isCandle } from "../assets/js/catalog.mjs";
+import {
+  CATEGORY_LABEL,
+  isCandle,
+  isPrint3d,
+  isSuncatcher,
+} from "../assets/js/catalog.mjs";
 import { candlePhoto, candlePhotos, esc } from "../assets/js/ui.mjs";
 
 export const ogImage = {
@@ -29,7 +34,7 @@ const titles = {
   "gifts-her": "Dárek pro ni — vonné svíčky pro ženy | LOOMOS",
   "gifts-him": "Dárek pro něj — pánské vonné svíčky | LOOMOS",
   inquiry: "Lapač slunce na přání s vaším motivem | LOOMOS",
-  print3d: "3D tisk na zakázku — menší zakázková výroba | LOOMOS",
+  print3d: "3D tisk — hotové výrobky i zakázková výroba | LOOMOS",
   cart: "Váš košík | LOOMOS",
   checkout: "Dokončení objednávky | LOOMOS",
   admin: "Administrace | LOOMOS",
@@ -52,7 +57,7 @@ const descriptions = {
   inquiry:
     "Lapač slunce na přání s vaším pejskem, kočičkou nebo jiným motivem podle fotky. Kruh 15 cm, od 299 Kč. Pošlete mi obrázek a já se ozvu s návrhem.",
   print3d:
-    "Menší zakázková výroba na 3D tiskárně: dárek se jménem, figurka, držák, cedulka nebo náhradní díl. Pošlete nápad či model a já se ozvu s návrhem a cenou.",
+    "3D tisk LOOMOS: hotové výrobky z 3D tiskárny i menší zakázková výroba — dárek se jménem, figurka, držák, cedulka nebo náhradní díl podle vás.",
   "gifts-her":
     "Tip na dárek pro ni: ručně vyráběné sójové svíčky s vanilkovými, květinovými i svěžími vůněmi. Pro ženu, přítelkyni i mámu k Vánocům nebo narozeninám.",
   "gifts-him":
@@ -72,7 +77,7 @@ const crumbs = {
   suncatchers: "Lapače slunce",
   "gifts-her": "Dárek pro ni",
   inquiry: "Lapač slunce na přání",
-  print3d: "3D tisk na zakázku",
+  print3d: "3D tisk",
   "gifts-him": "Dárek pro něj",
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
@@ -96,7 +101,7 @@ export function metadata({
   const path = publicPath(file);
   const canonical = new URL(path, siteUrl).href;
   const title = product
-    ? `${product.name} — ${isCandle(product) ? "sójová svíčka" : "lapač slunce"} | LOOMOS`
+    ? `${product.name} — ${isCandle(product) ? "sójová svíčka" : isPrint3d(product) ? "3D tisk" : "lapač slunce"} | LOOMOS`
     : titles[page];
   const description = product
     ? shorten(product.description, 158)
@@ -175,21 +180,22 @@ export function metadata({
         acceptedAnswer: { "@type": "Answer", text: f.answer },
       })),
     });
-  if (["shop", "suncatchers"].includes(page))
+  const listed = {
+    shop: isCandle,
+    suncatchers: isSuncatcher,
+    print3d: isPrint3d,
+  }[page];
+  if (listed && products.some(listed))
     graph.push({
       "@type": "ItemList",
       "@id": canonical + "#nabidka",
-      numberOfItems: products.filter(
-        (p) => isCandle(p) === (page !== "suncatchers"),
-      ).length,
-      itemListElement: products
-        .filter((p) => isCandle(p) === (page !== "suncatchers"))
-        .map((p, i) => ({
-          "@type": "ListItem",
-          position: i + 1,
-          name: p.name,
-          url: siteUrl + "/produkty/" + p.id,
-        })),
+      numberOfItems: products.filter(listed).length,
+      itemListElement: products.filter(listed).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: p.name,
+        url: siteUrl + "/produkty/" + p.id,
+      })),
     });
   if (product) {
     // Prices are provisional and checkout is a preview: do not publish Offer or availability claims.
@@ -200,7 +206,9 @@ export function metadata({
       description: product.description,
       url: canonical,
       sku: product.id,
-      category: isCandle(product) ? "Vonné svíčky" : "Lapače slunce",
+      category: isCandle(product)
+        ? "Vonné svíčky"
+        : CATEGORY_LABEL[product.category],
       ...(isCandle(product)
         ? {
             image: candlePhotos.has(product.id)
@@ -218,56 +226,68 @@ export function metadata({
             material: "Sójový vosk; čiré sklo; dřevěný knot",
           }
         : {}),
-      additionalProperty: !isCandle(product)
-        ? [
-            ...(product.size
-              ? [
-                  {
-                    "@type": "PropertyValue",
-                    name: "Velikost",
-                    value: product.size,
-                  },
-                ]
-              : []),
-            {
-              "@type": "PropertyValue",
-              name: "Uchycení",
-              value: "Statické přilnutí, bez lepidla",
-            },
-          ]
-        : [
-            {
-              "@type": "PropertyValue",
-              name: "Velikosti",
-              value: product.variants?.length
-                ? product.variants
-                    .map((v) => (v.detail ? `${v.name} (${v.detail})` : v.name))
-                    .join(", ")
-                : "Malá, velká",
-            },
-            ...(isCandle(product)
-              ? [
-                  {
-                    "@type": "PropertyValue",
-                    name: "Vonné tóny",
-                    value: product.notes,
-                  },
-                ]
-              : []),
-            ...(product.pyramid
-              ? Object.entries({
-                  "Hlava vůně": product.pyramid.top,
-                  "Srdce vůně": product.pyramid.heart,
-                  "Základ vůně": product.pyramid.base,
-                })
-                  .filter(([, value]) => value)
-                  .map(([name, value]) => ({
-                    "@type": "PropertyValue",
-                    name,
-                    value,
-                  }))
-              : []),
-          ],
+      additionalProperty: isPrint3d(product)
+        ? product.size
+          ? [
+              {
+                "@type": "PropertyValue",
+                name: "Velikost",
+                value: product.size,
+              },
+            ]
+          : []
+        : !isCandle(product)
+          ? [
+              ...(product.size
+                ? [
+                    {
+                      "@type": "PropertyValue",
+                      name: "Velikost",
+                      value: product.size,
+                    },
+                  ]
+                : []),
+              {
+                "@type": "PropertyValue",
+                name: "Uchycení",
+                value: "Statické přilnutí, bez lepidla",
+              },
+            ]
+          : [
+              {
+                "@type": "PropertyValue",
+                name: "Velikosti",
+                value: product.variants?.length
+                  ? product.variants
+                      .map((v) =>
+                        v.detail ? `${v.name} (${v.detail})` : v.name,
+                      )
+                      .join(", ")
+                  : "Malá, velká",
+              },
+              ...(isCandle(product)
+                ? [
+                    {
+                      "@type": "PropertyValue",
+                      name: "Vonné tóny",
+                      value: product.notes,
+                    },
+                  ]
+                : []),
+              ...(product.pyramid
+                ? Object.entries({
+                    "Hlava vůně": product.pyramid.top,
+                    "Srdce vůně": product.pyramid.heart,
+                    "Základ vůně": product.pyramid.base,
+                  })
+                    .filter(([, value]) => value)
+                    .map(([name, value]) => ({
+                      "@type": "PropertyValue",
+                      name,
+                      value,
+                    }))
+                : []),
+            ],
     });
     webPage.mainEntity = { "@id": canonical + "#product" };
   }
@@ -277,7 +297,9 @@ export function metadata({
       items.push(
         isCandle(product)
           ? { name: "Svíčky", item: siteUrl + "/obchod" }
-          : { name: "Lapače slunce", item: siteUrl + "/lapace-slunce" },
+          : isPrint3d(product)
+            ? { name: "3D tisk", item: siteUrl + "/3d-tisk" }
+            : { name: "Lapače slunce", item: siteUrl + "/lapace-slunce" },
       );
     items.push({
       name: product?.name || crumbs[page] || title,

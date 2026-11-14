@@ -5,19 +5,39 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" href="/assets/css/store.css" />
     <script type="module" src="/assets/js/store.js"></script>
-    <title>3D tisk na zakázku — LOOMOS</title>
+    <title>3D tisk — LOOMOS</title>
   </head>
   <body data-page="print3d">
     <a class="skip" href="#main">Přejít na obsah</a>
     <div id="site-header"></div>
     <main id="main" class="container page-main narrow">
-      <div class="breadcrumb"><a href="/">Domů</a> / 3D tisk na zakázku</div>
+      <div class="breadcrumb"><a href="/">Domů</a> / 3D tisk</div>
       <div class="eyebrow">NÁPADY, KTERÉ DOSTÁVAJÍ TVAR</div>
-      <h1>3D tisk <em>na zakázku.</em></h1>
+      <h1>3D <em>tisk.</em></h1>
       <p class="lead">
-        Menší zakázková výroba na 3D tiskárně: dárek se jménem, figurka, držák,
-        cedulka, náhradní díl nebo vlastní nápad. Napište mi, co potřebujete, a
-        já se ozvu s návrhem a cenou. Poptávka je nezávazná.
+        Malé objekty s velkým charakterem z mé 3D tiskárny: hotové výrobky,
+        které si můžete rovnou koupit, i menší zakázková výroba podle vás.
+      </p>
+
+      <section
+        id="hotove-vyrobky"
+        class="section-tight"
+        aria-labelledby="print3d-shop"
+        hidden
+      >
+        <h2 id="print3d-shop">Hotové <em>výrobky.</em></h2>
+        <div
+          id="print3d-products"
+          class="product-grid"
+          aria-live="polite"
+        ></div>
+      </section>
+
+      <h2 id="poptavka">Na <em>zakázku.</em></h2>
+      <p>
+        Dárek se jménem, figurka, držák, cedulka, náhradní díl nebo vlastní
+        nápad. Napište mi, co potřebujete, a já se ozvu s návrhem a cenou.
+        Poptávka je nezávazná.
       </p>
 
       <section class="print3d-steps" aria-label="Jak to funguje">

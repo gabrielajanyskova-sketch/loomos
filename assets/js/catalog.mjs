@@ -1,6 +1,19 @@
-/** Product categories: candles (default) and window sun catchers. */
+/** Product categories: candles (default), window sun catchers and the maker's own 3D prints. */
 export const SUNCATCHER = "lapace-slunce";
+export const PRINT3D = "3d-tisk";
 export const isCandle = (p) => (p.category || "svicky") === "svicky";
+export const isSuncatcher = (p) => p.category === SUNCATCHER;
+export const isPrint3d = (p) => p.category === PRINT3D;
+export const CATEGORY_LABEL = {
+  svicky: "Svíčky",
+  [SUNCATCHER]: "Lapače slunce",
+  [PRINT3D]: "3D tisk",
+};
+export const CATEGORY_PAGE = {
+  svicky: "/obchod.html",
+  [SUNCATCHER]: "/lapace-slunce.html",
+  [PRINT3D]: "/3d-tisk.html",
+};
 /** Gift audiences: "pro-ni" (for her), "pro-nej" (for him); both = unisex. */
 export const GIFTS = { "pro-ni": "Pro ni", "pro-nej": "Pro něj" };
 export const giftFor = (p, who) => Boolean(p.gift?.includes(who));

@@ -1324,3 +1324,35 @@ test("3D printing on request: inquiry with a model file and a link", async () =>
     await own.stop();
   }
 });
+
+test("own 3D prints: added in admin, listed on /3d-tisk, own page and orderable", async () => {
+  const a = await admin();
+  const print = {
+    id: "3d-cedulka-domov",
+    name: "Cedulka Domov",
+    subtitle: "Malá cedulka na dveře.",
+    notes: "PLA · bílá",
+    description: "Ručně vytištěná cedulka.",
+    category: "3d-tisk",
+    active: true,
+    price: 149,
+    size: "10 × 4 cm",
+  };
+  const created = await a("/api/admin/product", { product: print, new: true });
+  assert.equal(created.status, 200, JSON.stringify(created.body));
+  const call = client(shop.url);
+  const listed = (await call("/api/products")).body.find(
+    (p) => p.id === print.id,
+  );
+  assert.equal(listed.category, "3d-tisk");
+  const page = await fetch(`${shop.url}/produkty/${print.id}`);
+  assert.equal(page.status, 200);
+  assert.match(await page.text(), /data-product="3d-cedulka-domov"/);
+  const bought = await call(
+    "/api/orders",
+    order({ email: "tisk3d@example.com", items: [{ id: print.id, qty: 2 }] }),
+  );
+  assert.equal(bought.status, 201, JSON.stringify(bought.body));
+  assert.equal(bought.body.pricing.items, 298);
+  await a("/api/admin/product-delete", { id: print.id });
+});
