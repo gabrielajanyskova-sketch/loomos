@@ -1,10 +1,14 @@
 /** Admin: add and edit products. Saved products override data/products.json by id (D1 table products). */
-import { validateCatalog, SUNCATCHER } from "../../assets/js/catalog.mjs";
+import {
+  validateCatalog,
+  SUNCATCHER,
+  PRINT3D,
+} from "../../assets/js/catalog.mjs";
 import { assertSameOrigin, fail, json, readJson } from "./http.js";
 import { now } from "./db.js";
 import { bundledProducts, loadCatalog, priceProducts } from "./catalog.js";
 
-const CATEGORIES = ["svicky", SUNCATCHER];
+const CATEGORIES = ["svicky", SUNCATCHER, PRINT3D];
 
 export async function list(db) {
   const { all, deleted } = await loadCatalog(db);

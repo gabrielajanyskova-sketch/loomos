@@ -16,6 +16,7 @@ import { sendMail, shopEmail } from "./mail.js";
 
 export const INQUIRY_TYPES = {
   "lapac-slunce": "Lapač slunce",
+  "3d-tisk": "3D tisk na zakázku",
   samolepka: "Samolepka / nálepka",
   logo: "Logo (samolepka, polep)",
   jine: "Něco jiného",
@@ -27,6 +28,8 @@ const FILE_TYPES = {
   "image/svg+xml": "svg",
   "application/pdf": "pdf",
 };
+/** 3D models are recognised by their extension: browsers rarely know their MIME type. */
+const MODEL_EXTENSIONS = ["stl", "3mf", "obj"];
 /** D1 stores at most ~2 MB per row; photos are resized in the browser before upload. */
 const MAX_FILE = 1_400_000;
 
@@ -50,21 +53,33 @@ export async function create(db, request, env, ctx) {
     material: text(data.material, "fólie", 120, false),
     motif: text(data.motif, "popis motivu", 3000),
     deadline: text(data.deadline, "termín", 120, false),
+    link: text(data.link, "odkaz na model", 300, false),
   };
+  if (inquiry.link && !/^https?:\/\/\S+$/.test(inquiry.link))
+    fail(400, "Odkaz na model musí začínat https://.");
   let file = null;
   if (data.file) {
     const name = text(data.file.name, "název souboru", 120)
       .replace(/[^\p{L}\p{N}._ -]/gu, "_")
       .slice(0, 120);
-    const ext = FILE_TYPES[data.file.type];
-    if (!ext)
-      fail(400, "Pošlete prosím obrázek (JPG, PNG, WebP, SVG) nebo PDF.");
+    const model = MODEL_EXTENSIONS.includes(
+      name.split(".").pop().toLowerCase(),
+    );
+    if (!FILE_TYPES[data.file.type] && !model)
+      fail(
+        400,
+        "Pošlete prosím obrázek (JPG, PNG, WebP, SVG), PDF nebo 3D model (STL, 3MF, OBJ).",
+      );
     const base64 = String(data.file.data || "");
     if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64))
       fail(400, "Soubor se nepodařilo načíst.");
     if ((base64.length * 3) / 4 > MAX_FILE)
       fail(413, "Soubor je příliš velký (max. 1,4 MB). Pošlete menší.");
-    file = { name, type: data.file.type, data: base64 };
+    file = {
+      name,
+      type: model ? "application/octet-stream" : data.file.type,
+      data: base64,
+    };
   }
   const created = now();
   const row = await db
@@ -86,6 +101,7 @@ export async function create(db, request, env, ctx) {
       ["Počet kusů", String(inquiry.quantity)],
       ["Fólie / materiál", inquiry.material || "—"],
       ["Termín", inquiry.deadline || "—"],
+      ...(inquiry.link ? [["Odkaz na model", inquiry.link]] : []),
     ],
   };
   const mails = Promise.all([
