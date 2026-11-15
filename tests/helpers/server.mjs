@@ -17,7 +17,12 @@ export async function startShop(extra = {}) {
   const packets = [];
   const fake = createServer(async (req, res) => {
     let body = "";
-    for await (const chunk of req) body += chunk;
+    try {
+      for await (const chunk of req) body += chunk;
+    } catch {
+      // The local server was stopped mid-request (end of a test): nothing to record.
+      return;
+    }
     if (req.url.startsWith("/emails")) {
       mails.push({ headers: req.headers, body: JSON.parse(body) });
       res.writeHead(200, { "Content-Type": "application/json" });
