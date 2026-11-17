@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { metadata, renderHead, publicPath } from "./seo.mjs";
 import {
   productCard,
+  asTopLevel,
   renderHeader,
   renderFooter,
   renderProductDetail,
@@ -254,7 +255,7 @@ for (const [file, page, product, post] of pages) {
       html = slot(
         html,
         "shop-products",
-        products.filter(isCandle).map(productCard).join(""),
+        asTopLevel(products.filter(isCandle).map(productCard).join("")),
       );
       html = html.replace(/(<p id="product-count"[^>]*>).*?(<\/p>)/, "$1$2");
     }
@@ -262,14 +263,16 @@ for (const [file, page, product, post] of pages) {
       html = slot(
         html,
         "gift-products",
-        products
-          .filter(
-            (p) =>
-              isCandle(p) &&
-              giftFor(p, page === "gifts-her" ? "pro-ni" : "pro-nej"),
-          )
-          .map(productCard)
-          .join(""),
+        asTopLevel(
+          products
+            .filter(
+              (p) =>
+                isCandle(p) &&
+                giftFor(p, page === "gifts-her" ? "pro-ni" : "pro-nej"),
+            )
+            .map(productCard)
+            .join(""),
+        ),
       );
     if (page === "print3d") {
       const list = products.filter(isPrint3d);
@@ -287,7 +290,7 @@ for (const [file, page, product, post] of pages) {
         html = slot(
           html,
           "suncatcher-products",
-          list.map(productCard).join("") + customSuncatcherCard(),
+          asTopLevel(list.map(productCard).join("") + customSuncatcherCard()),
         );
     }
     if (page === "blog")
