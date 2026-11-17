@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 17. 11. 2026 (blog a první článek o péči o s
 
 Čeká na nasazení:
 
-- (nic)
+- Nadpisy jdou po řadě H1 → H2 → H3: patička má H2 a seznamy produktů mají skrytý nadpis H2 pro vyhledávače a čtečky.
 
 Ke kontrole majitelkou:
 
