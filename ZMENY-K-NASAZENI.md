@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 17. 11. 2026 (3D tisk v horním menu, „Můj př
 
 Čeká na nasazení:
 
-- (nic)
+- Blog na /blog/ (v menu i v patičce) a první článek „Jak pečovat o svíčku s dřevěným knotem“ (první zapálení, knot, nejčastější chyby, opravy). Odkazy na článek ze stránky Složení a bezpečnost a z detailu svíček. Menu na šířce 701–900 px už se nezalamuje.
 
 Ke kontrole majitelkou:
 

@@ -61,7 +61,12 @@ test("deployment output never contains source, database, tests, secrets or old i
 });
 test("sitemap points only to real indexable content routes on the future domain", () => {
   const xml = read("sitemap.xml");
-  assert.equal((xml.match(/<loc>/g) || []).length, 45);
+  assert.equal((xml.match(/<loc>/g) || []).length, 47);
+  assert.match(xml, /https:\/\/loomos.cz\/blog\/</);
+  assert.match(
+    xml,
+    /https:\/\/loomos.cz\/blog\/pece-o-svicku-s-drevenym-knotem</,
+  );
   assert.match(xml, /https:\/\/loomos.cz\/lapace-slunce</);
   assert.ok(!xml.includes("ucet") && !xml.includes("objednavka"));
   assert.ok(!xml.includes("kosik"));
@@ -70,6 +75,22 @@ test("sitemap points only to real indexable content routes on the future domain"
   const manifest = JSON.parse(read("site.webmanifest"));
   assert.equal(manifest.icons.length, 2);
   assert.equal(manifest.name, "LOOMOS");
+});
+
+test("blog overview lists articles and each article is a BlogPosting", () => {
+  const list = read("blog/index.html");
+  assert.match(list, /href="\/blog\/pece-o-svicku-s-drevenym-knotem"/);
+  const post = read("blog/pece-o-svicku-s-drevenym-knotem.html");
+  assert.match(
+    post,
+    /<h1>Jak pečovat o svíčku s <em>dřevěným knotem\.<\/em><\/h1>/,
+  );
+  assert.match(post, /"@type":"BlogPosting"/);
+  assert.match(
+    post,
+    /<link rel="canonical" href="https:\/\/loomos.cz\/blog\/pece-o-svicku-s-drevenym-knotem">/,
+  );
+  assert.match(post, /og:type" content="article"/);
 });
 
 test("sun catcher collection and all twenty-seven individual routes are built separately", () => {

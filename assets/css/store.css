@@ -226,6 +226,7 @@ p {
 }
 .main-nav a {
   color: #c6bfb5;
+  white-space: nowrap;
 }
 .main-nav a:hover,
 .main-nav a.active {
@@ -1210,6 +1211,17 @@ th {
   }
   .main-nav {
     gap: 20px;
+  }
+}
+@media (min-width: 701px) and (max-width: 900px) {
+  .main-nav {
+    gap: 14px;
+  }
+  .header-actions {
+    gap: 14px;
+  }
+  .account-label {
+    display: none;
   }
   .hero {
     min-height: 570px;
@@ -2291,6 +2303,127 @@ s {
 }
 .legal ul {
   padding-left: 20px;
+}
+
+/* Blog */
+.blog-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+  margin-top: 36px;
+}
+.blog-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: border-color 0.2s;
+}
+.blog-card a:hover {
+  border-color: var(--copper);
+}
+.blog-card-photo {
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+.blog-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.blog-card-body {
+  padding: 22px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.blog-card h2 {
+  font-size: 26px;
+  margin: 0;
+  line-height: 1.15;
+}
+.blog-card p {
+  margin: 0;
+  color: #ddd3c6;
+  line-height: 1.6;
+}
+.blog-card .text-link {
+  margin-top: auto;
+  color: var(--copper-light);
+}
+.blog-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+.article h1 {
+  margin-bottom: 10px;
+}
+.article-photo {
+  margin: 28px 0 32px;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.article-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.article h3 {
+  font-size: 21px;
+  margin: 26px 0 8px;
+  color: var(--copper-light);
+}
+.article-toc,
+.article-summary {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 20px 26px;
+  margin: 28px 0;
+}
+.article-toc ol {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  columns: 2;
+  column-gap: 30px;
+}
+.article-toc a {
+  color: var(--copper-light);
+}
+.article-summary {
+  border-left: 2px solid var(--copper);
+}
+.article-summary h2 {
+  margin-top: 0;
+}
+.article .tip {
+  border-left: 2px solid var(--copper);
+  background: var(--surface);
+  padding: 15px 20px;
+}
+.article p a,
+.article li a {
+  color: var(--copper-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.article .mistakes {
+  padding-left: 22px;
+}
+.article .mistakes li {
+  margin-bottom: 10px;
+}
+@media (max-width: 560px) {
+  .article-toc ol {
+    columns: 1;
+  }
 }
 .footer-legal {
   margin-top: 30px;

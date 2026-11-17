@@ -24,6 +24,7 @@ import {
 import { withSafety } from "../assets/js/safety.mjs";
 import { brand, faqs } from "../assets/js/site.mjs";
 import { termsPdf } from "./terms-pdf.mjs";
+import { posts, postDate } from "../assets/js/blog.mjs";
 
 export const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -79,6 +80,15 @@ function slot(html, id, content) {
 function cleanLinks(html) {
   return html.replace(/(href="[^"?#]*)\.html(?=["?#])/g, "$1");
 }
+
+const picture = (base, alt, sizes, eager = false) =>
+  `<picture><source srcset="${base}-480.webp 480w, ${base}-960.webp 960w" sizes="${sizes}" type="image/webp"><img src="${base}-960.webp" alt="${esc(alt)}" width="960" height="960" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
+const postMeta = (post) =>
+  `<time datetime="${post.published}">${postDate(post.published)}</time> · čtení na ${post.minutes} minut`;
+const blogCard = (post) =>
+  `<article class="blog-card"><a href="/blog/${post.slug}"><div class="blog-card-photo">${picture(post.image, post.imageAlt, "(max-width: 700px) 100vw, 400px")}</div><div class="blog-card-body"><p class="blog-meta">${postMeta(post)}</p><h2>${esc(post.title)}</h2><p>${esc(post.excerpt)}</p><span class="text-link">Číst článek →</span></div></a></article>`;
+const postHeader = (post) =>
+  `<div class="eyebrow">BLOG · PÉČE O SVÍČKY</div><h1>${post.heading}</h1><p class="blog-meta">${postMeta(post)}</p><figure class="article-photo">${picture(post.image, post.imageAlt, "(max-width: 860px) 100vw, 820px", true)}</figure>`;
 
 await fs.rm(output, { recursive: true, force: true });
 await fs.mkdir(output, { recursive: true });
@@ -169,12 +179,14 @@ const pages = [
   ["ochrana-osobnich-udaju.html", "privacy"],
   ["slozeni-a-bezpecnost.html", "safety"],
   ["odstoupeni.html", "withdrawal"],
+  ["blog/index.html", "blog"],
+  ...posts.map((post) => [`blog/${post.slug}.html`, "blog-post", null, post]),
   ...products.map((p) => [`produkty/${p.id}.html`, "product", p]),
   // Template for products added in admin (served by functions/produkty/[id].js).
   ["produkty/_sablona.html", "product-template"],
 ];
 const sitemap = [];
-for (const [file, page, product] of pages) {
+for (const [file, page, product, post] of pages) {
   // A product without its own page file is built from produkty/_sablona.html.
   let html = await fs
     .readFile(path.join(root, file), "utf8")
@@ -201,7 +213,15 @@ for (const [file, page, product] of pages) {
     );
   html = html.replace(/<head>[\s\S]*?<\/head>/, () =>
     renderHead({
-      meta: metadata({ page, product, siteUrl, indexable, file, products }),
+      meta: metadata({
+        page,
+        product,
+        post,
+        siteUrl,
+        indexable,
+        file,
+        products,
+      }),
       page,
       script:
         page === "admin"
@@ -270,6 +290,9 @@ for (const [file, page, product] of pages) {
           list.map(productCard).join("") + customSuncatcherCard(),
         );
     }
+    if (page === "blog")
+      html = slot(html, "blog-list", posts.map(blogCard).join(""));
+    if (post) html = slot(html, "post-header", postHeader(post));
     if (page === "safety")
       html = slot(html, "safety-table", safetyTable(products.filter(isCandle)));
     if (product) {
@@ -296,6 +319,8 @@ for (const [file, page, product] of pages) {
       "terms",
       "privacy",
       "safety",
+      "blog",
+      "blog-post",
     ].includes(page)
   )
     sitemap.push(new URL(publicPath(file), siteUrl).href);
