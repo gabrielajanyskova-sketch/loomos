@@ -2,12 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 17. 11. 2026 (spuštění webu: ostrý obchod a indexace na loomos.cz přes env.production ve wrangler.jsonc; náhledy a testy zůstávají ve zkušebním provozu).
+Poslední hromadné nasazení: 17. 11. 2026 (3D tisk v horním menu, „Můj příběh“, text o Blenderu s AI a době výroby 3D zakázek).
 
 Čeká na nasazení:
 
-- Horní menu: odkaz „3D tisk“ (mezi Lapači slunce a Mým příběhem, na mobilu i v rozbaleném menu); „Náš příběh“ přejmenován na „Můj příběh“ (menu i patička).
-- 3D tisk: zmínka o navrhování modelů v Blenderu s pomocí AI a o době výroby (aspoň týden do tisku, filament se objednává na zakázku; cena a termín vždy předem).
+- (nic)
 
 Ke kontrole majitelkou:
 
