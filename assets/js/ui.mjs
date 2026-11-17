@@ -257,6 +257,8 @@ export function renderRelated(p, all, count = 3) {
 }
 
 /** Extra card at the end of the sun catcher offer: a custom motif on request (no cart, leads to the inquiry form). */
+/** Cards listed straight under the page's H1 get H2 titles, so heading levels do not skip. */
+export const asTopLevel = (html) => html.replace(/<(\/?)h3>/g, "<$1h2>");
 export const customSuncatcherCard = () =>
   `<article class="product-card custom-card"><a class="product-image pending-photo custom-photo" href="/poptavka.html"><span class="product-tag">${icon("sparkle", "ico-inline")} NA PŘÁNÍ</span><span class="pending-photo-circle"><span>Váš motiv</span><small>pejsek, kočička, jméno…</small></span></a><div class="product-meta"><small>LAPAČ SLUNCE · 15 CM</small><div class="product-title-row"><h3><a href="/poptavka.html">Lapač na přání</a></h3><span class="price">od ${money(299)}</span></div><p class="product-notes">S vaším pejskem, kočičkou nebo jiným motivem podle fotky.</p><a class="add-button" href="/poptavka.html"><span class="add-label">Poslat poptávku</span> <span>→</span></a></div></article>`;
 

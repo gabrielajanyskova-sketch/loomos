@@ -6,6 +6,7 @@ Poslední hromadné nasazení: 17. 11. 2026 (nadpisy bez přeskakování úrovn�
 
 Čeká na nasazení:
 
+- Nadpisy: karty produktů na stránkách Svíčky, Lapače slunce a Dárek pro ni/něj mají viditelný nadpis H2 (místo skrytého H2 nad H3); vzhled beze změny.
 - Rychlost: písma zmenšená na znaky, které web používá (o ~240 kB méně, hlavní písmo nadpisů ze 209 na 95 kB). Skript scripts/subset-fonts.sh.
 
 Ke kontrole majitelkou:

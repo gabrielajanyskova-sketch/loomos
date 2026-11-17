@@ -11,6 +11,7 @@ import {
   reviewsSection,
   stars,
   renderHeader,
+  asTopLevel,
   renderFooter,
   renderProductDetail,
   renderRelated,
@@ -1182,10 +1183,12 @@ async function init() {
     $("#home-products").innerHTML = candles.map(productCard).join("");
   if (page === "gifts-her" || page === "gifts-him") {
     const who = page === "gifts-her" ? "pro-ni" : "pro-nej";
-    $("#gift-products").innerHTML = candles
-      .filter((p) => giftFor(p, who))
-      .map(productCard)
-      .join("");
+    $("#gift-products").innerHTML = asTopLevel(
+      candles
+        .filter((p) => giftFor(p, who))
+        .map(productCard)
+        .join(""),
+    );
   }
   if (page === "print3d") {
     const list = products.filter(isPrint3d);
@@ -1210,8 +1213,9 @@ async function init() {
       });
       const list = all.filter((p) => !theme || p.themes?.includes(theme));
       // The custom-made card stays last: any motif can be made to order.
-      $("#suncatcher-products").innerHTML =
-        list.map(productCard).join("") + customSuncatcherCard();
+      $("#suncatcher-products").innerHTML = asTopLevel(
+        list.map(productCard).join("") + customSuncatcherCard(),
+      );
       refreshCards();
     };
     if (chips && themes.length) {
@@ -1298,7 +1302,7 @@ async function init() {
       if (sort === "name")
         list.sort((a, b) => a.name.localeCompare(b.name, "cs"));
       $("#shop-products").innerHTML = list.length
-        ? list.map(productCard).join("")
+        ? asTopLevel(list.map(productCard).join(""))
         : family || filter !== "all"
           ? "<p>S touto kombinací teď žádnou svíčku nemám. Zkuste jiný filtr.</p>"
           : "<p>Nové vůně právě připravuji.</p>";

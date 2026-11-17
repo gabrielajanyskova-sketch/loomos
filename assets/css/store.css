@@ -506,7 +506,7 @@ p {
   gap: 12px;
   margin: 9px 0;
 }
-.product-title-row h3 {
+.product-title-row :is(h2, h3) {
   font:
     500 19px "DM Sans",
     Arial,
@@ -1414,7 +1414,7 @@ th {
   .product-title-row {
     display: flex;
   }
-  .product-title-row h3 {
+  .product-title-row :is(h2, h3) {
     font-size: 20px;
   }
   .product-title-row .price {
@@ -1673,7 +1673,7 @@ em {
   flex-direction: column;
   gap: 9px;
 }
-.product-title-row h3 {
+.product-title-row :is(h2, h3) {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 29px;
   line-height: 1.12;
@@ -1705,7 +1705,7 @@ em {
   .product-title-row {
     align-items: start;
   }
-  .product-title-row h3 {
+  .product-title-row :is(h2, h3) {
     font-size: 31px;
   }
   .detail-copy h1 {
@@ -4130,7 +4130,7 @@ aside nav .ico {
     padding: 11px 8px;
     font-size: 15px;
   }
-  .four-up .product-title-row h3 {
+  .four-up .product-title-row :is(h2, h3) {
     font-size: 21px;
   }
   .four-up .bulk-note,
