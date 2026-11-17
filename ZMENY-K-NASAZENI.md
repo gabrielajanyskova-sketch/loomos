@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 17. 11. 2026 (spuštění webu: ostrý obchod a i
 
 Čeká na nasazení:
 
-- Horní menu: odkaz „3D tisk“ (mezi Lapači slunce a Naším příběhem, na mobilu i v rozbaleném menu).
+- Horní menu: odkaz „3D tisk“ (mezi Lapači slunce a Mým příběhem, na mobilu i v rozbaleném menu); „Náš příběh“ přejmenován na „Můj příběh“ (menu i patička).
 
 Ke kontrole majitelkou:
 
