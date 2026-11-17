@@ -2,7 +2,7 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 15. 11. 2026 (3D tisk: stránka se zakázkovou výrobou i hotovými výrobky, kategorie 3D tisk v adminu).
+Poslední hromadné nasazení: 17. 11. 2026 (spuštění webu: ostrý obchod a indexace na loomos.cz přes env.production ve wrangler.jsonc; náhledy a testy zůstávají ve zkušebním provozu).
 
 Čeká na nasazení:
 

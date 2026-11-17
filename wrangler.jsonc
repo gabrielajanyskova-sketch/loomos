@@ -10,4 +10,21 @@
       "database_id": "c44357d9-7a1f-4724-9563-18160f74ad79",
     },
   ],
+  // Live shop only on the production site (loomos.cz, branch main). Previews, local runs and
+  // tests keep the trial mode. The build reads these too (scripts/build.mjs).
+  "env": {
+    "production": {
+      "vars": {
+        "SHOP_LIVE": "1",
+        "SITE_INDEXABLE": "1",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "loomos",
+          "database_id": "c44357d9-7a1f-4724-9563-18160f74ad79",
+        },
+      ],
+    },
+  },
 }
