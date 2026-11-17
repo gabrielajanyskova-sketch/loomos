@@ -41,6 +41,17 @@ if (
 )
   throw Error("SITE_URL musí být HTTPS origin bez cesty.");
 const siteUrl = configured.origin;
+// Cloudflare only lets the dashboard hold secrets for this project, so the production build
+// on branch main takes its settings from env.production.vars in wrangler.jsonc.
+if (process.env.CF_PAGES === "1" && process.env.CF_PAGES_BRANCH === "main") {
+  const config = JSON.parse(
+    (await fs.readFile(path.join(root, "wrangler.jsonc"), "utf8"))
+      .replace(/^\s*\/\/.*$/gm, "")
+      .replace(/,(\s*[}\]])/g, "$1"),
+  );
+  for (const [key, value] of Object.entries(config.env?.production?.vars || {}))
+    process.env[key] ??= value;
+}
 const indexable = process.env.SITE_INDEXABLE === "1";
 const live = process.env.SHOP_LIVE === "1";
 const gaId = process.env.GA_MEASUREMENT_ID || "";
