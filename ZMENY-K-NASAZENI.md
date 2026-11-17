@@ -2,11 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 17. 11. 2026 (3D tisk v horním menu, „Můj příběh“, text o Blenderu s AI a době výroby 3D zakázek).
+Poslední hromadné nasazení: 17. 11. 2026 (blog a první článek o péči o svíčku s dřevěným knotem).
 
 Čeká na nasazení:
 
-- Blog na /blog/ (v menu i v patičce) a první článek „Jak pečovat o svíčku s dřevěným knotem“ (první zapálení, knot, nejčastější chyby, opravy). Odkazy na článek ze stránky Složení a bezpečnost a z detailu svíček. Menu na šířce 701–900 px už se nezalamuje.
+- (nic)
 
 Ke kontrole majitelkou:
 
