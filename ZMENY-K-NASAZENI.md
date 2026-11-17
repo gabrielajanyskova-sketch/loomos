@@ -2,11 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 17. 11. 2026 (blog a první článek o péči o svíčku s dřevěným knotem).
+Poslední hromadné nasazení: 17. 11. 2026 (nadpisy bez přeskakování úrovní).
 
 Čeká na nasazení:
 
-- Nadpisy jdou po řadě H1 → H2 → H3: patička má H2 a seznamy produktů mají skrytý nadpis H2 pro vyhledávače a čtečky.
+- (nic)
 
 Ke kontrole majitelkou:
 
