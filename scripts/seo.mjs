@@ -49,8 +49,10 @@ const titles = {
   terms: "Obchodní podmínky | LOOMOS",
   privacy: "Ochrana osobních údajů a cookies | LOOMOS",
   safety: "Složení a bezpečnost svíček | LOOMOS",
+  blog: "Blog — péče o svíčky, tipy a rady | LOOMOS",
 };
 const descriptions = {
+  blog: "Blog LOOMOS: jak pečovat o sójové svíčky s dřevěným knotem, nejčastější chyby a jak je opravit, tipy a nahlédnutí do dílny.",
   safety:
     "Z čeho jsou svíčky LOOMOS, jaké vonné oleje používám, co znamenají látky a varování na etiketě a jak svíčku používat bezpečně.",
   shop: "Vyberte si z vůní ručně vyráběných sójových svíček LOOMOS. Malá i velká varianta, čiré sklo a dřevěný knot. Registrovaní mají 5 % slevu.",
@@ -82,17 +84,20 @@ const crumbs = {
   terms: "Obchodní podmínky",
   privacy: "Ochrana osobních údajů",
   safety: "Složení a bezpečnost",
+  blog: "Blog",
 };
 const shorten = (text, max) =>
   text.length <= max
     ? text
     : text.slice(0, text.lastIndexOf(" ", max - 1)).replace(/[,.;:]$/, "") +
       "…";
+// index.html files become their folder ("/", "/blog/"), other pages lose ".html".
 export const publicPath = (file) =>
-  file === "index.html" ? "/" : file.replace(/\.html$/, "");
+  "/" + file.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "");
 export function metadata({
   page,
   product,
+  post,
   siteUrl,
   indexable,
   file,
@@ -102,10 +107,12 @@ export function metadata({
   const canonical = new URL(path, siteUrl).href;
   const title = product
     ? `${product.name} — ${isCandle(product) ? "sójová svíčka" : isPrint3d(product) ? "3D tisk" : "lapač slunce"} | LOOMOS`
-    : titles[page];
+    : post
+      ? `${post.title} | LOOMOS`
+      : titles[page];
   const description = product
     ? shorten(product.description, 158)
-    : descriptions[page] || brand.description;
+    : post?.description || descriptions[page] || brand.description;
   const robots =
     indexable && !privatePages.has(page)
       ? "index,follow,max-image-preview:large"
@@ -147,7 +154,7 @@ export function metadata({
   };
   const webPage = {
     "@type":
-      page === "shop"
+      page === "shop" || page === "blog"
         ? "CollectionPage"
         : page === "home"
           ? "WebPage"
@@ -291,8 +298,26 @@ export function metadata({
     });
     webPage.mainEntity = { "@id": canonical + "#product" };
   }
+  if (post) {
+    graph.push({
+      "@type": "BlogPosting",
+      "@id": canonical + "#article",
+      headline: post.title,
+      description: post.description,
+      url: canonical,
+      datePublished: post.published,
+      dateModified: post.updated || post.published,
+      inLanguage: brand.language,
+      image: [siteUrl + post.image + "-960.webp"],
+      author: { "@id": organization["@id"] },
+      publisher: { "@id": organization["@id"] },
+      mainEntityOfPage: { "@id": webPage["@id"] },
+    });
+    webPage.mainEntity = { "@id": canonical + "#article" };
+  }
   if (page !== "home" && !privatePages.has(page)) {
     const items = [{ name: "Domů", item: siteUrl + "/" }];
+    if (post) items.push({ name: "Blog", item: siteUrl + "/blog/" });
     if (product)
       items.push(
         isCandle(product)
@@ -302,7 +327,7 @@ export function metadata({
             : { name: "Lapače slunce", item: siteUrl + "/lapace-slunce" },
       );
     items.push({
-      name: product?.name || crumbs[page] || title,
+      name: product?.name || post?.title || crumbs[page] || title,
       item: canonical,
     });
     graph.push({
@@ -338,7 +363,7 @@ export function renderHead({
 <title>${esc(meta.title)}</title><meta name="description" content="${esc(meta.description)}">
 <meta name="robots" content="${meta.robots}"><meta name="author" content="LOOMOS"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#171614"><meta name="color-scheme" content="dark"><meta name="shop-live" content="${live ? "1" : "0"}">${gaId ? `<meta name="ga-id" content="${esc(gaId)}">` : ""}
 <link rel="canonical" href="${esc(meta.canonical)}">
-<meta property="og:locale" content="cs_CZ"><meta property="og:site_name" content="LOOMOS"><meta property="og:type" content="${page === "product" ? "product" : "website"}"><meta property="og:title" content="${esc(meta.title)}"><meta property="og:description" content="${esc(meta.description)}"><meta property="og:url" content="${esc(meta.canonical)}"><meta property="og:image" content="${image}"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:alt" content="${ogImage.alt}"><meta property="og:image:width" content="${ogImage.width}"><meta property="og:image:height" content="${ogImage.height}">
+<meta property="og:locale" content="cs_CZ"><meta property="og:site_name" content="LOOMOS"><meta property="og:type" content="${page === "product" ? "product" : page === "blog-post" ? "article" : "website"}"><meta property="og:title" content="${esc(meta.title)}"><meta property="og:description" content="${esc(meta.description)}"><meta property="og:url" content="${esc(meta.canonical)}"><meta property="og:image" content="${image}"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:alt" content="${ogImage.alt}"><meta property="og:image:width" content="${ogImage.width}"><meta property="og:image:height" content="${ogImage.height}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(meta.title)}"><meta name="twitter:description" content="${esc(meta.description)}"><meta name="twitter:image" content="${image}"><meta name="twitter:image:alt" content="${ogImage.alt}">
 <link rel="icon" href="/assets/img/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon-48.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon-180.png"><link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/lora.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/cormorant-garamond.woff2" as="font" type="font/woff2" crossorigin>
