@@ -2,12 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 17. 11. 2026 (nadpisy bez přeskakování úrovní).
+Poslední hromadné nasazení: 17. 11. 2026 (nadpisy karet jako H2, menší písma pro rychlejší načítání).
 
 Čeká na nasazení:
 
-- Nadpisy: karty produktů na stránkách Svíčky, Lapače slunce a Dárek pro ni/něj mají viditelný nadpis H2 (místo skrytého H2 nad H3); vzhled beze změny.
-- Rychlost: písma zmenšená na znaky, které web používá (o ~240 kB méně, hlavní písmo nadpisů ze 209 na 95 kB). Skript scripts/subset-fonts.sh.
+- (nic)
 
 Ke kontrole majitelkou:
 
