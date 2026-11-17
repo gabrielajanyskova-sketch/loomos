@@ -2,7 +2,7 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 17. 11. 2026 (blog a první článek o péči o svíčku s dřevěným knotem).
+Poslední hromadné nasazení: 17. 11. 2026 (nadpisy bez přeskakování úrovní).
 
 Čeká na nasazení:
 
