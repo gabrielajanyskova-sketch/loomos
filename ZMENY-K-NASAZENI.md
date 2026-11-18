@@ -2,15 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 17. 11. 2026 (nadpisy karet jako H2, menší písma pro rychlejší načítání).
+Poslední hromadné nasazení: 18. 11. 2026 (audit SEO/GEO: ceny ve strukturovaných datech, aktuální FAQ a llms.txt).
 
 Čeká na nasazení:
 
-- Strukturovaná data produktů: aktuální cena, velikosti, dostupnost a hodnocení z adminu (doplňuje se při zobrazení stránky), fotky i u lapačů slunce.
-- Časté otázky na úvodní stránce (i pro Google a AI): pryč „e-shop připravuji“ a „lapače nejsou v prodeji“; nové otázky o objednávce a platbě, dopravě, nabídce a péči o svíčku.
-- llms.txt pro AI vyhledávače: e-shop v provozu, kdo za LOOMOS stojí, doprava, platba, 3D tisk, blog, seznam lapačů.
-- Popis značky zmiňuje i lapače slunce a 3D tisk; autor blogu je Gabriela Janýšková (osoba).
-- Stránka 404 odkazuje na čisté adresy bez .html.
+- (nic)
 
 Ke kontrole majitelkou:
 
