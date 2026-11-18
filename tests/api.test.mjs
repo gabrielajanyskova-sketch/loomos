@@ -1356,3 +1356,22 @@ test("own 3D prints: added in admin, listed on /3d-tisk, own page and orderable"
   assert.equal(bought.body.pricing.items, 298);
   await a("/api/admin/product-delete", { id: print.id });
 });
+
+test("product pages carry the current price and availability in structured data", async () => {
+  const productNode = async (path) => {
+    const html = await (await fetch(shop.url + path)).text();
+    const ld = html.match(
+      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+    );
+    return JSON.parse(ld[1])["@graph"].find((n) => n["@type"] === "Product");
+  };
+  const candle = await productNode("/produkty/pomeranc-vanilka");
+  assert.equal(candle.offers.length, 2);
+  assert.ok(
+    candle.offers.every((o) => o.priceCurrency === "CZK" && o.price > 0),
+  );
+  assert.match(candle.image[0], /svicka-pomeranc-vanilka/);
+  const suncatcher = await productNode("/produkty/lapac-slunce-jezek");
+  assert.equal(suncatcher.offers.price, 199);
+  assert.equal(suncatcher.offers.availability, "https://schema.org/InStock");
+});
