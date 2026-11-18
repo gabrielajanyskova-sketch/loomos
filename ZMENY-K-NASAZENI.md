@@ -2,11 +2,11 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 18. 11. 2026 (rychlejší úvodní stránka bez funkce, Dílnička na /dilnicka/ s přesměrováním subdomény).
+Poslední hromadné nasazení: 18. 11. 2026 (verzovaná písma, mezipaměť fotek, menší fotky v kartách na mobilu).
 
 Čeká na nasazení:
 
-- Rychlost: písma mají v názvu otisk obsahu a ukládají se napořád (nová verze se stáhne hned); fotky v mezipaměti 30 dní místo 1; fotky v kartách na mobilu ve správné (poloviční) velikosti.
+- (nic)
 
 Ke kontrole majitelkou:
 
