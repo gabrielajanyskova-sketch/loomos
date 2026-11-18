@@ -146,7 +146,8 @@ test("twenty-seven sun catchers (own motifs only) (199 Kč, 175 Kč from 2 piece
     assert.equal(schema.category, "Lapače slunce");
     assert.equal(schema.offers, undefined);
     assert.equal(schema.material, undefined);
-    assert.equal(schema.image, undefined);
+    // Only real product photos, never an illustration of a candle.
+    assert.ok(schema.image.every((src) => src.includes(p.id)));
   }
   assert.deepEqual(
     readCart('[{"id":"lapac-slunce-sova","variant":"","qty":1}]'),

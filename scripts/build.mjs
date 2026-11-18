@@ -23,7 +23,11 @@ import {
   giftFor,
 } from "../assets/js/catalog.mjs";
 import { withSafety } from "../assets/js/safety.mjs";
-import { brand, faqs } from "../assets/js/site.mjs";
+import { brand, faqs, seller } from "../assets/js/site.mjs";
+import {
+  FREE_SHIPPING_FROM,
+  MEMBER_DISCOUNT_PERCENT,
+} from "../assets/js/pricing.mjs";
 import { termsPdf } from "./terms-pdf.mjs";
 import { posts, postDate } from "../assets/js/blog.mjs";
 
@@ -337,7 +341,9 @@ const notFoundMeta = metadata({
 });
 await write(
   "404.html",
-  `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste moji aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
+  cleanLinks(
+    `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste moji aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
+  ),
 );
 await write(
   "sitemap.xml",
@@ -349,15 +355,61 @@ await write(
 );
 await write(
   "llms.txt",
-  `# LOOMOS\n\n> ${brand.description}\n\n## Stav e-shopu\nE-shop je ve fázi přípravy. Fotografie jsou ilustrační. Platby a skutečné objednávky nejsou spuštěné.\n\n## Ověřené informace\n- Ruční výroba, sójový vosk, čiré sklo, dřevěný knot.\n- Vonné oleje dovážené z Velké Británie s certifikátem IFRA.\n- Malá svíčka: sklenice 20 cl, cca 180 g vosku, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, hoří orientačně ±60 h. Dřevěný knot.\n\n## Stránky\n- [Úvod a časté otázky](${siteUrl}/)\n- [Nabídka svíček](${siteUrl}/obchod)\n- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)\n- [Dárek pro ni — vonné svíčky pro ženy](${siteUrl}/darek-pro-ni)\n- [Dárek pro něj — pánské vonné svíčky](${siteUrl}/darek-pro-nej)\n- [Lapač slunce na přání — váš motiv podle fotky, od 299 Kč](${siteUrl}/poptavka)\n- [Spolupráce a zakázková tvorba](${siteUrl}/velkoobchod)\n\n## Vůně\n${products
-    .filter(isCandle)
-    .map(
-      (p) =>
-        `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.character?.length ? p.character.join(", ") + " — " : ""}${p.notes}${p.variants?.length ? ` (velikosti: ${p.variants.map((v) => v.name.toLowerCase()).join(", ")})` : ""}`,
-    )
-    .join(
-      "\n",
-    )}\n\n## Časté otázky\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n\n## Kontakt\n${brand.email}\n`,
+  `# LOOMOS
+
+> ${brand.description}
+
+${
+  live
+    ? `E-shop LOOMOS je v provozu: objednávky přijímám a odesílám po celé České republice.`
+    : `E-shop je ve fázi přípravy. Platby a skutečné objednávky nejsou spuštěné.`
+}
+
+## Kdo za LOOMOS stojí
+- ${seller.name}, ruční výroba ve Starojické Lhotě (okres Nový Jičín). IČO ${seller.ico}, neplátce DPH.
+- Kontakt: ${brand.email}
+
+## Ověřené informace
+- Svíčky: sójový vosk, čiré sklo, dřevěný knot, vonné oleje z Velké Británie s certifikátem IFRA.
+- Malá svíčka: sklenice 20 cl, cca 180 g vosku, křížový dřevěný knot, hoří orientačně ±50 h. Velká svíčka: sklenice 30 cl, cca 220 g vosku, plochý dřevěný knot, hoří orientačně ±60 h.
+- Lapače slunce: nálepky na okno z duhové fólie; od 2 kusů nižší cena za kus, motivy lze kombinovat. Lapač na přání podle fotky.
+- 3D tisk: hotové výrobky i menší zakázková výroba (PLA, PETG, ABS, ASA, TPU, vícebarevný tisk).
+- Platba převodem s QR kódem, odeslání zpravidla do 5 pracovních dnů po zaplacení.
+- Doprava: Zásilkovna, Balíkovna, osobní odběr; od ${FREE_SHIPPING_FROM} Kč zdarma. Registrovaní zákazníci mají ${MEMBER_DISCOUNT_PERCENT} % slevu.
+
+## Stránky
+- [Úvod a časté otázky](${siteUrl}/)
+- [Sójové svíčky](${siteUrl}/obchod)
+- [Lapače slunce — duhové nálepky na okno](${siteUrl}/lapace-slunce)
+- [Lapač slunce na přání podle fotky](${siteUrl}/poptavka)
+- [3D tisk — hotové výrobky a zakázky](${siteUrl}/3d-tisk)
+- [Dárek pro ni](${siteUrl}/darek-pro-ni)
+- [Dárek pro něj](${siteUrl}/darek-pro-nej)
+- [Složení a bezpečnost svíček](${siteUrl}/slozeni-a-bezpecnost)
+- [Obchodní podmínky (doprava, platba, reklamace)](${siteUrl}/obchodni-podminky)
+- [Spolupráce](${siteUrl}/velkoobchod)
+
+## Blog
+${posts.map((p) => `- [${p.title}](${siteUrl}/blog/${p.slug}): ${p.description}`).join("\n")}
+
+## Vůně svíček
+${products
+  .filter(isCandle)
+  .map(
+    (p) =>
+      `- [${p.name}](${siteUrl}/produkty/${p.id}): ${p.character?.length ? p.character.join(", ") + " — " : ""}${p.notes}`,
+  )
+  .join("\n")}
+
+## Lapače slunce
+${products
+  .filter(isSuncatcher)
+  .map((p) => `- [${p.name}](${siteUrl}/produkty/${p.id})`)
+  .join("\n")}
+
+## Časté otázky
+${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}
+`,
 );
 await write(
   "site.webmanifest",

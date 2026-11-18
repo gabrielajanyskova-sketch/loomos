@@ -5,7 +5,7 @@ export const brand = {
   language: "cs-CZ",
   email: "info@loomos.cz",
   description:
-    "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem. Vonné oleje z Velké Británie s certifikátem IFRA.",
+    "Ručně vyráběné sójové svíčky v čirém skle s dřevěným knotem, duhové lapače slunce na okno a 3D tisk. Vonné oleje s certifikátem IFRA.",
 };
 /** Seller identification required by Czech consumer law (public data from ARES). */
 export const seller = {
@@ -42,7 +42,7 @@ export const faqs = [
       "Nejoblíbenější je Mořská sůl a pačuli. Dál nabízím Okurku, zázvor a mátu; Pomeranč a vanilku; Zázvor a zelený čaj; Jantar a citrusy; Vanilku, pačuli a santal a Moře a cedr. V obchodě si je můžete vyfiltrovat podle oblíbených tónů (vanilka, pižmo, dřevo…) nebo podle toho, jestli hledáte dárek pro ni, nebo pro něj.",
   },
   {
-    question: "Jaké velikosti svíček připravujete?",
+    question: "Jaké velikosti svíček nabízíte?",
     answer:
       "Každou vůni nabízím ve dvou velikostech: malá svíčka ve sklenici 20 cl obsahuje přibližně 180 g vosku, má křížový dřevěný knot a hoří přibližně 50 hodin, velká ve sklenici 30 cl přibližně 220 g, má plochý dřevěný knot a hoří přibližně 60 hodin. Doba hoření je orientační a záleží hlavně na tom, jak dlouho svíčku necháte hořet a jak zkracujete knot.",
   },
@@ -52,13 +52,23 @@ export const faqs = [
       "Není. Každou svíčku před odesláním zkontroluji a posílám ji hladkou a hezkou. Sójový vosk je ale přírodní materiál, který se při chladnutí přirozeně smršťuje — světlejší skvrny se proto mohou objevit i při pečlivé výrobě a mají je i velké značky sójových svíček. Výrobci vosku to uvádějí jako jeho přirozenou vlastnost; správným postupem se dá omezit, ale úplně mu zabránit nejde. Vosk navíc reaguje na teplotu: když balík cestou prochladne v autě nebo v depu a pak se zase ohřeje, vosk se smrští a může se místy odlepit od skla. Na skle pak vypadá jako světlejší „mokré“ skvrny. Může se objevit i jemný bílý povlak (krystalky vosku) nebo drobná prasklinka na povrchu. Na hoření ani vůni to nemá žádný vliv a svíčka je úplně v pořádku. Pokud ale dorazí rozbitá sklenice nebo jiné poškození, pošlete mi fotku na info@loomos.cz a vyřeším to s vámi.",
   },
   {
-    question: "Mohu už odeslat objednávku?",
+    question: "Jak se starat o svíčku s dřevěným knotem?",
     answer:
-      "E-shop právě připravuji. Nabídku i košík si můžete prohlédnout a vyzkoušet. Platby a skutečné odesílání objednávek zatím nejsou spuštěné. S dotazy mi napište na info@loomos.cz.",
+      "Poprvé nechte svíčku hořet, dokud se nerozpustí celá horní vrstva vosku až ke sklu (zhruba 2–3 hodiny), jinak se v ní udělá tunel. Před každým zapálením zkraťte knot na 3–5 mm, nenechávejte ji hořet déle než 4 hodiny v kuse a stavte ji mimo průvan. Když na dně zbývá asi 1 cm vosku, už ji nezapalujte. Podrobný návod i s opravou nejčastějších chyb najdete v článku Jak pečovat o svíčku s dřevěným knotem na blogu.",
   },
   {
-    question: "Budou v nabídce i jiné výrobky?",
+    question: "Jak objednávka probíhá a jak zaplatím?",
     answer:
-      "Ano. Chystám lapače slunce — nálepky na okno, které ze slunce udělají duhu — a dále vůně do auta, výrobky z 3D tisku, potisky oblečení a samolepky. Tyto kategorie zatím nejsou v prodeji.",
+      "Vyberete zboží, v pokladně zvolíte dopravu a objednávku odešlete. Platí se převodem na účet, k platbě dostanete i QR kód pro mobilní bankovnictví. Po připsání platby objednávku připravím a odešlu zpravidla do 5 pracovních dnů. Registrovaní zákazníci mají na všechno 5% slevu.",
+  },
+  {
+    question: "Kolik stojí doprava?",
+    answer:
+      "Při nákupu od 1 200 Kč je doprava zdarma. Jinak posílám Zásilkovnou na výdejní místo nebo do Z-BOXu za 109 Kč, s doručením domů za 149 Kč, nebo Balíkovnou na pobočku za 99 Kč a domů za 129 Kč. Možný je i osobní odběr ve Starojické Lhotě zdarma. Doručuji v rámci České republiky.",
+  },
+  {
+    question: "Co kromě svíček nabízíte?",
+    answer:
+      "Lapače slunce: nálepky na okno z duhové fólie, které ze slunečních paprsků vykouzlí duhy po celé místnosti. Stojí 199 Kč a od 2 kusů 175 Kč za kus, motivy lze kombinovat. Lapač vám udělám i na přání podle vaší fotky. Dál nabízím 3D tisk: hotové výrobky i menší zakázkovou výrobu podle vašeho nápadu. Připravuji také potisky a samolepky.",
   },
 ];

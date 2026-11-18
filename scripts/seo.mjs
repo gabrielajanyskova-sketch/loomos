@@ -5,7 +5,7 @@ import {
   isPrint3d,
   isSuncatcher,
 } from "../assets/js/catalog.mjs";
-import { candlePhoto, candlePhotos, esc } from "../assets/js/ui.mjs";
+import { builtinPhotos, esc } from "../assets/js/ui.mjs";
 
 export const ogImage = {
   path: "/assets/img/og-image.jpg",
@@ -205,7 +205,7 @@ export function metadata({
       })),
     });
   if (product) {
-    // Prices are provisional and checkout is a preview: do not publish Offer or availability claims.
+    // Price, availability and rating are added when the page is served (src/server/product-schema.js).
     graph.push({
       "@type": "Product",
       "@id": canonical + "#product",
@@ -216,16 +216,17 @@ export function metadata({
       category: isCandle(product)
         ? "Vonné svíčky"
         : CATEGORY_LABEL[product.category],
-      ...(isCandle(product)
-        ? {
-            image: candlePhotos.has(product.id)
-              ? [siteUrl + candlePhoto(product.id)]
-              : [
-                  siteUrl + "/assets/img/candle-1536.webp",
-                  siteUrl + ogImage.path,
-                ],
-          }
-        : {}),
+      // Real photos only; a candle without its own photo falls back to the brand candle photo.
+      ...(builtinPhotos(product).length
+        ? { image: builtinPhotos(product).map((src) => siteUrl + src) }
+        : isCandle(product)
+          ? {
+              image: [
+                siteUrl + "/assets/img/candle-1536.webp",
+                siteUrl + ogImage.path,
+              ],
+            }
+          : {}),
       brand: { "@type": "Brand", name: brand.name },
       ...(isCandle(product)
         ? {
@@ -309,7 +310,12 @@ export function metadata({
       dateModified: post.updated || post.published,
       inLanguage: brand.language,
       image: [siteUrl + post.image + "-960.webp"],
-      author: { "@id": organization["@id"] },
+      author: {
+        "@type": "Person",
+        name: seller.name,
+        url: siteUrl + "/#pribeh",
+        worksFor: { "@id": organization["@id"] },
+      },
       publisher: { "@id": organization["@id"] },
       mainEntityOfPage: { "@id": webPage["@id"] },
     });
