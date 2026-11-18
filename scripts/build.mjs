@@ -1,5 +1,6 @@
 import { build as bundle } from "esbuild";
 import { promises as fs } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { metadata, renderHead, publicPath } from "./seo.mjs";
@@ -113,9 +114,36 @@ const js = await bundle({
   metafile: true,
   legalComments: "none",
 });
+// Fonts get a content hash in their name, so they can be cached forever and a new version
+// is downloaded right away.
+const fonts = new Map();
+for (const name of await fs.readdir(path.join(root, "assets/fonts")))
+  if (name.endsWith(".woff2")) {
+    const data = await fs.readFile(path.join(root, "assets/fonts", name));
+    const hash = createHash("sha256").update(data).digest("hex").slice(0, 10);
+    const hashed = name.replace(/\.woff2$/, `-${hash}.woff2`);
+    fonts.set(`/assets/fonts/${name}`, `/assets/fonts/${hashed}`);
+    await write(`assets/fonts/${hashed}`, data);
+  }
+const withFonts = (text) =>
+  text.replace(
+    /\/assets\/fonts\/[a-z0-9-]+\.woff2/g,
+    (url) => fonts.get(url) || url,
+  );
 const css = await bundle({
   absWorkingDir: root,
   entryPoints: ["assets/css/store.css"],
+  plugins: [
+    {
+      name: "hashed-fonts",
+      setup(build) {
+        build.onLoad({ filter: /\.css$/ }, async (args) => ({
+          contents: withFonts(await fs.readFile(args.path, "utf8")),
+          loader: "css",
+        }));
+      },
+    },
+  ],
   outdir: "dist/assets/css",
   entryNames: "[name]-[hash]",
   minify: true,
@@ -138,7 +166,7 @@ for (const dir of ["img", "fonts"])
   for (const name of await fs.readdir(path.join(root, "assets", dir))) {
     if (
       !(
-        /\.(webp|woff2|ico)$/.test(name) ||
+        /\.(webp|ico)$/.test(name) ||
         (name.startsWith("favicon-") && name.endsWith(".png")) ||
         name.endsWith("-LICENSE.txt") ||
         name === "og-image.jpg" ||
@@ -311,7 +339,7 @@ for (const [file, page, product, post] of pages) {
       );
     }
   }
-  await write(file, cleanLinks(html));
+  await write(file, withFonts(cleanLinks(html)));
   if (
     [
       "home",
@@ -341,8 +369,10 @@ const notFoundMeta = metadata({
 });
 await write(
   "404.html",
-  cleanLinks(
-    `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste moji aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
+  withFonts(
+    cleanLinks(
+      `<!doctype html><html lang="cs">${renderHead({ meta: notFoundMeta, page: "notfound", script: scripts.public, stylesheet, live, gaId })}<body data-page="notfound"><div id="site-header">${renderHeader("notfound", { live })}</div><main id="main" class="container page-main empty-state"><h1>Tahle stránka tu není.</h1><p>Zkuste moji aktuální nabídku svíček.</p><a class="button" href="/obchod">Zpět ke svíčkám →</a></main><div id="site-footer">${renderFooter()}</div><div id="toast" role="status"></div></body></html>`,
+    ),
   ),
 );
 await write(
@@ -454,7 +484,7 @@ await write(
 );
 await write(
   "_headers",
-  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=86400, stale-while-revalidate=604800\n\n/assets/img/email-logo.png\n  ! Cross-Origin-Resource-Policy\n  Cross-Origin-Resource-Policy: cross-origin\n\n/assets/js/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/dilnicka/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/pokladna*\n  ! Content-Security-Policy\n  Content-Security-Policy: ${policy({ packeta: true })}\n  ! Permissions-Policy\n  Permissions-Policy: camera=(), microphone=(), geolocation=(self "${balikovnaOrigin}" "${packetaOrigin}"), payment=(), usb=()\n`,
+  `/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Resource-Policy: same-origin\n  Strict-Transport-Security: max-age=31536000\n${indexable ? "" : "  X-Robots-Tag: noindex, follow\n"}\n/assets/*\n  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800\n\n/assets/img/email-logo.png\n  ! Cross-Origin-Resource-Policy\n  Cross-Origin-Resource-Policy: cross-origin\n\n/assets/js/*\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/css/*\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n\n/assets/fonts/*\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n\n/admin/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/dilnicka/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n\n/pokladna*\n  ! Content-Security-Policy\n  Content-Security-Policy: ${policy({ packeta: true })}\n  ! Permissions-Policy\n  Permissions-Policy: camera=(), microphone=(), geolocation=(self "${balikovnaOrigin}" "${packetaOrigin}"), payment=(), usb=()\n`,
 );
 await write(
   "_redirects",

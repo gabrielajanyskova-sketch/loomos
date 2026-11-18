@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 18. 11. 2026 (rychlejší úvodní stránka bez f
 
 Čeká na nasazení:
 
-- (nic)
+- Rychlost: písma mají v názvu otisk obsahu a ukládají se napořád (nová verze se stáhne hned); fotky v mezipaměti 30 dní místo 1; fotky v kartách na mobilu ve správné (poloviční) velikosti.
 
 Ke kontrole majitelkou:
 
