@@ -2,7 +2,7 @@
 
 Změny se sbírají v `claude/relaxed-pascal-yq0b8i` a nasadí se najednou (jeden build v Cloudflare), až to majitelka odsouhlasí. Po nasazení se seznam vymaže.
 
-Poslední hromadné nasazení: 18. 11. 2026 (audit SEO/GEO: ceny ve strukturovaných datech, aktuální FAQ a llms.txt).
+Poslední hromadné nasazení: 18. 11. 2026 (rychlejší úvodní stránka bez funkce, Dílnička na /dilnicka/ s přesměrováním subdomény).
 
 Čeká na nasazení:
 
