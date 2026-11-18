@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 18. 11. 2026 (verzovaná písma, mezipaměť fote
 
 Čeká na nasazení:
 
-- (nic)
+- Dílnička: 6 nových vůní ze Sisano (Kořeněné sušenky, Brusinky, Vánoční atmosféra, Brownie, Bavlna, Pečené jablko a vanilka) — údaje o olejích a etikety podle bezpečnostních listů Sisano pro svíčku s 8 %. Na webu zatím skryté (neaktivní), zapnou se v adminu.
 
 Ke kontrole majitelkou:
 

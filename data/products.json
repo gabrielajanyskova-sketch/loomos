@@ -710,5 +710,209 @@
       "price": 175
     },
     "themes": ["vanoce", "pohadky"]
+  },
+  {
+    "id": "korenene-susenky",
+    "name": "Kořeněné sušenky",
+    "subtitle": "Vánoční pečení doma.",
+    "notes": "Med · cedr · tonka · vanilka",
+    "character": ["sladká", "kořeněná", "dřevitá"],
+    "gift": ["pro-ni", "pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Vůně vánočního pečení: med a jemně pražené dřevo, v srdci cedr a ambra, na konci krémová tonka, vanilka a bílé pižmo.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · křížový dřevěný knot · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · plochý dřevěný knot · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Med, pražené dřevo",
+      "heart": "Cedr, ambra",
+      "base": "Tonka, vanilka, bílé pižmo"
+    }
+  },
+  {
+    "id": "brusinky",
+    "name": "Brusinky",
+    "subtitle": "Šťavnatá zimní ovocná.",
+    "notes": "Brusinka · ostružina · malina · vanilka",
+    "character": ["ovocná", "sladká"],
+    "gift": ["pro-ni"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Šťavnaté lesní plody: ostružina, pomeranč a černý rybíz, v srdci jahoda a malina, na konci bílé pižmo a kapka vanilky.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · křížový dřevěný knot · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · plochý dřevěný knot · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Ostružina, pomeranč, černý rybíz",
+      "heart": "Jahoda, malina",
+      "base": "Bílé pižmo, vanilka"
+    }
+  },
+  {
+    "id": "vanocni-atmosfera",
+    "name": "Vánoční atmosféra",
+    "subtitle": "Stromeček v obýváku.",
+    "notes": "Jehličí · pryskyřice · cedr · jedlový balzám",
+    "character": ["svěží", "dřevitá", "vánoční"],
+    "gift": ["pro-ni", "pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Jako když přinesete domů stromeček: pryskyřice, zelené tóny a peprná máta, v srdci jehličí a cedr, na konci jantar a jedlový balzám.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · křížový dřevěný knot · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · plochý dřevěný knot · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Pryskyřice, zelené tóny, peprná máta",
+      "heart": "Jehličí, cedr",
+      "base": "Jantar, jedlový balzám"
+    }
+  },
+  {
+    "id": "brownie",
+    "name": "Brownie",
+    "subtitle": "Čokoládová dobrota.",
+    "notes": "Čokoláda · mléko · vanilka · hnědý cukr",
+    "character": ["sladká", "gurmánská"],
+    "gift": ["pro-ni"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Teplé čokoládové brownie: mléčné tóny, v srdci čokoláda, na konci vanilka a karamelový hnědý cukr.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · křížový dřevěný knot · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · plochý dřevěný knot · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Mléčné tóny",
+      "heart": "Čokoláda",
+      "base": "Vanilka, hnědý cukr"
+    }
+  },
+  {
+    "id": "bavlna",
+    "name": "Bavlna",
+    "subtitle": "Čisté prádlo.",
+    "notes": "Bavlna · fialka · bílé pižmo · cedr",
+    "character": ["svěží", "čistá", "květinová"],
+    "gift": ["pro-ni"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Vůně čerstvě vypraného prádla: růže a aldehydy, v srdci fialka a květ bavlny, na konci bílé pižmo a cedr.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · křížový dřevěný knot · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · plochý dřevěný knot · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Růže, aldehydy",
+      "heart": "Fialka, květ bavlny",
+      "base": "Bílé pižmo, cedr"
+    }
+  },
+  {
+    "id": "pecene-jablko-vanilka",
+    "name": "Pečené jablko a vanilka",
+    "subtitle": "Štrůdl z trouby.",
+    "notes": "Jablko · rebarbora · vanilka · hřebíček",
+    "character": ["sladká", "ovocná", "kořeněná"],
+    "gift": ["pro-ni", "pro-nej"],
+    "price": 349,
+    "category": "svicky",
+    "description": "Pečená jablka z trouby: rebarbora a brusinka, v srdci jablko a červené ovoce, na konci vanilka a hřebíček.",
+    "active": false,
+    "price_provisional": false,
+    "variants": [
+      {
+        "id": "mala",
+        "name": "Malá",
+        "price": 349,
+        "detail": "20 cl · cca 180 g vosku · křížový dřevěný knot · hoří ±50 h",
+        "burn_hours": 50
+      },
+      {
+        "id": "velka",
+        "name": "Velká",
+        "price": 449,
+        "detail": "30 cl · cca 220 g vosku · plochý dřevěný knot · hoří ±60 h",
+        "burn_hours": 60
+      }
+    ],
+    "pyramid": {
+      "top": "Rebarbora, brusinka",
+      "heart": "Jablko, červené ovoce",
+      "base": "Vanilka, hřebíček"
+    }
   }
 ]

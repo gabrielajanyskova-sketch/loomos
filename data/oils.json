@@ -108,5 +108,83 @@
     "clp_note": "Nejvyšší alergeny v oleji (deklarace 2023, šarže 09652-26): Limonene 9,607 %, pomerančová silice 9,5 % (Skin Sens. 1) — H317 až nad 10 % oleje ve svíčce.",
     "phthalates": "diethyl phthalate (DEP) 5–10 % jako rozpouštědlo — viz bezpečnostní list",
     "citrus": true
+  },
+  {
+    "product_id": "korenene-susenky",
+    "supplier_name": "Sisano Spice Cookies (Ciastka Korzenne)",
+    "flashpoint_c": 100,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": false,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 10,
+    "clp_max_percent": 8,
+    "clp_note": "Sisano Safe Formula — olej je z 80–90 % nosič (adipát), vůně může být jemnější. Štítek v Dílničce platí pro olej do 8 % ve svíčce (při 10 % se mění seznam alergenů).",
+    "phthalates": "bez ftalátů (nosič bis(2-ethylhexyl) adipát)"
+  },
+  {
+    "product_id": "brusinky",
+    "supplier_name": "Sisano Cranberry (Żurawina)",
+    "flashpoint_c": 96,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": false,
+    "phthalate_free": false,
+    "no_ufi_max_percent": 10,
+    "clp_max_percent": 8,
+    "clp_note": "Sisano Safe Formula — olej je z 80–90 % rozpouštědlo DEP, vůně může být jemnější. Štítek v Dílničce platí pro olej do 8 % ve svíčce (při 10 % se mění seznam alergenů).",
+    "phthalates": "diethyl phthalate (DEP) jako rozpouštědlo, 80–90 % — viz bezpečnostní list"
+  },
+  {
+    "product_id": "vanocni-atmosfera",
+    "supplier_name": "Sisano Christmas Spirit (Świąteczny Nastrój)",
+    "flashpoint_c": 100,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": false,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 10,
+    "clp_max_percent": 8,
+    "clp_note": "Sisano Safe Formula — olej je z 80–90 % nosič (adipát), vůně může být jemnější. Štítek v Dílničce platí pro olej do 8 % ve svíčce (při 10 % se mění seznam alergenů).",
+    "phthalates": "bez ftalátů (nosič bis(2-ethylhexyl) adipát)"
+  },
+  {
+    "product_id": "brownie",
+    "supplier_name": "Sisano Brownie",
+    "flashpoint_c": 100,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": false,
+    "phthalate_free": false,
+    "no_ufi_max_percent": 10,
+    "clp_max_percent": 8,
+    "clp_note": "Sisano Safe Formula — olej je ze 70–80 % nosič (adipát) a 14–17 % DEP. Štítek v Dílničce platí pro olej do 8 % ve svíčce (při 10 % se mění seznam alergenů).",
+    "phthalates": "diethyl phthalate (DEP) 14–17 % — viz bezpečnostní list"
+  },
+  {
+    "product_id": "bavlna",
+    "supplier_name": "Sisano Cotton (Bawełna)",
+    "flashpoint_c": 100,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": false,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 10,
+    "clp_max_percent": 8,
+    "clp_note": "Sisano Safe Formula — olej je z 60–70 % nosič (adipát). Štítek v Dílničce platí pro olej do 8 % ve svíčce (při 10 % se mění seznam alergenů).",
+    "phthalates": "bez ftalátů (nosič bis(2-ethylhexyl) adipát)"
+  },
+  {
+    "product_id": "pecene-jablko-vanilka",
+    "supplier_name": "Sisano Baked Apple & Vanilla (Pieczone Jabłko & Wanilia)",
+    "flashpoint_c": 83,
+    "vanillin_percent": 0,
+    "diffuser_max_percent": 0,
+    "room_spray": false,
+    "phthalate_free": true,
+    "no_ufi_max_percent": 10,
+    "clp_max_percent": 8,
+    "clp_note": "Sisano — koncentrovaný olej (bez nosiče). Štítek v Dílničce platí pro olej do 8 % ve svíčce. Vanilin je pod 1 % (v bezpečnostním listu neuveden).",
+    "phthalates": "ftaláty v bezpečnostním listu neuvedeny"
   }
 ]
