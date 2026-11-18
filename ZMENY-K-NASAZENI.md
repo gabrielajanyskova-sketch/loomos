@@ -6,7 +6,7 @@ Poslední hromadné nasazení: 18. 11. 2026 (audit SEO/GEO: ceny ve strukturovan
 
 Čeká na nasazení:
 
-- (nic)
+- Rychlejší úvodní stránka: zrušena funkce pro „/“ (rozlišovala dilnicka.loomos.cz). Dílnička je na loomos.cz/dilnicka/; subdoménu přesměruje pravidlo v Cloudflare (nastavit při nasazení).
 
 Ke kontrole majitelkou:
 
