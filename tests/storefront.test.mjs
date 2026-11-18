@@ -17,7 +17,7 @@ test("seven scents on sale (more in Dílnička only) and separate size prices ar
   const candles = validateCatalog(products).filter(
     (p) => p.category !== "lapace-slunce",
   );
-  assert.equal(candles.length, 9);
+  assert.equal(candles.length, 15);
   assert.equal(candles.filter((p) => p.active).length, 7);
   for (const p of candles) {
     assert.deepEqual(

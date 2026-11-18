@@ -61,5 +61,47 @@
     "pictogram": false,
     "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
     "contains": "Citral, Ethyl methylphenylglycidate, Limonene"
+  },
+  {
+    "product_id": "korenene-susenky",
+    "supplier": "Bezpečnostní list dodavatele Sisano (PL) pro hotovou svíčku s 8 % oleje, řada Safe Formula (Świeca Ciastka Korzenne 8%): Aquatic Chronic 3, H412; bez alergenů k uvedení. Při 10 % by přibylo EUH208 (Coumarin, Cinnamyl alcohol…).",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": ""
+  },
+  {
+    "product_id": "brusinky",
+    "supplier": "Bezpečnostní list dodavatele Sisano (PL) pro hotovou svíčku s 8 % oleje, řada Safe Formula (Świeca Żurawina 8%): Aquatic Chronic 3, H412; bez alergenů k uvedení. Při 10 % by přibylo EUH208 (Limonene…).",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": ""
+  },
+  {
+    "product_id": "vanocni-atmosfera",
+    "supplier": "Bezpečnostní list dodavatele Sisano (PL) pro hotovou svíčku s 8 % oleje, řada Safe Formula (Świeca Świąteczny Nastrój 8%): Aquatic Chronic 3, H412; EUH208 4-tert-butylcyclohexyl acetate, 1,8-cineol, linalool.",
+    "pictogram": false,
+    "extra": "Škodlivý pro vodní organismy, s dlouhodobými účinky. Zabraňte uvolnění do životního prostředí. Obsah/obal odstraňte v souladu s místními předpisy.",
+    "contains": "4-tert-Butylcyclohexyl acetate, Eucalyptol, Linalool"
+  },
+  {
+    "product_id": "brownie",
+    "supplier": "Bezpečnostní list dodavatele Sisano (PL) pro hotovou svíčku s 8 % oleje, řada Safe Formula (Świeca Brownie 8%): neklasifikováno, bez alergenů k uvedení. Při 10 % by přibylo EUH208 Coumarin.",
+    "pictogram": false,
+    "extra": "",
+    "contains": ""
+  },
+  {
+    "product_id": "bavlna",
+    "supplier": "Bezpečnostní list dodavatele Sisano (PL) pro hotovou svíčku s 8 % oleje, řada Safe Formula (Świeca Bawełna 8%): neklasifikováno, bez alergenů k uvedení. Při 10 % by přibylo EUH208 Tetrahydrolinalool.",
+    "pictogram": false,
+    "extra": "",
+    "contains": ""
+  },
+  {
+    "product_id": "pecene-jablko-vanilka",
+    "supplier": "Bezpečnostní list dodavatele Sisano (PL) pro hotovou svíčku s 8 % oleje, řada Safe Formula (Świeca Pieczone Jabłko i Wanilia 8%): neklasifikováno; EUH208 alfa-methylcinnamaldehyd.",
+    "pictogram": false,
+    "extra": "",
+    "contains": "alpha-Methylcinnamaldehyde"
   }
 ]
